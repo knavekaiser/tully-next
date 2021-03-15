@@ -1,0 +1,42 @@
+$color: orange;
+
+#nprogress {
+  pointer-events: none;
+  animation: barOpacity 500ms linear !important;
+  .bar {
+    background: $color;
+    position: fixed;
+    z-index: 1031;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+  }
+  .peg {
+    display: block;
+    position: absolute;
+    right: 0;
+    width: 100px;
+    height: 100%;
+    box-shadow: 0 0 10px $color, 0 0 5px $color;
+    opacity: 1;
+    -webkit-transform: rotate(3deg) translate(0, -4px);
+    -ms-transform: rotate(3deg) translate(0, -4px);
+    transform: rotate(3deg) translate(0, -4px);
+  }
+}
+.nprogress-custom-parent {
+  overflow: hidden;
+  // position: relative;
+}
+.nprogress-custom-parent #nprogress .bar {
+  position: absolute;
+}
+@keyframes barOpacity {
+  0% {
+    opacity: 0 !important;
+  }
+  100% {
+    opacity: 1 !important;
+  }
+}

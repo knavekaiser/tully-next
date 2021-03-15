@@ -1,0 +1,143 @@
+.header {
+  padding: 0 0.5rem;
+  grid-area: h;
+  display: grid;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  width: 100%;
+  max-width: 2;
+  .gred {
+    display: block;
+    height: 2px;
+    width: 100%;
+    position: absolute;
+    bottom: -1px;
+    background-image: linear-gradient(140deg, #00f260, #0575e6);
+  }
+  .disabled {
+    opacity: 0;
+    pointer-events: none;
+  }
+  a {
+    position: relative;
+    text-decoration: inherit;
+    color: inherit;
+    div {
+      position: absolute;
+      top: 0;
+      transition: transform 0.25s ease-out;
+      transform: translateX(-50%) translateY(-25%);
+      display: grid;
+    }
+    h1,
+    a h3 {
+      font-size: 1.5rem;
+      font-weight: 300;
+      letter-spacing: 0.5em;
+      text-align: center;
+      word-break: keep-all;
+      transition: opacity 0.2s ease-in-out;
+      opacity: 1;
+      line-height: 1.2rem;
+    }
+  }
+  .btn_sidebar {
+    position: absolute;
+    height: 1.7rem;
+    width: 1.7rem;
+    left: 0.9rem;
+    border: none;
+    outline: none;
+    display: grid;
+    cursor: pointer;
+    .line {
+      height: 1.7rem;
+      width: 1rem;
+      margin: auto;
+      opacity: 0.8;
+      transition: transform 0.4s;
+      position: relative;
+      pointer-events: none;
+      .before {
+        display: block;
+        height: 0.85rem;
+        width: 3px;
+        background: #333;
+        position: absolute;
+        left: 0;
+        transition: left, transform, top, 0.5s;
+      }
+      .after {
+        display: block;
+        height: 0.85rem;
+        width: 3px;
+        background: #333;
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        transition: right, transform, bottom, 0.5s;
+      }
+    }
+    &:hover .line {
+      transform: scale(1.2);
+    }
+    &.side_back {
+      .line {
+        .before {
+          left: 85%;
+          top: 0.15rem;
+          transform: rotate(-45deg);
+        }
+        .after {
+          bottom: 0.15rem;
+          transform: rotate(45deg);
+        }
+      }
+    }
+    &.back {
+      .line {
+        .before {
+          top: 0.15rem;
+          transform: rotate(45deg);
+        }
+        .after {
+          bottom: 0.15rem;
+          right: 85%;
+          transform: rotate(-45deg);
+        }
+      }
+    }
+    .month_filter,
+    .year_filter {
+      z-index: 5;
+      position: absolute;
+      left: 3.5rem;
+      appearance: none;
+      padding: 0.25rem;
+      border-radius: 0.35rem;
+      border: 1px solid #00f260;
+      outline: none;
+    }
+    .year_filter {
+      display: none;
+    }
+    option {
+      padding: 1rem 0;
+    }
+  }
+  .month_filter,
+  .year_filter {
+    z-index: 5;
+    position: absolute;
+    left: 3.5rem;
+    appearance: none;
+    padding: 0.25rem;
+    border-radius: 0.35rem;
+    border: 1px solid #00f260;
+    outline: none;
+  }
+  .year_filter {
+    display: none;
+  }
+}

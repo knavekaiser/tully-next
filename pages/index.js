@@ -1,65 +1,142 @@
-import Head from 'next/head'
-import styles from '../styles/Home.module.css'
+import { useContext, useState, useEffect } from "react";
+import { SiteContext } from "../SiteContext";
+import Head from "next/head";
+import Sidebar from "../components/Sidebar";
+import Nav from "../components/Nav";
+import { EmpList } from "../components/Employee";
+import Router from "next/router";
 
-export default function Home() {
+export async function getServerSideProps(ctx) {
+  const { dbConnect, json } = require("../utils/db");
+  const { verifyToken } = require("./api/auth");
+  dbConnect();
+  const { req, res } = ctx;
+  const token = verifyToken(req);
+  if (token) {
+    let user =
+      (await Admin.findOne({ _id: token.sub }, "-pass")) ||
+      (await Employee.findOne({ _id: token.sub }, "-pass"));
+    if (user) {
+      return { props: { ssrData: { user: json(user) } } };
+    }
+  } else {
+    return {
+      redirect: {
+        destination: "/login",
+      },
+    };
+  }
+}
+
+function resizeWindow() {
+  let vh = window.innerHeight * 0.01;
+  document.body.style.setProperty("--vh", `${vh}px`);
+}
+
+export const App = ({ children }) => {
+  const { fy, dateFilter } = useContext(SiteContext);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  useEffect(() => {
+    window.addEventListener("resize", () => resizeWindow());
+    resizeWindow();
+  }, []);
   return (
-    <div className={styles.container}>
-      <Head>
-        <title>Create Next App</title>
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
-
-      <main className={styles.main}>
-        <h1 className={styles.title}>
-          Welcome to <a href="https://nextjs.org">Next.js!</a>
-        </h1>
-
-        <p className={styles.description}>
-          Get started by editing{' '}
-          <code className={styles.code}>pages/index.js</code>
-        </p>
-
-        <div className={styles.grid}>
-          <a href="https://nextjs.org/docs" className={styles.card}>
-            <h3>Documentation &rarr;</h3>
-            <p>Find in-depth information about Next.js features and API.</p>
-          </a>
-
-          <a href="https://nextjs.org/learn" className={styles.card}>
-            <h3>Learn &rarr;</h3>
-            <p>Learn about Next.js in an interactive course with quizzes!</p>
-          </a>
-
-          <a
-            href="https://github.com/vercel/next.js/tree/master/examples"
-            className={styles.card}
-          >
-            <h3>Examples &rarr;</h3>
-            <p>Discover and deploy boilerplate example Next.js projects.</p>
-          </a>
-
-          <a
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-          >
-            <h3>Deploy &rarr;</h3>
-            <p>
-              Instantly deploy your Next.js site to a public URL with Vercel.
-            </p>
-          </a>
+    <>
+      <div className="container" onContextMenu={(e) => e.preventDefault()}>
+        <Head>
+          <title>Tully</title>
+          <link rel="icon" href="/favicon.ico" />
+          <script
+            type="module"
+            src="https://unpkg.com/ionicons@5.4.0/dist/ionicons/ionicons.esm.js"
+          ></script>
+        </Head>
+        <div className="innerContainer" style={sidebarOpen ? { left: 0 } : {}}>
+          <span
+            className={`sidebar_span ${sidebarOpen && "active"}`}
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+          />
+          <Sidebar
+            sections={[
+              { label: "Employees", link: "/" },
+              { label: "workers", link: "/workers" },
+              {
+                label: "bills",
+                link: {
+                  pathname: `/bills`,
+                  query: {
+                    fy,
+                    ...(dateFilter && {
+                      from: dateFilter.from,
+                      to: dateFilter.to,
+                    }),
+                  },
+                },
+              },
+              {
+                label: "costs",
+                link: {
+                  pathname: `/costings`,
+                  query: {
+                    fy,
+                    ...(dateFilter && {
+                      from: dateFilter.from,
+                      to: dateFilter.to,
+                    }),
+                  },
+                },
+              },
+              {
+                label: "production",
+                link: {
+                  pathname: `/productions`,
+                  query: {
+                    fy,
+                    ...(dateFilter && {
+                      from: dateFilter.from,
+                      to: dateFilter.to,
+                    }),
+                  },
+                },
+              },
+              {
+                label: "wages",
+                link: {
+                  pathname: `/wages`,
+                  query: {
+                    fy,
+                    ...(dateFilter && {
+                      from: dateFilter.from,
+                      to: dateFilter.to,
+                    }),
+                  },
+                },
+              },
+              { label: "summery" },
+            ]}
+            sidebarOpen={sidebarOpen}
+            setSidebarOpen={setSidebarOpen}
+          />
+          <Nav setSidebarOpen={setSidebarOpen} sidebarOpen={sidebarOpen} />
+          {children}
         </div>
-      </main>
+      </div>
+      <div id="portal" onContextMenu={(e) => e.preventDefault()} />
+    </>
+  );
+};
 
-      <footer className={styles.footer}>
-        <a
-          href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Powered by{' '}
-          <img src="/vercel.svg" alt="Vercel Logo" className={styles.logo} />
-        </a>
-      </footer>
-    </div>
-  )
+export default function Home({ ssrData }) {
+  const { setUser } = useContext(SiteContext);
+  useEffect(() => {
+    setUser(ssrData.user);
+  }, []);
+  if (!ssrData.user) {
+    return null;
+  }
+  return (
+    <App>
+      <EmpList />
+    </App>
+  );
 }
