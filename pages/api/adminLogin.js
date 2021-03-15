@@ -22,7 +22,6 @@ export default nextConnect({
     res.status(405).json({ message: `${req.method} Method is not allowed` });
   },
 }).post((req, res) => {
-  const { dbConnect, json } = require("../../utils/db");
   dbConnect();
   Admin.findOne({ id: req.body.id })
     .then((user) => {

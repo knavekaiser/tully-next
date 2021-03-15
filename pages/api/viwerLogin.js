@@ -22,6 +22,7 @@ export default nextConnect({
     res.status(405).json({ message: `${req.method} Method is not allowed` });
   },
 }).post((req, res) => {
+  dbConnect();
   Employee.findOne({ name: req.body.id, pass: req.body.pass })
     .then((user) => {
       console.log(req.body.id, req.body.pass);
