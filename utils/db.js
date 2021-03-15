@@ -8,6 +8,9 @@ const {} = require("./models/worker.js");
 const {} = require("./models/production.js");
 const {} = require("./models/admin");
 
+console.log("MONGO_URI: ", process.env.MONGO_URI);
+console.log("JWT_SECRET: ", process.env.JWT_SECRET);
+
 global.genCode = (n) => {
   let code = "";
   while (code.length < n) {

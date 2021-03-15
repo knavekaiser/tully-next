@@ -26,6 +26,7 @@ export async function getServerSideProps(ctx) {
       },
     };
   }
+  return { props: { ssrData: { user: {} } } };
 }
 
 function resizeWindow() {
