@@ -75,7 +75,7 @@ const MaterialPayment =
   );
 
 const costing = new Schema({
-  lot: { type: Number, required: true },
+  lot: { type: Number, required: true, unique: true },
   date: { type: Date, required: true },
   fy: { type: String, required: true },
   dress: { type: String, required: true, trim: true },
@@ -88,6 +88,27 @@ const costing = new Schema({
     },
   ],
   note: { type: String },
+});
+
+const fabric = new Schema({
+  dealer: { type: String, required: true },
+  date: { type: Date, required: true },
+  name: { type: String, required: true },
+  qnt: {
+    unit: { type: String, required: true },
+    amout: { type: Number, required: true },
+  },
+  price: { type: Number, required: true },
+  img: [],
+  usage: [
+    {
+      lot: { type: Schema.Types.ObjectId, ref: "Costing", required: true },
+      qnt: {
+        unit: { type: String, required: true },
+        amout: { type: Number, required: true },
+      },
+    },
+  ],
 });
 
 global.Payment = Payment;

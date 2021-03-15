@@ -8,8 +8,8 @@ import Router from "next/router";
 
 export async function getServerSideProps(ctx) {
   const { dbConnect, json } = require("../utils/db");
-  const { verifyToken } = require("./api/auth");
   dbConnect();
+  const { verifyToken } = require("./api/auth");
   const { req, res } = ctx;
   const token = verifyToken(req);
   if (token) {
