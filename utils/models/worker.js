@@ -9,7 +9,7 @@ const employee = new Schema({
 });
 
 employee.statics.updateWork = (_id) => {
-  if (!ObjectID.isValid(_id)) return;
+  // if (!ObjectID.isValid(_id)) return;
   return EmpWork.find({ employee: _id }, "_id")
     .then((works) => {
       const newWorks = works.map((item) => {

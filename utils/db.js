@@ -3,13 +3,10 @@ global.Schema = mongoose.Schema;
 global.bcrypt = require("bcryptjs");
 global.jwt_decode = require("jwt-decode");
 global.jwt = require("jsonwebtoken");
-global.ObjectID = require("mongodb").ObjectID;
+// global.ObjectID = require("mongodb").ObjectID;
 const {} = require("./models/worker.js");
 const {} = require("./models/production.js");
 const {} = require("./models/admin");
-
-console.log("MONGO_URI: ", process.env.MONGO_URI);
-console.log("JWT_SECRET: ", process.env.JWT_SECRET);
 
 global.genCode = (n) => {
   let code = "";
