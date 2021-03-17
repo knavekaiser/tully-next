@@ -31,7 +31,6 @@ export default function Nav({ sidebarOpen, setSidebarOpen }) {
       <a href="/">
         <div>
           <h1>WORKPLACE</h1>
-          <h3 className={`${s.nameTag} ${s.disabled}`}>NAMES</h3>
         </div>
       </a>
       <div

@@ -7,7 +7,7 @@
         text-transform: capitalize;
         white-space: nowrap;
         font-size: 0.95em;
-        padding: 0.7rem 0;
+        padding: 0.84rem 0;
         sup {
           position: absolute;
           transform: translate(3px, -5px);
@@ -28,7 +28,7 @@
         background: #ececec;
       }
       &:last-child {
-        margin-bottom: 1rem;
+        // margin-bottom: 0.5rem;
       }
     }
   }
@@ -39,6 +39,7 @@
     td {
       padding: 1rem 0;
       position: relative;
+      margin: auto 0;
       sup {
         position: absolute;
         transform: translate(3px, -5px);
@@ -114,10 +115,6 @@
         text-align: right;
         white-space: nowrap;
       }
-      .name {
-        display: grid;
-        align-items: center;
-      }
       .lastQnt,
       .qnt {
         font-size: 0.8em;
@@ -161,15 +158,12 @@
       }
       .date:not(.single),
       .paid:not(.single) {
-        display: grid;
-        align-items: center;
         grid-row: 1 / span 10;
       }
       .dress,
       .qnt,
       .total {
         padding: 0.45rem 0;
-        margin: auto 0;
       }
       .derss:first-child {
         background: red !important;
@@ -239,12 +233,17 @@
         text-align: right;
       }
       .dress,
-      .qnt,
-      .deduction {
+      .qnt {
         text-align: left;
+      }
+      .deduction {
+        padding-right: 1rem;
       }
       .final {
         grid-column: 4/5;
+      }
+      &.total {
+        grid-template-columns: 1fr;
       }
     }
   }
@@ -317,10 +316,12 @@
     }
   }
   &.lots {
-    tr {
-      .ctxMenu {
-        position: absolute;
+    tbody {
+      tr {
+        padding: 0.5rem 1rem;
       }
+    }
+    tr {
       grid-template-columns: 0.25fr 0.25fr 0.25fr 0.25fr;
       th:first-child,
       td:first-child,
@@ -336,9 +337,10 @@
       }
       .date {
         grid-column: 1/2;
-        grid-row: 1/10;
-        display: grid;
-        align-items: center;
+      }
+      .date:not(.single),
+      .total:not(.single) {
+        grid-row: 1/20;
       }
       .dress {
         grid-column: 2/3;
@@ -350,6 +352,11 @@
       .total {
         grid-column: 4/5;
       }
+      .dress,
+      .qnt,
+      .total {
+        padding: 0.5rem 0;
+      }
     }
   }
 }
@@ -358,10 +365,20 @@
   grid-template-columns: 1fr 1fr;
   .production {
     border-right: 1px solid #888;
+    .grandTotal {
+      padding: 0.5rem 1rem;
+      background: linear-gradient(
+        153deg,
+        rgba(0, 240, 27, 0.2) 0%,
+        rgba(182, 1, 1, 0) 100%
+      );
+    }
   }
   .production,
   .payment {
-    height: 100%;
+    tbody {
+      max-height: calc((var(--vh) * 100) - (2rem + 50px + 56px));
+    }
     tr {
       grid-template-columns: 1fr 1fr;
       th {
@@ -395,12 +412,44 @@
         grid-column: 2/3;
       }
       .date {
-        display: grid;
-        align-items: center;
         grid-row: 1/10;
       }
       .ctxMenu {
         position: absolute;
+      }
+    }
+  }
+  .payment {
+    tbody {
+      tr:not(.hr) {
+        padding: 0.4rem 1rem;
+        .amount {
+          padding: 0.25rem 0;
+        }
+      }
+      .grandTotalReceived {
+        padding: 0.5rem 1rem;
+        background: linear-gradient(
+          153deg,
+          rgba(0, 240, 27, 0.2) 0%,
+          rgba(182, 1, 1, 0) 100%
+        );
+      }
+      .grandTotalDeu {
+        padding: 0.5rem 1rem;
+        background: linear-gradient(
+          153deg,
+          rgba(240, 1, 27, 0.2) 0%,
+          rgba(182, 1, 1, 0) 100%
+        );
+      }
+      .past {
+        padding: 0.5rem 1rem;
+        background: linear-gradient(
+          153deg,
+          rgba(240, 223, 1, 0.2) 0%,
+          rgba(182, 1, 1, 0) 100%
+        );
       }
     }
   }
@@ -422,11 +471,24 @@
 @media only screen and (max-width: 480px) {
   .table {
     tbody {
-      max-height: calc((var(--vh) * 100) - (1rem + 45px + 56px));
+      max-height: calc((var(--vh) * 100) - (1rem + 46px + 56px));
     }
     .loadingTr {
       td {
         max-width: 70%;
+      }
+    }
+    &.bills {
+      tr {
+        grid-template-columns: 4.5rem 2.5rem 1fr 2.5rem 5.5rem;
+      }
+    }
+  }
+  .productions {
+    .production,
+    .payment {
+      tbody {
+        max-height: calc((var(--vh) * 100) - (1rem + 50px + 56px));
       }
     }
   }

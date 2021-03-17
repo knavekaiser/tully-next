@@ -1,5 +1,6 @@
 import nextConnect from "next-connect";
 import { auth } from "./auth";
+import { getMonths } from "../../utils/db";
 
 const rate = {
   1: 20,
@@ -80,36 +81,7 @@ export default nextConnect({
             match: query,
             select: "-_id products paid date",
           }),
-          EmpWork.aggregate([
-            {
-              $match: { fy },
-            },
-            {
-              $sort: { date: -1 },
-            },
-            {
-              $project: {
-                year: { $year: "$date" },
-                month: { $month: "$date" },
-              },
-            },
-            {
-              $group: {
-                _id: null,
-                dates: { $addToSet: { year: "$year", month: "$month" } },
-              },
-            },
-          ]).then(
-            (dates) =>
-              dates[0]?.dates.map((date) => {
-                return {
-                  label: `${date.month}-${date.year}`,
-                  value: `${date.year}-${
-                    date.month < 10 ? "0" + date.month : date.month
-                  }`,
-                };
-              }) || []
-          ),
+          getMonths(EmpWork, fy),
           EmpWork.findOne({}, "-_id date").sort({ date: -1 }),
         ])
           .then(([emps, months, lastWeek]) => {

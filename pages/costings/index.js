@@ -25,36 +25,7 @@ export async function getServerSideProps(ctx) {
   if (token?.role === "admin") {
     user = await Admin.findOne({ _id: token.sub }, "-pass");
     costings = await Costing.find(filters).sort({ ref: 1 });
-    months = await Costing.aggregate([
-      {
-        $match: { fy },
-      },
-      {
-        $sort: { date: 1 },
-      },
-      {
-        $project: {
-          year: { $year: "$date" },
-          month: { $month: "$date" },
-        },
-      },
-      {
-        $group: {
-          _id: null,
-          dates: { $addToSet: { year: "$year", month: "$month" } },
-        },
-      },
-    ]).then(
-      (dates) =>
-        dates[0]?.dates.map((date) => {
-          return {
-            label: `${date.month}-${date.year}`,
-            value: `${date.year}-${
-              date.month < 10 ? "0" + date.month : date.month
-            }`,
-          };
-        }) || []
-    );
+    months = await getMonths(Costing, fy);
   } else {
     return {
       redirect: {

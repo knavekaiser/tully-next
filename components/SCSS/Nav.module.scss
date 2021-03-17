@@ -2,7 +2,6 @@
   padding: 0 0.5rem;
   grid-area: h;
   display: grid;
-  justify-content: center;
   align-items: center;
   position: relative;
   width: 100%;
@@ -15,19 +14,12 @@
     bottom: -1px;
     background-image: linear-gradient(140deg, #00f260, #0575e6);
   }
-  .disabled {
-    opacity: 0;
-    pointer-events: none;
-  }
   a {
-    position: relative;
     text-decoration: inherit;
     color: inherit;
     div {
-      position: absolute;
-      top: 0;
+      margin: auto;
       transition: transform 0.25s ease-out;
-      transform: translateX(-50%) translateY(-25%);
       display: grid;
     }
     h1,
@@ -139,5 +131,17 @@
   }
   .year_filter {
     display: none;
+  }
+}
+
+@media only screen and (max-width: 480px) {
+  .header {
+    a {
+      display: block;
+      margin: auto;
+      margin-right: 0;
+      h1 {
+      }
+    }
   }
 }

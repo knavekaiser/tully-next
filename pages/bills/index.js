@@ -9,7 +9,7 @@ import { BillForm } from "../../components/Forms";
 import s from "../../components/SCSS/Table.module.scss";
 
 export async function getServerSideProps(ctx) {
-  const { dbConnect, json } = require("../../utils/db");
+  const { dbConnect, json, getMonths } = require("../../utils/db");
   dbConnect();
   const { verifyToken } = require("../api/auth");
   const { req, res } = ctx;
@@ -25,36 +25,7 @@ export async function getServerSideProps(ctx) {
   if (token?.role === "admin") {
     user = await Admin.findOne({ _id: token.sub }, "-pass");
     bills = await Bill.find(filters).sort({ ref: 1 });
-    months = await Bill.aggregate([
-      {
-        $match: { fy },
-      },
-      {
-        $sort: { date: 1 },
-      },
-      {
-        $project: {
-          year: { $year: "$date" },
-          month: { $month: "$date" },
-        },
-      },
-      {
-        $group: {
-          _id: null,
-          dates: { $addToSet: { year: "$year", month: "$month" } },
-        },
-      },
-    ]).then(
-      (dates) =>
-        dates[0]?.dates.map((date) => {
-          return {
-            label: `${date.month}-${date.year}`,
-            value: `${date.year}-${
-              date.month < 10 ? "0" + date.month : date.month
-            }`,
-          };
-        }) || []
-    );
+    months = await getMonths(Bill, fy);
   } else {
     return {
       redirect: {
@@ -77,6 +48,7 @@ export default function Bills({ ssrData, ssrUser, ssrMonths }) {
   const [bills, setBills] = useState(ssrData);
   const [showForm, setShowForm] = useState(false);
   const [billToEdit, setBillToEdit] = useState(null);
+  const [addBtnStyle, setAddBtnStyle] = useState(false);
   const dltBill = (_id) => {
     if (confirm("you want to delete this bill?")) {
       fetch("/api/bills", {
@@ -125,6 +97,13 @@ export default function Bills({ ssrData, ssrUser, ssrMonths }) {
           { label: "Total" },
         ]}
         className={s.bills}
+        onScroll={(dir) => {
+          if (dir === "down") {
+            setAddBtnStyle(true);
+          } else {
+            setAddBtnStyle(false);
+          }
+        }}
       >
         {bills.map((bill) => (
           <Tr
@@ -164,7 +143,7 @@ export default function Bills({ ssrData, ssrUser, ssrMonths }) {
           </Tr>
         ))}
       </Table>
-      {fy !== "all" && <AddBtn onClick={setShowForm} />}
+      {fy !== "all" && <AddBtn translate={addBtnStyle} onClick={setShowForm} />}
       <Modal open={showForm} setOpen={setShowForm}>
         <BillForm
           fy={fy}

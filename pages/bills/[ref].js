@@ -72,13 +72,21 @@ export default function SingleBill({ ssrData, ssrUser }) {
           </tr>
         ))}
         <tr className={s.hr} />
+        <tr className={s.total}>
+          <td>
+            {ssrData.products
+              .reduce((p, c) => p + c.qnt * c.cost, 0)
+              .toLocaleString("en-IN")}
+          </td>
+        </tr>
+        <tr className={s.hr} />
         {ssrData.products.map((item, i) => (
           <tr key={i}>
             <td className={s.deduction}>Deduction</td>
             <td className={s.qnt}>{item.qnt}</td>
             <td className={s.cost}>{item.wage}</td>
             <td className={s.taka}>
-              {(item.cost * item.wage).toLocaleString("en-IN")}
+              - {(item.qnt * item.wage).toLocaleString("en-IN")}
             </td>
           </tr>
         ))}

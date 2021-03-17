@@ -1,4 +1,4 @@
-import { useState, useContext, useEffect } from "react";
+import { useState, useContext, useEffect, useRef } from "react";
 import { SiteContext } from "../SiteContext";
 import { App } from "./index";
 import Table, { Tr } from "../components/Table";
@@ -9,56 +9,155 @@ import { displayDate, AddBtn } from "../components/FormElements";
 import { useRouter } from "next/router";
 
 export async function getServerSideProps(ctx) {
-  const { dbConnect, json } = require("../utils/db");
+  const { dbConnect, json, getMonths } = require("../utils/db");
   dbConnect();
   const { verifyToken } = require("./api/auth");
   const { req, res } = ctx;
   const { fy, from, to } = ctx.query;
   const filters = {
     ...(fy !== "all" && { fy }),
-    ...(from && to && { date: { $gte: from, $lte: to } }),
+    ...(from && to && { date: { $gte: new Date(from), $lte: new Date(to) } }),
   };
   const token = verifyToken(req);
   if (token?.role === "admin") {
-    const [user, bills, payments, months] = await Promise.all([
+    const [
+      user,
+      bills,
+      previousProduction,
+      payments,
+      previouslyReceivedPayment,
+      months,
+      more,
+    ] = await Promise.all([
       Admin.findOne({ _id: token.sub }, "-pass"),
-      Bill.find(filters),
-      MaterialPayment.find(filters),
-      MaterialPayment.aggregate([
+      Bill.aggregate([
         {
-          $match: { fy },
+          $match: { ...filters },
         },
+        { $unwind: "$products" },
         {
-          $sort: { date: 1 },
+          $group: {
+            _id: "$ref",
+            date: { $first: "$date" },
+            qnt: { $sum: "$products.qnt" },
+            product: {
+              $sum: { $multiply: ["$products.qnt", "$products.cost"] },
+            },
+            wage: {
+              $sum: { $multiply: ["$products.qnt", "$products.wage"] },
+            },
+          },
         },
         {
           $project: {
-            year: { $year: "$date" },
-            month: { $month: "$date" },
+            date: "$date",
+            ref: "$_id",
+            qnt: "$qnt",
+            total: { $subtract: ["$product", "$wage"] },
+          },
+        },
+        { $sort: { ref: 1 } },
+      ]),
+      Bill.aggregate([
+        {
+          $match: from
+            ? { date: { $lt: new Date(from) } }
+            : { fy: { $lt: fy.substr(0, 4) } },
+        },
+        { $unwind: "$products" },
+        {
+          $group: {
+            _id: "$ref",
+            product: {
+              $sum: { $multiply: ["$products.qnt", "$products.cost"] },
+            },
+            wage: {
+              $sum: { $multiply: ["$products.qnt", "$products.wage"] },
+            },
+          },
+        },
+        {
+          $project: {
+            total: { $subtract: ["$product", "$wage"] },
           },
         },
         {
           $group: {
-            _id: null,
-            dates: { $addToSet: { year: "$year", month: "$month" } },
+            _id: "total",
+            total: { $sum: "$total" },
           },
         },
-      ]).then(
-        (dates) =>
-          dates[0]?.dates.map((date) => {
-            return {
-              label: `${date.month}-${date.year}`,
-              value: `${date.year}-${
-                date.month < 10 ? "0" + date.month : date.month
-              }`,
-            };
-          }) || []
-      ),
+      ]).then((data) => data[0]?.total || 0),
+      MaterialPayment.find(filters),
+      MaterialPayment.aggregate([
+        {
+          $match: from
+            ? { date: { $lt: new Date(from) } }
+            : { fy: { $lt: fy.substr(0, 4) } },
+        },
+        {
+          $group: {
+            _id: "total",
+            total: { $sum: { $sum: "$payments.amount" } },
+          },
+        },
+      ]).then((data) => data[0]?.total || 0),
+      getMonths(MaterialPayment, fy),
+      MaterialPayment.aggregate([
+        {
+          $match: { date: { $gte: new Date(from), $lte: new Date(to) } },
+        },
+        // {
+        //   $project: {
+        //     _id: 0,
+        //     payments: 1,
+        //     new: {
+        //       $reduce: {
+        //         input: "$payments",
+        //         initialValue: { sum: 0 },
+        //         in: {
+        //           sum: { $add: ["$$value.sum", "$$this.amount"] },
+        //         },
+        //       },
+        //     },
+        //   },
+        // },
+        {
+          $group: {
+            _id: "allPayments",
+            x: { $sum: { $sum: "$payments.amount" } },
+          },
+        },
+      ]),
     ]);
+    const totalProduction = bills.reduce((p, c) => p + c.total, 0);
+    const totalPaymentReceived = payments.reduce(
+      (p, c) => p + c.payments.reduce((pp, cu) => pp + cu.amount, 0),
+      0
+    );
+    const totalPaymentDeu = totalProduction - totalPaymentReceived;
+    const previous =
+      +process.env.PREVIOUS + previouslyReceivedPayment - previousProduction;
+    const todate =
+      +process.env.PREVIOUS +
+      previouslyReceivedPayment -
+      previousProduction +
+      totalPaymentReceived -
+      totalProduction;
     return {
       props: {
         ssrUser: json(user),
-        ssrData: json({ bills, payments }),
+        ssrData: json({
+          bills,
+          payments,
+          summery: {
+            totalPaymentDeu,
+            previous,
+            totalPaymentReceived,
+            totalProduction,
+            todate,
+          },
+        }),
         ssrMonths: json(months),
       },
     };
@@ -99,10 +198,15 @@ export default function Productions({ ssrUser, ssrData, ssrMonths }) {
         });
     }
   };
+  const firstRedner = useRef(true);
   useEffect(() => {
     setUser(ssrUser);
   }, []);
   useEffect(() => {
+    if (firstRedner.current) {
+      firstRedner.current = false;
+      return;
+    }
     router.push({
       pathname: router.pathname,
       query: {
@@ -118,6 +222,9 @@ export default function Productions({ ssrUser, ssrData, ssrMonths }) {
   useEffect(() => {
     !showForm && setPaymentToEdit(null);
   }, [showForm]);
+  useEffect(() => {
+    setPayments(ssrData.payments);
+  }, [ssrData]);
   return (
     <App>
       <div className={s.productions}>
@@ -149,15 +256,17 @@ export default function Productions({ ssrUser, ssrData, ssrMonths }) {
                 {displayDate(bill.date)}
               </td>
               <td className={s.total}>
-                <span className={s.qnt}>
-                  {bill.products.reduce((p, c) => p + c.qnt, 0)}
-                </span>
-                {bill.products
-                  .reduce((p, c) => p + (c.qnt * c.cost - c.qnt * c.wage), 0)
-                  .toLocaleString("en-IN")}
+                <span className={s.qnt}>{bill.qnt}</span>
+                {bill.total.toLocaleString("en-IN")}
               </td>
             </tr>
           ))}
+          <tr className={s.grandTotal}>
+            <td>Total Production</td>
+            <td className={s.amount}>
+              {ssrData.summery.totalProduction.toLocaleString("en-IN")}
+            </td>
+          </tr>
         </Table>
         <Table
           className={s.payment}
@@ -210,6 +319,54 @@ export default function Productions({ ssrUser, ssrData, ssrMonths }) {
               })}
             </Tr>
           ))}
+          <tr className={s.grandTotalReceived}>
+            <td>Recieved</td>
+            <td className={s.amount}>
+              {ssrData.summery.totalPaymentReceived.toLocaleString("en-IN")}
+            </td>
+          </tr>
+          <tr className={s.grandTotalDeu}>
+            <td>Deu</td>
+            <td className={s.amount}>
+              {ssrData.summery.totalPaymentDeu.toLocaleString("en-IN")}
+            </td>
+          </tr>
+          <tr className={s.hr} /> <tr className={s.hr} />
+          <tr className={s.hr} />
+          <tr className={s.past}>
+            <td>Previous</td>
+            <td className={s.amount}>
+              {ssrData.summery.previous.toLocaleString("en-IN")}
+            </td>
+          </tr>
+          <tr>
+            <td>Recieved</td>
+            <td className={s.amount}>
+              + {ssrData.summery.totalPaymentReceived.toLocaleString("en-IN")}
+            </td>
+          </tr>
+          <tr className={s.hr} />
+          <tr>
+            <td>Total</td>
+            <td className={s.amount}>
+              {(
+                ssrData.summery.previous + ssrData.summery.totalPaymentReceived
+              ).toLocaleString("en-IN")}
+            </td>
+          </tr>
+          <tr>
+            <td>Total production</td>
+            <td className={s.amount}>
+              - {ssrData.summery.totalProduction.toLocaleString("en-IN")}
+            </td>
+          </tr>
+          <tr className={s.hr} />
+          <tr>
+            <td>Todate</td>
+            <td className={s.amount}>
+              {ssrData.summery.todate.toLocaleString("en-IN")}
+            </td>
+          </tr>
         </Table>
         {fy !== "all" && (
           <AddBtn translate={addBtnStyle} onClick={setShowForm} />

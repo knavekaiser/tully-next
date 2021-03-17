@@ -5,7 +5,11 @@ import s from "./SCSS/Table.module.scss";
 export default function Table({ className, columns, children, onScroll }) {
   const scrollPos = useRef(0);
   return (
-    <table className={`${s.table} ${className || ""}`}>
+    <table
+      className={`${s.table} ${className || ""}`}
+      cellSpacing={0}
+      cellPadding={0}
+    >
       <thead>
         <tr>
           {columns.map((item, i) => {

@@ -218,6 +218,8 @@
   }
 }
 .multipleInput {
+  display: grid;
+  grid-gap: 0.5rem;
   .group {
     grid-gap: 1rem;
     display: grid;

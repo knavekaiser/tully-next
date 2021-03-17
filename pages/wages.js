@@ -9,7 +9,7 @@ import { displayDate, AddBtn } from "../components/FormElements";
 import { useRouter } from "next/router";
 
 export async function getServerSideProps(ctx) {
-  const { dbConnect, json } = require("../utils/db");
+  const { dbConnect, json, getMonths } = require("../utils/db");
   dbConnect();
   const { verifyToken } = require("./api/auth");
   const { req, res } = ctx;
@@ -24,36 +24,7 @@ export async function getServerSideProps(ctx) {
       Admin.findOne({ _id: token.sub }, "-pass"),
       Bill.find(filters),
       WagePayment.find(filters),
-      WagePayment.aggregate([
-        {
-          $match: { fy },
-        },
-        {
-          $sort: { date: 1 },
-        },
-        {
-          $project: {
-            year: { $year: "$date" },
-            month: { $month: "$date" },
-          },
-        },
-        {
-          $group: {
-            _id: null,
-            dates: { $addToSet: { year: "$year", month: "$month" } },
-          },
-        },
-      ]).then(
-        (dates) =>
-          dates[0]?.dates.map((date) => {
-            return {
-              label: `${date.month}-${date.year}`,
-              value: `${date.year}-${
-                date.month < 10 ? "0" + date.month : date.month
-              }`,
-            };
-          }) || []
-      ),
+      getMonths(WagePayment, fy),
     ]);
     return {
       props: {
@@ -200,6 +171,14 @@ export default function Productions({ ssrUser, ssrData, ssrMonths }) {
               </td>
             </Tr>
           ))}
+          <tr>
+            <td>total</td>
+            <td>
+              {payments
+                .reduce((p, c) => p + c.amount, 0)
+                .toLocaleString("en-IN")}
+            </td>
+          </tr>
         </Table>
         {fy !== "all" && (
           <AddBtn translate={addBtnStyle} onClick={setShowForm} />

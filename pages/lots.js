@@ -9,7 +9,7 @@ import { AddEmpWork } from "../components/Forms";
 import s from "../components/SCSS/Table.module.scss";
 
 export async function getServerSideProps(ctx) {
-  const { dbConnect, json } = require("../utils/db");
+  const { dbConnect, json, getMonths } = require("../utils/db");
   dbConnect();
   const { verifyToken } = require("./api/auth");
   const { req, res } = ctx;
@@ -19,42 +19,19 @@ export async function getServerSideProps(ctx) {
     ...(from && to && { date: { $gte: from, $lte: to } }),
   };
   const token = verifyToken(req);
-  let lots = [];
-  let user = {};
-  let months = [];
   if (token?.role === "admin") {
-    user = await Admin.findOne({ _id: token.sub }, "-pass");
-    lots = await Lot.find(filters).sort({ ref: 1 });
-    months = await Lot.aggregate([
-      {
-        $match: { fy },
+    const [user, lots, months] = await Promise.all([
+      Admin.findOne({ _id: token.sub }, "-pass"),
+      Lot.find(filters).sort({ ref: 1 }),
+      getMonths(Lot, fy),
+    ]);
+    return {
+      props: {
+        ssrUser: json(user),
+        ssrData: json(lots),
+        ssrMonths: json(months),
       },
-      {
-        $sort: { date: 1 },
-      },
-      {
-        $project: {
-          year: { $year: "$date" },
-          month: { $month: "$date" },
-        },
-      },
-      {
-        $group: {
-          _id: null,
-          dates: { $addToSet: { year: "$year", month: "$month" } },
-        },
-      },
-    ]).then(
-      (dates) =>
-        dates[0]?.dates.map((date) => {
-          return {
-            label: `${date.month}-${date.year}`,
-            value: `${date.year}-${
-              date.month < 10 ? "0" + date.month : date.month
-            }`,
-          };
-        }) || []
-    );
+    };
   } else {
     return {
       redirect: {
@@ -62,13 +39,6 @@ export async function getServerSideProps(ctx) {
       },
     };
   }
-  return {
-    props: {
-      ssrData: json(lots),
-      ssrUser: json(user),
-      ssrMonths: json(months),
-    },
-  };
 }
 
 export default function Lots({ ssrData, ssrUser, ssrMonths }) {
@@ -100,6 +70,7 @@ export default function Lots({ ssrData, ssrUser, ssrMonths }) {
         });
     }
   };
+  const [addBtnStyle, setAddBtnStyle] = useState(false);
   useEffect(() => setUser(ssrUser), []);
   useEffect(() => setMonths(ssrMonths), [ssrMonths]);
   useEffect(() => setLots(ssrData), [ssrData]);
@@ -132,6 +103,13 @@ export default function Lots({ ssrData, ssrUser, ssrMonths }) {
           { label: "Total" },
         ]}
         className={s.lots}
+        onScroll={(dir) => {
+          if (dir === "down") {
+            setAddBtnStyle(true);
+          } else {
+            setAddBtnStyle(false);
+          }
+        }}
       >
         {lots.map((work, i) => (
           <Tr
@@ -154,24 +132,28 @@ export default function Lots({ ssrData, ssrUser, ssrMonths }) {
               },
             ]}
           >
-            <td className={s.date}>{displayDate(work.date)}</td>
+            <td
+              className={`${s.date} ${work.products.length <= 1 && s.single}`}
+            >
+              {displayDate(work.date)}
+            </td>
             {work.products.map((product, j) => (
               <Fragment key={j}>
                 <td className={s.dress}>{product.dress}</td>
                 <td className={s.qnt}>
                   {product.qnt} <sup>{product.group}</sup>
                 </td>
-                <td className={s.total}>
-                  {(product.qnt * empRate[product.group]).toLocaleString(
-                    "en-IN"
-                  )}
-                </td>
               </Fragment>
             ))}
+            <td className={s.total}>
+              {work.products
+                .reduce((a, c) => a + c.qnt, 0)
+                .toLocaleString("en-IN")}
+            </td>
           </Tr>
         ))}
       </Table>
-      {fy !== "all" && <AddBtn onClick={setShowForm} />}
+      {fy !== "all" && <AddBtn translate={addBtnStyle} onClick={setShowForm} />}
       <Modal open={showForm} setOpen={setShowForm}>
         <AddEmpWork
           fy={fy}
