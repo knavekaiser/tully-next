@@ -466,17 +466,11 @@ export const Combobox = ({
   );
 };
 
-export const AddBtn = ({ onClick }) => {
+export const AddBtn = ({ translate, onClick }) => {
   return (
     <button
       onClick={onClick}
-      style={{
-        display: "grid",
-        padding: "0.5rem",
-        position: "absolute",
-        right: "1rem",
-        bottom: "1rem",
-      }}
+      className={`${s.addBtn} ${translate && s.hidden}`}
     >
       <ion-icon name="add-outline"></ion-icon>
     </button>

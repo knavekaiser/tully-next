@@ -2,7 +2,8 @@ import { useState, useRef, useContext } from "react";
 import { SiteContext } from "../SiteContext";
 import s from "./SCSS/Table.module.scss";
 
-export default function Table({ className, columns, children }) {
+export default function Table({ className, columns, children, onScroll }) {
+  const scrollPos = useRef(0);
   return (
     <table className={`${s.table} ${className || ""}`}>
       <thead>
@@ -24,7 +25,20 @@ export default function Table({ className, columns, children }) {
           })}
         </tr>
       </thead>
-      <tbody>{children}</tbody>
+      <tbody
+        {...(onScroll && {
+          onScroll: (e) => {
+            if (scrollPos.current < e.target.scrollTop) {
+              onScroll("down");
+            } else {
+              onScroll("up");
+            }
+            scrollPos.current = e.target.scrollTop;
+          },
+        })}
+      >
+        {children}
+      </tbody>
     </table>
   );
 }
@@ -90,4 +104,13 @@ export const Tr = ({ children, options, onClick }) => {
       )}
     </tr>
   );
+};
+
+export const LoadingTr = ({ number }) => {
+  const tds = [];
+  for (var i = 0; i < number; i++) {
+    tds.push(<td key={i}></td>);
+  }
+
+  return <tr className={s.loadingTr}>{tds}</tr>;
 };

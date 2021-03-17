@@ -3,7 +3,7 @@ import { SiteContext } from "../SiteContext";
 import { AddEmp, UpdateEmp, AddEmpWork } from "../components/Forms";
 import { AddBtn } from "../components/FormElements";
 import { Modal } from "../components/Modals";
-import Table, { Tr } from "../components/Table";
+import Table, { Tr, LoadingTr } from "../components/Table";
 import { useRouter } from "next/router";
 import s from "./SCSS/Table.module.scss";
 
@@ -15,6 +15,7 @@ export function EmpList() {
   const [showUpdateForm, setShowUpdateForm] = useState(false);
   const [employees, setEmployees] = useState([]);
   const [empToUpdate, setEmpToUpdate] = useState({});
+  const [addBtnStyle, setAddBtnStyle] = useState(false);
   const dltEmp = (_id) => {
     fetch("/api/employee", {
       method: "DELETE",
@@ -132,11 +133,16 @@ export function EmpList() {
           { label: "Production" },
           { label: "Payment" },
         ]}
+        onScroll={(dir) => {
+          if (dir === "down") {
+            setAddBtnStyle(true);
+          } else {
+            setAddBtnStyle(false);
+          }
+        }}
       >
         {loading ? (
-          <tr>
-            <td>Loading</td>
-          </tr>
+          <LoadingTr number={4} />
         ) : (
           employees.map((emp, i) => {
             return (
@@ -178,7 +184,6 @@ export function EmpList() {
                   <span className={s.lastPaid}>
                     {emp.lastDay.paid.toLocaleString()}
                   </span>
-                  <br />
                   <span className={s.lastQnt}>
                     {emp.lastDay.qnt.toLocaleString()}
                   </span>
@@ -187,7 +192,6 @@ export function EmpList() {
                   <span className={s.cost}>
                     {emp.cost.toLocaleString("en-IN")}
                   </span>
-                  <br />
                   <span className={s.qnt}>
                     {emp.qnt.toLocaleString("en-IN")}
                   </span>
@@ -196,7 +200,6 @@ export function EmpList() {
                   <span className={s.paid}>
                     {emp.paid.toLocaleString("en-IN")}
                   </span>
-                  <br />
                   <span className={s.deu}>
                     {emp.deu.toLocaleString("en-IN")}
                   </span>
@@ -206,7 +209,7 @@ export function EmpList() {
           })
         )}
       </Table>
-      {!user?.work && <AddBtn onClick={setShowForm} />}
+      {!user?.work && <AddBtn translate={addBtnStyle} onClick={setShowForm} />}
     </>
   );
 }

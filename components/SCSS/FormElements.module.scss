@@ -260,6 +260,26 @@
   z-index: 3;
 }
 
+.addBtn {
+  display: grid;
+  padding: 0.2em;
+  background: #00f260;
+  border-radius: 3rem;
+  border: none;
+  outline: none;
+  color: white;
+  font-size: 2rem;
+  position: absolute;
+  right: 1rem;
+  bottom: 1rem;
+  transform: translateY(0);
+  transition: transform 0.25s ease-in-out;
+  box-shadow: 0 4px 20px rgba(#00f260, 0.4);
+  &.hidden {
+    transform: translateY(4rem);
+  }
+}
+
 @keyframes side2side {
   0% {
     transform: translateX(0);
@@ -272,5 +292,14 @@
   }
   100% {
     transform: translateX(0);
+  }
+}
+
+@media only screen and (max-width: 480px) {
+  .addBtn {
+    font-size: 2.5rem;
+    &.hidden {
+      transform: translateY(5rem);
+    }
   }
 }

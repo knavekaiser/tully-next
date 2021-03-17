@@ -18,7 +18,8 @@ export async function getServerSideProps(ctx) {
     ...(from && to && { date: { $gte: from, $lte: to } }),
   };
   const token = verifyToken(req);
-  let emp = {};
+  let emp = null;
+  let user = null;
   if (token?.role === "admin") {
     emp = await Employee.findOne({ name: ctx.query.name })
       .populate({
@@ -34,9 +35,9 @@ export async function getServerSideProps(ctx) {
             .sort((a, b) => a.date - b.date),
         };
       });
+    user = await Admin.findOne({ _id: token.sub });
   } else if (token?.role === "viwer") {
     const user = await Employee.findById(token.sub);
-    console.log(user, ctx.query);
     if (user.name === ctx.query.name) {
       emp = await Employee.findOne({ _id: token.sub })
         .populate({
@@ -52,25 +53,26 @@ export async function getServerSideProps(ctx) {
               .sort((a, b) => a.date - b.date),
           };
         });
-    } else {
-      return {
-        redirect: {
-          destination: "/",
-        },
-      };
     }
+  } else {
+    return {
+      redirect: {
+        destination: "/",
+      },
+    };
   }
-  return { props: { empSsr: json(emp) } };
+  return { props: { empSsr: json(emp), userSsr: json(user) } };
 }
 
-export default function EmpWorkList({ empSsr }) {
+export default function EmpWorkList({ empSsr, userSsr }) {
   const router = useRouter();
   const [emp, setEmp] = useState(empSsr);
-  const { user, fy, empRate, dateFilter, setDateFilter } = useContext(
+  const { user, fy, setUser, empRate, dateFilter, setDateFilter } = useContext(
     SiteContext
   );
   const [showForm, setShowForm] = useState(false);
   const [workToEdit, setWorkToEdit] = useState(null);
+  const [addBtnStyle, setAddBtnStyle] = useState(false);
   const dltWork = (_id) => {
     fetch("/api/empWork", {
       method: "DELETE",
@@ -128,6 +130,9 @@ export default function EmpWorkList({ empSsr }) {
   useEffect(() => {
     setEmp(empSsr);
   }, [empSsr]);
+  useEffect(() => {
+    setUser(userSsr);
+  }, [userSsr]);
   return (
     <App>
       <Table
@@ -145,6 +150,13 @@ export default function EmpWorkList({ empSsr }) {
           { label: "Total" },
           { label: "Paid" },
         ]}
+        onScroll={(dir) => {
+          if (dir === "down") {
+            setAddBtnStyle(true);
+          } else {
+            setAddBtnStyle(false);
+          }
+        }}
       >
         {emp.work?.map((work, i) => (
           <Tr
@@ -167,7 +179,11 @@ export default function EmpWorkList({ empSsr }) {
               },
             ]}
           >
-            <td className={s.date}>{displayDate(work.date)}</td>
+            <td
+              className={`${s.date} ${work.products.length <= 1 && s.single}`}
+            >
+              {displayDate(work.date)}
+            </td>
             {work.products.map((product, j) => (
               <Fragment key={j}>
                 <td className={s.dress}>{product.dress}</td>
@@ -181,7 +197,11 @@ export default function EmpWorkList({ empSsr }) {
                 </td>
               </Fragment>
             ))}
-            <td className={s.paid}>{work.paid.toLocaleString("en-IN")}</td>
+            <td
+              className={`${s.paid} ${work.products.length <= 1 && s.single}`}
+            >
+              {work.paid.toLocaleString("en-IN")}
+            </td>
           </Tr>
         ))}
       </Table>
@@ -203,7 +223,9 @@ export default function EmpWorkList({ empSsr }) {
           workToEdit={workToEdit}
         />
       </Modal>
-      {fy !== "all" && !user?.work && <AddBtn onClick={setShowForm} />}
+      {fy !== "all" && !user?.work && (
+        <AddBtn translate={addBtnStyle} onClick={setShowForm} />
+      )}
     </App>
   );
 }

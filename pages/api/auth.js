@@ -1,4 +1,5 @@
 import nextConnect from "next-connect";
+const { dbConnect } = require("../../utils/db");
 import cookie from "cookie";
 export function parseCookies(req) {
   return cookie.parse(req ? req.headers.cookie || "" : document.cookie);
@@ -16,6 +17,7 @@ export const verifyToken = (req) => {
 };
 
 export async function auth(req, strict) {
+  dbConnect();
   return new Promise(async (resolve, reject) => {
     const cookies = parseCookies(req);
     if (!cookies.access_token) {

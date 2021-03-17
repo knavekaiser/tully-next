@@ -80,6 +80,7 @@ export default function Productions({ ssrUser, ssrData, ssrMonths }) {
   const [showForm, setShowForm] = useState(false);
   const [paymentToEdit, setPaymentToEdit] = useState(false);
   const [payments, setPayments] = useState(ssrData.payments);
+  const [addBtnStyle, setAddBtnStyle] = useState(false);
   const dltPayment = (_id) => {
     if (confirm("you want to delete this payments?")) {
       fetch("/api/payments", {
@@ -168,6 +169,13 @@ export default function Productions({ ssrUser, ssrData, ssrMonths }) {
               label: "Taka",
             },
           ]}
+          onScroll={(dir) => {
+            if (dir === "down") {
+              setAddBtnStyle(true);
+            } else {
+              setAddBtnStyle(false);
+            }
+          }}
         >
           {payments.map((payment, i) => (
             <Tr
@@ -193,7 +201,9 @@ export default function Productions({ ssrUser, ssrData, ssrMonths }) {
             </Tr>
           ))}
         </Table>
-        {fy !== "all" && <AddBtn onClick={setShowForm} />}
+        {fy !== "all" && (
+          <AddBtn translate={addBtnStyle} onClick={setShowForm} />
+        )}
       </div>
       <Modal open={showForm} setOpen={setShowForm}>
         <AddWagePayment

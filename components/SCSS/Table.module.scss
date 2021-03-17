@@ -17,9 +17,10 @@
     }
   }
   tbody {
+    height: 100vh;
     display: block;
     overflow: auto;
-    max-height: calc(100vh - (2rem + 46px + 56px));
+    max-height: calc((var(--vh) * 100) - (2rem + 46px + 56px));
     tr {
       border-radius: 0.3rem;
       border-bottom: 1px solid #ddd;
@@ -27,7 +28,7 @@
         background: #ececec;
       }
       &:last-child {
-        margin-bottom: 4rem;
+        margin-bottom: 1rem;
       }
     }
   }
@@ -37,6 +38,7 @@
     display: grid;
     td {
       padding: 1rem 0;
+      position: relative;
       sup {
         position: absolute;
         transform: translate(3px, -5px);
@@ -45,6 +47,7 @@
     &.trContext {
       z-index: 1;
       .ctxMenu {
+        position: absolute;
         z-index: 10;
         .backDrop {
           z-index: -10;
@@ -74,6 +77,26 @@
         }
       }
     }
+    &.loadingTr {
+      pointer-events: none;
+      padding: 1.25rem 0.9rem;
+      td {
+        margin: auto;
+        margin-right: 0;
+        border-radius: 2rem;
+        max-width: 60%;
+        width: 100%;
+        padding: 0rem;
+        height: 1rem;
+        background-image: linear-gradient(
+          90deg,
+          rgba(0, 0, 0, 0.05) 20%,
+          rgba(#f6f6f6, 0.5) 50%,
+          rgba(0, 0, 0, 0.05) 80%
+        );
+        animation: shine-lines 3s infinite linear;
+      }
+    }
   }
   .hr {
     border: none;
@@ -81,7 +104,7 @@
   }
   &.empList {
     tr {
-      grid-template-columns: 0.4fr 0.2fr 0.2fr 0.2fr;
+      grid-template-columns: 4rem 0.34fr 0.33fr 0.33fr;
       th:first-child,
       td:first-child {
         text-align: left;
@@ -89,6 +112,7 @@
       th,
       td {
         text-align: right;
+        white-space: nowrap;
       }
       .name {
         display: grid;
@@ -96,20 +120,32 @@
       }
       .lastQnt,
       .qnt {
-        font-size: 0.85em;
+        font-size: 0.8em;
+        display: block;
         color: rgba(0, 0, 0, 0.6);
       }
       .paid {
         color: rgb(27, 182, 61);
       }
       .deu {
-        font-size: 0.85rem;
+        font-size: 0.8rem;
+        display: block;
         color: red;
+      }
+    }
+    .loadingTr {
+      td:first-child {
+        max-width: 100%;
+        width: 100%;
       }
     }
   }
   &.empWork {
     tr {
+      padding: 0.5rem 1rem;
+      .ctxMenu {
+        position: absolute;
+      }
       grid-template-columns: 0.2fr 0.2fr 0.2fr 0.2fr 0.2fr;
       th:first-child,
       td:first-child,
@@ -123,11 +159,20 @@
         grid-row: auto;
         text-align: right;
       }
-      .date,
-      .paid {
+      .date:not(.single),
+      .paid:not(.single) {
         display: grid;
         align-items: center;
-        grid-row: 1/20;
+        grid-row: 1 / span 10;
+      }
+      .dress,
+      .qnt,
+      .total {
+        padding: 0.45rem 0;
+        margin: auto 0;
+      }
+      .derss:first-child {
+        background: red !important;
       }
       .dress {
         grid-column: 2/3;
@@ -138,6 +183,9 @@
       }
       .total {
         grid-column: 4/5;
+      }
+      .paid {
+        grid-column: 5/6;
       }
     }
   }
@@ -246,6 +294,9 @@
           text-align: right;
         }
       }
+    }
+    tbody {
+      max-height: calc((var(--vh) * 100) - (2rem + 86px + 56px));
     }
     tr {
       grid-template-columns: 0.4fr 0.2fr 0.2fr 0.2fr;
@@ -365,5 +416,28 @@
         text-align: right;
       }
     }
+  }
+}
+
+@media only screen and (max-width: 480px) {
+  .table {
+    tbody {
+      max-height: calc((var(--vh) * 100) - (1rem + 45px + 56px));
+    }
+    .loadingTr {
+      td {
+        max-width: 70%;
+      }
+    }
+  }
+}
+
+@keyframes shine-lines {
+  0% {
+    background-position: -100px;
+  }
+
+  100% {
+    background-position: 100px;
   }
 }

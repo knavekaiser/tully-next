@@ -77,6 +77,7 @@ export default function Costings({ ssrData, ssrUser, ssrMonths }) {
   const [costings, setCostings] = useState(ssrData);
   const [showForm, setShowForm] = useState(false);
   const [costToEdit, setCostToEdit] = useState(null);
+  const [addBtnStyle, setAddBtnStyle] = useState(false);
   const dltCosting = (_id) => {
     if (confirm("you want to delete this Costing?")) {
       fetch("/api/costings", {
@@ -125,6 +126,13 @@ export default function Costings({ ssrData, ssrUser, ssrMonths }) {
           { label: "cost" },
         ]}
         className={s.costings}
+        onScroll={(dir) => {
+          if (dir === "down") {
+            setAddBtnStyle(true);
+          } else {
+            setAddBtnStyle(false);
+          }
+        }}
       >
         {costings.map((costing, i) => (
           <Tr
@@ -157,7 +165,7 @@ export default function Costings({ ssrData, ssrUser, ssrMonths }) {
           </Tr>
         ))}
       </Table>
-      {fy !== "all" && <AddBtn onClick={setShowForm} />}
+      {fy !== "all" && <AddBtn translate={addBtnStyle} onClick={setShowForm} />}
       <Modal open={showForm} setOpen={setShowForm}>
         <CostingForm
           fy={fy}
