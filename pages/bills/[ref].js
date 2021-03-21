@@ -35,9 +35,6 @@ export async function getServerSideProps(ctx) {
 export default function SingleBill({ ssrData, ssrUser }) {
   const { setUser } = useContext(SiteContext);
   useEffect(() => {
-    console.log(ssrData);
-  }, [ssrData]);
-  useEffect(() => {
     setUser(ssrUser);
   }, []);
   return (

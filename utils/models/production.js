@@ -93,23 +93,25 @@ const costing = new Schema({
 const fabric = new Schema({
   dealer: { type: String, required: true },
   date: { type: Date, required: true },
+  fy: { type: String, required: true },
   name: { type: String, required: true },
   qnt: {
     unit: { type: String, required: true },
-    amout: { type: Number, required: true },
+    amount: { type: Number, required: true },
   },
   price: { type: Number, required: true },
-  img: [],
+  img: "",
   usage: [
     {
-      lot: { type: Schema.Types.ObjectId, ref: "Costing", required: true },
+      lot: { type: Number, required: true },
       qnt: {
         unit: { type: String, required: true },
-        amout: { type: Number, required: true },
+        amount: { type: Number, required: true },
       },
     },
   ],
 });
+global.Fabric = mongoose.models["Fabric"] || mongoose.model("Fabric", fabric);
 
 global.Payment = Payment;
 global.WagePayment = WagePayment;

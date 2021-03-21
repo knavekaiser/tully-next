@@ -70,7 +70,10 @@ export default nextConnect({
         const query = {
           ...(fy !== "all" && { fy }),
           ...(dateFilter && {
-            date: { $gte: dateFilter.from, $lte: dateFilter.to },
+            date: {
+              $gte: new Date(dateFilter.from),
+              $lte: new Date(dateFilter.to),
+            },
           }),
         };
         Promise.all([
@@ -83,8 +86,18 @@ export default nextConnect({
           }),
           getMonths(EmpWork, fy),
           EmpWork.findOne({}, "-_id date").sort({ date: -1 }),
+          // EmpWork.aggregate([
+          //   {
+          //     $match: query,
+          //   },
+          //   {
+          //     $group: {
+          //       _id: "$employee",
+          //     },
+          //   },
+          // ]),
         ])
-          .then(([emps, months, lastWeek]) => {
+          .then(([emps, months, lastWeek, more]) => {
             const allEmps = emps.map((emp) => {
               const { qnt, cost, paid, deu, lastDay } = getProduction(
                 emp.work.map((item) => item?.work).filter((item) => !!item),
@@ -102,6 +115,7 @@ export default nextConnect({
                 lastDay,
               };
             });
+            // console.log(more);
             res.json({ code: "ok", content: { allEmps, months } });
           })
           .catch((err) => {

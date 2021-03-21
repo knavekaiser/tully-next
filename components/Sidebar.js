@@ -91,31 +91,33 @@ export default function Sidebar({ sections, sidebarOpen, setSidebarOpen }) {
               <ion-icon name="analytics-outline"></ion-icon>
               <p>Data</p>
             </li>
-            <li onClick={() => setBackupOpen(!backupOpen)}>
-              <ion-icon name="download-outline"></ion-icon>
-              <p>Backup</p>
-            </li>
-            {backupOpen && (
-              <ul className={s.fold}>
-                <li>App Backup</li>
-                <li>Json Data</li>
-              </ul>
-            )}
-            <li>
-              <input
-                className={s.upload}
-                type="file"
-                accept=".txt, .json"
-                name="restore"
-              />
-              <ion-icon name="refresh-outline"></ion-icon>
-              <p>Restore</p>
-            </li>
-            <li className={s.clear}>
-              <ion-icon name="trash-outline"></ion-icon>
-              <p>Clear All</p>
-              <span></span>
-            </li>
+            {
+              // <li onClick={() => setBackupOpen(!backupOpen)}>
+              //   <ion-icon name="download-outline"></ion-icon>
+              //   <p>Backup</p>
+              // </li>
+              // {backupOpen && (
+              //   <ul className={s.fold}>
+              //     <li>App Backup</li>
+              //     <li>Json Data</li>
+              //   </ul>
+              // )}
+              // <li>
+              //   <input
+              //     className={s.upload}
+              //     type="file"
+              //     accept=".txt, .json"
+              //     name="restore"
+              //   />
+              //   <ion-icon name="refresh-outline"></ion-icon>
+              //   <p>Restore</p>
+              // </li>
+              // <li className={s.clear}>
+              //   <ion-icon name="trash-outline"></ion-icon>
+              //   <p>Clear All</p>
+              //   <span></span>
+              // </li>
+            }
           </>
         )}
         {user && (

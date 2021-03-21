@@ -18,7 +18,8 @@ export default function Nav({ sidebarOpen, setSidebarOpen }) {
       router.pathname === "/productions" ||
       router.pathname === "/wages" ||
       router.pathname === "/workers" ||
-      router.pathname === "/lots"
+      router.pathname === "/lots" ||
+      router.pathname === "/fabrics"
     ) {
       setBackBtn(false);
     } else {

@@ -110,11 +110,17 @@
     transform: translateY(100%);
     left: 0;
     border-radius: 0.5rem;
-    li {
+    .option {
       padding: 0.5rem;
       cursor: pointer;
       &:hover {
         background: rgba(0, 0, 0, 0.05);
+      }
+      &.selected {
+        font-style: italic;
+        pointer-events: none !important;
+        color: rgba(0, 0, 0, 0.5);
+        background: rgba(0, 0, 0, 0.08);
       }
     }
   }
@@ -138,9 +144,13 @@
   width: 22rem;
   max-width: 100%;
   max-height: calc(100vh - 2rem);
-  h2 {
+  h2,
+  h3 {
     font-weight: 300;
     transform: translateY(0.5rem);
+  }
+  h3 {
+    margin-top: 1rem;
   }
   button {
     margin-top: 1rem;
@@ -216,6 +226,13 @@
       }
     }
   }
+  &.fabric {
+    .fabricDetail {
+      display: grid;
+      grid-gap: 1rem;
+      grid-template-columns: 1fr 1fr 1fr;
+    }
+  }
 }
 .multipleInput {
   display: grid;
@@ -263,6 +280,7 @@
 }
 
 .addBtn {
+  cursor: pointer;
   display: grid;
   padding: 0.2em;
   background: #00f260;

@@ -5,8 +5,10 @@ import {
   Submit,
   MultipleInput,
   GetGroupData,
+  Combobox,
   formatDate,
   $,
+  convertUnit,
 } from "./FormElements";
 import s from "./SCSS/FormElements.module.scss";
 
@@ -96,6 +98,30 @@ const matPayments = [
     },
   ],
 ];
+const fabricUsage = [
+  [
+    {
+      id: "lotNo",
+      type: "number",
+      label: "Lot no",
+      clone: true,
+    },
+    {
+      id: "qnt",
+      type: "number",
+      label: "Qnt",
+    },
+    {
+      id: "unit",
+      type: "combobox",
+      label: "Unit",
+      options: [
+        { label: "Meter", value: "meter" },
+        { label: "Yard", value: "yard" },
+      ],
+    },
+  ],
+];
 
 export function AddEmp({ onSuccess }) {
   const [loading, setLoading] = useState(false);
@@ -135,7 +161,6 @@ export function AddEmp({ onSuccess }) {
         required={true}
         validationMessage="Enter employee's name"
         label="Name"
-        value={name}
         onChange={(target) => {
           setName(target.value);
           setSameName(false);
@@ -205,7 +230,6 @@ export function UpdateEmp({ data, onSuccess }) {
         required={true}
         validationMessage="Enter employee's name"
         label="Name"
-        value={name}
         onChange={(target) => {
           setName(target.value);
           setSameName(false);
@@ -216,7 +240,6 @@ export function UpdateEmp({ data, onSuccess }) {
       <PasswordInput
         defaultValue={data.pass}
         label="Password"
-        value={pass}
         onChange={(target) => setPass(target.value)}
         validationMessage="More than 8 character"
       />
@@ -318,7 +341,6 @@ export function AddEmpWork({ employee, fy, workToEdit, onSuccess }) {
           defaultValue={preFill?.paid}
           label="Payment"
           type="number"
-          value={paid}
           onChange={(t) => setPaid(t.value)}
         />
       )}
@@ -376,7 +398,6 @@ export function AddWorker({ edit, onSuccess }) {
         required={true}
         label="Join"
         type="date"
-        value={join}
         onChange={(t) => setJoin(t.value)}
       />
       <Input
@@ -384,7 +405,6 @@ export function AddWorker({ edit, onSuccess }) {
         required={true}
         validationMessage="Enter worker's name"
         label="Name"
-        value={name}
         onChange={(target) => {
           setName(target.value);
           setSameName(false);
@@ -397,7 +417,6 @@ export function AddWorker({ edit, onSuccess }) {
         required={true}
         label="Salary"
         type="number"
-        value={salary}
         onChange={(t) => setSalary(t.value)}
       />
       <Submit
@@ -437,14 +456,12 @@ export function WorkerForm({ edit, onSuccess }) {
             required={true}
             label="Date"
             type="date"
-            value={date}
             onChange={(t) => setDate(t.value)}
           />
           <Input
             defaultValue={paid?.paid}
             required={true}
             label="Amount"
-            value={paid}
             type="number"
             onChange={(t) => setPaid(t.value)}
           />
@@ -452,10 +469,10 @@ export function WorkerForm({ edit, onSuccess }) {
       ) : (
         <>
           <Input
+            defaultValue={date.from}
             required={true}
             label="From"
             type="date"
-            value={date.from}
             onChange={(t) => setAbs((prev) => ({ ...prev, from: t.value }))}
           />
           <Input
@@ -494,7 +511,7 @@ export function DateFilter({ onSubmit }) {
       <Input
         label="To"
         type="date"
-        value={to}
+        defaultValue={to}
         onChange={(t) => setTo(t.value)}
       />
       <Submit label="Filter" />
@@ -584,7 +601,6 @@ export function BillForm({ fy, billToEdit, onSuccess }) {
         defaultValue={billToEdit && formatDate(billToEdit.date)}
         type="date"
         label="Date"
-        value={date}
         onChange={(t) => setDate(t.value)}
       />
       <Input
@@ -592,7 +608,6 @@ export function BillForm({ fy, billToEdit, onSuccess }) {
         defaultValue={billToEdit?.ref}
         label="Ref"
         type="number"
-        value={ref}
         onChange={(t) => {
           setRef(t.value);
           refExists && setRefExists(false);
@@ -699,7 +714,6 @@ export function CostingForm({ fy, costToEdit, onSuccess }) {
         required={true}
         defaultValue={costToEdit?.lot}
         label="Lot no"
-        value={lot}
         onChange={(t) => setLot(t.value)}
       />
       <Input
@@ -708,7 +722,6 @@ export function CostingForm({ fy, costToEdit, onSuccess }) {
         defaultValue={costToEdit && formatDate(costToEdit.date)}
         type="date"
         label="Date"
-        value={date}
         onChange={(t) => setDate(t.value)}
       />
       <Input
@@ -716,7 +729,6 @@ export function CostingForm({ fy, costToEdit, onSuccess }) {
         required={true}
         defaultValue={costToEdit?.dress}
         label="Dress"
-        value={dress}
         onChange={(t) => setDress(t.value)}
       />
       <Input
@@ -725,7 +737,6 @@ export function CostingForm({ fy, costToEdit, onSuccess }) {
         required={true}
         defaultValue={costToEdit?.lotSize}
         label="Lot size"
-        value={lotSize}
         onChange={(t) => setLotSize(t.value)}
       />
       <div className={s.materials}>
@@ -739,7 +750,6 @@ export function CostingForm({ fy, costToEdit, onSuccess }) {
         className={s.note}
         defaultValue={costToEdit?.note}
         label="Note"
-        value={note}
         onChange={(t) => setNote(t.value)}
       />
       <Submit
@@ -823,7 +833,6 @@ export function AddMaterialPayment({ fy, paymentToEdit, onSuccess }) {
         defaultValue={paymentToEdit && formatDate(paymentToEdit.date)}
         required={true}
         label="Date"
-        value={date}
         type="date"
         onChange={(t) => setDate(t.value)}
       />
@@ -886,7 +895,6 @@ export function AddWagePayment({ fy, paymentToEdit, onSuccess }) {
         defaultValue={paymentToEdit && formatDate(paymentToEdit.date)}
         required={true}
         label="Date"
-        value={date}
         type="date"
         onChange={(t) => setDate(t.value)}
       />
@@ -894,10 +902,158 @@ export function AddWagePayment({ fy, paymentToEdit, onSuccess }) {
         defaultValue={paymentToEdit?.amount}
         required={true}
         label="Amount"
-        value={amount}
         type="number"
         onChange={(t) => setAmount(t.value)}
       />
+      <Submit
+        loading={loading}
+        label={<ion-icon name="add-outline"></ion-icon>}
+      />
+    </form>
+  );
+}
+
+export function AddFabric({ fy, edit, onSuccess }) {
+  const [loading, setLoading] = useState(false);
+  const [date, setDate] = useState(edit && formatDate(edit.date));
+  const [dealer, setDealer] = useState(edit?.dealer);
+  const [name, setName] = useState(edit?.name);
+  const [qnt, setQnt] = useState(edit?.qnt || {});
+  const [price, setPrice] = useState(edit?.price);
+  const [img, setImg] = useState(edit?.img);
+  const [preFill, setPreFill] = useState(() => {
+    if (edit) {
+      let usage = [];
+      if (edit.usage.length > 0) {
+        edit.usage.forEach((item) => {
+          usage.push([
+            {
+              ...fabricUsage[0][0],
+              value: item.lot,
+            },
+            {
+              ...fabricUsage[0][1],
+              value: item.qnt.amount,
+            },
+            {
+              ...fabricUsage[0][2],
+              value: item.qnt.unit,
+            },
+          ]);
+        });
+        usage.push(...fabricUsage);
+      }
+      return {
+        ...edit,
+        ...(edit.usage.length > 0 && {
+          fabricUsage: [...usage],
+        }),
+      };
+    } else {
+      return null;
+    }
+  });
+  const submit = (e) => {
+    e.preventDefault();
+    setLoading(true);
+    fetch("/api/fabrics", {
+      method: edit ? "PATCH" : "POST",
+      headers: { "Content-type": "application/json" },
+      body: JSON.stringify({
+        ...(edit && { _id: edit._id }),
+        fy,
+        date,
+        dealer,
+        name,
+        qnt,
+        price,
+        usage: GetGroupData($(".modal #fabricUsage")).map((item) => ({
+          lot: item.lotNo,
+          qnt: {
+            amount: item.qnt,
+            unit: item.unit,
+          },
+        })),
+      }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        setLoading(false);
+        if (data.code === "ok") {
+          onSuccess?.(data.content);
+        } else {
+          alert("something went wrong");
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+        alert("something went wrong");
+      });
+  };
+  return (
+    <form className={`${s.form} ${s.fabric}`} onSubmit={submit}>
+      <h2>Add Fabric</h2>
+      <Input
+        defaultValue={edit && formatDate(edit?.date)}
+        required={true}
+        label="Date"
+        type="date"
+        onChange={(t) => setDate(t.value)}
+      />
+      <Input
+        defaultValue={edit?.dealer}
+        required={true}
+        label="Dealer"
+        onChange={(t) => setDealer(t.value)}
+      />
+      <Input
+        defaultValue={edit?.name}
+        required={true}
+        label="Fabric"
+        onChange={(t) => setName(t.value)}
+      />
+      <div className={s.fabricDetail}>
+        <Input
+          defaultValue={edit?.qnt.amount}
+          required={true}
+          label="Qnt"
+          value={qnt.amount}
+          type="number"
+          onChange={(t) => setQnt((prev) => ({ ...prev, amount: +t.value }))}
+        />
+        <Combobox
+          label="Unit"
+          defaultValue={edit?.qnt.unit || qnt.unit}
+          options={[
+            { label: "Meter", value: "meter" },
+            { label: "Yard", value: "yard" },
+          ]}
+          required={true}
+          onChange={(option) => {
+            setQnt((prev) => {
+              return {
+                unit: option.value,
+                amount: convertUnit(prev.amount, prev.unit, option.value),
+              };
+            });
+          }}
+        />
+        <Input
+          defaultValue={edit?.price}
+          required={true}
+          label="Price"
+          type="number"
+          onChange={(t) => setPrice(+t.value)}
+        />
+      </div>
+      <h3>Usage</h3>
+      <div className={s.fabricUsage}>
+        <MultipleInput
+          id="fabricUsage"
+          inputs={preFill?.fabricUsage || fabricUsage}
+          refInput={fabricUsage}
+        />
+      </div>
       <Submit
         loading={loading}
         label={<ion-icon name="add-outline"></ion-icon>}

@@ -2,10 +2,14 @@ import { useEffect, useState, useContext } from "react";
 import { SiteContext } from "../../SiteContext";
 import { App } from "../index.js";
 import Table, { Tr } from "../../components/Table";
-import { AddBtn } from "../../components/FormElements";
+import {
+  AddBtn,
+  displayDate,
+  convertUnit,
+} from "../../components/FormElements";
 import { useRouter } from "next/router";
 import { Modal } from "../../components/Modals";
-import { CostingForm } from "../../components/Forms";
+import { AddFabric } from "../../components/Forms";
 import s from "../../components/SCSS/Table.module.scss";
 
 export async function getServerSideProps(ctx) {
@@ -19,13 +23,19 @@ export async function getServerSideProps(ctx) {
     ...(from && to && { date: { $gte: from, $lte: to } }),
   };
   const token = verifyToken(req);
-  let costings = [];
-  let user = {};
-  let months = [];
   if (token?.role === "admin") {
-    user = await Admin.findOne({ _id: token.sub }, "-pass");
-    costings = await Costing.find(filters).sort({ ref: 1 });
-    months = await getMonths(Costing, fy);
+    const [user, fabrics, months] = await Promise.all([
+      Admin.findOne({ _id: token.sub }, "-pass"),
+      Fabric.find(filters).sort({ date: 1 }),
+      getMonths(Fabric, fy),
+    ]);
+    return {
+      props: {
+        ssrData: json(fabrics),
+        ssrUser: json(user),
+        ssrMonths: json(months),
+      },
+    };
   } else {
     return {
       redirect: {
@@ -33,25 +43,18 @@ export async function getServerSideProps(ctx) {
       },
     };
   }
-  return {
-    props: {
-      ssrData: json(costings),
-      ssrUser: json(user),
-      ssrMonths: json(months),
-    },
-  };
 }
 
-export default function Costings({ ssrData, ssrUser, ssrMonths }) {
+export default function Fabrics({ ssrData, ssrUser, ssrMonths }) {
   const router = useRouter();
   const { fy, dateFilter, setUser, setMonths } = useContext(SiteContext);
-  const [costings, setCostings] = useState(ssrData);
+  const [fabrics, setFabrics] = useState(ssrData);
   const [showForm, setShowForm] = useState(false);
-  const [costToEdit, setCostToEdit] = useState(null);
+  const [edit, setEdit] = useState(null);
   const [addBtnStyle, setAddBtnStyle] = useState(false);
-  const dltCosting = (_id) => {
-    if (confirm("you want to delete this Costing?")) {
-      fetch("/api/costings", {
+  const dltFabric = (_id) => {
+    if (confirm("you want to delete this Fabric?")) {
+      fetch("/api/fabrics", {
         method: "DELETE",
         headers: { "Content-type": "application/json" },
         body: JSON.stringify({ _id }),
@@ -59,7 +62,7 @@ export default function Costings({ ssrData, ssrUser, ssrMonths }) {
         .then((res) => res.json())
         .then((data) => {
           if (data.code === "ok") {
-            setCostings((prev) => prev.filter((item) => item._id !== _id));
+            setFabrics((prev) => prev.filter((item) => item._id !== _id));
           } else {
             alert("something went wrong");
           }
@@ -72,7 +75,7 @@ export default function Costings({ ssrData, ssrUser, ssrMonths }) {
   };
   useEffect(() => setUser(ssrUser), []);
   useEffect(() => setMonths(ssrMonths), [ssrMonths]);
-  useEffect(() => setCostings(ssrData), [ssrData]);
+  useEffect(() => setFabrics(ssrData), [ssrData]);
   useEffect(() => {
     router.push({
       pathname: router.pathname,
@@ -85,18 +88,17 @@ export default function Costings({ ssrData, ssrUser, ssrMonths }) {
       },
     });
   }, [fy, dateFilter]);
-  useEffect(() => !showForm && setCostToEdit(null), [showForm]);
+  useEffect(() => !showForm && setEdit(null), [showForm]);
+  // console.log(ssrData);
   return (
     <App>
       <Table
         columns={[
-          { label: "Lot", className: s.lot },
-          { label: "note", className: s.note },
-          { label: "dress", className: s.dress },
-          { label: "lot size" },
-          { label: "cost" },
+          { label: "Date", className: s.date },
+          { label: "Fabric", className: s.fabric },
+          { label: "Usage", className: s.usage },
         ]}
-        className={s.costings}
+        className={s.fabrics}
         onScroll={(dir) => {
           if (dir === "down") {
             setAddBtnStyle(true);
@@ -105,44 +107,72 @@ export default function Costings({ ssrData, ssrUser, ssrMonths }) {
           }
         }}
       >
-        {costings.map((costing, i) => (
+        {fabrics.map((fabric, i) => (
           <Tr
             key={i}
             options={[
               {
                 label: "Edit",
                 fun: () => {
-                  setCostToEdit(costing);
+                  setEdit(fabric);
                   setShowForm(true);
                 },
               },
               {
                 label: "Delete",
-                fun: () => dltCosting(costing._id),
+                fun: () => dltFabric(fabric._id),
               },
             ]}
-            onClick={() => router.push(`/costings/${costing.lot}`)}
+            onClick={() => router.push(`/fabrics/${fabric._id}`)}
           >
-            <td className={s.lot}>{costing.lot}</td>
-            <td className={s.note}>{costing.note}</td>
-            <td className={s.dress}>{costing.dress}</td>
-            <td>{costing.lotSize}</td>
-            <td>
-              {Math.ceil(
-                costing.materials.reduce((p, c) => p + c.qnt * c.price, 0) /
-                  costing.lotSize
+            <td className={s.date}>
+              {displayDate(fabric.date)}
+              <span>{fabric.dealer}</span>
+            </td>
+            <td className={s.fabric}>
+              {fabric.name}
+              <span>
+                {fabric.qnt.amount}
+                {fabric.qnt.unit.substr(0, 1)} • ৳ {fabric.price}
+              </span>
+            </td>
+            <td className={s.usage}>
+              {convertUnit(
+                fabric.usage.reduce(
+                  (p, c) =>
+                    p + convertUnit(c.qnt.amount, c.qnt.unit, fabric.qnt.unit),
+                  0
+                ),
+                fabric.qnt.unit,
+                "yard"
               )}
+              yd/{fabric.usage.length} lots
+              <span>
+                remaining{" "}
+                {convertUnit(
+                  fabric.qnt.amount -
+                    fabric.usage.reduce(
+                      (p, c) =>
+                        p +
+                        convertUnit(c.qnt.amount, c.qnt.unit, fabric.qnt.unit),
+                      0
+                    ),
+                  fabric.qnt.unit,
+                  "yard"
+                )}
+                yd
+              </span>
             </td>
           </Tr>
         ))}
       </Table>
       {fy !== "all" && <AddBtn translate={addBtnStyle} onClick={setShowForm} />}
       <Modal open={showForm} setOpen={setShowForm}>
-        <CostingForm
+        <AddFabric
           fy={fy}
-          costToEdit={costToEdit}
+          edit={edit}
           onSuccess={(newCosting) => {
-            setCostings((prev) => {
+            setFabrics((prev) => {
               const newCostings = prev.filter(
                 (item) => item._id !== newCosting._id
               );

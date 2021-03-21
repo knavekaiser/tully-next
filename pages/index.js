@@ -75,6 +75,19 @@ export const App = ({ children }) => {
                 },
               },
               {
+                label: "fabrics",
+                link: {
+                  pathname: `/fabrics`,
+                  query: {
+                    fy,
+                    ...(dateFilter && {
+                      from: dateFilter.from,
+                      to: dateFilter.to,
+                    }),
+                  },
+                },
+              },
+              {
                 label: "costs",
                 link: {
                   pathname: `/costings`,

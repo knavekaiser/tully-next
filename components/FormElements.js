@@ -1,6 +1,16 @@
 import { useEffect, useState, useRef, useLayoutEffect } from "react";
 import s from "./SCSS/FormElements.module.scss";
 
+export function convertUnit(value, curr, target) {
+  const con = {
+    meter2yard: (n) => n * 1.0936132983377078,
+    yard2meter: (n) => n * 0.9144,
+  };
+  return curr !== target
+    ? +con[`${curr}2${target}`]?.(value).toFixed(2) || +value.toFixed(2)
+    : +value.toFixed(2);
+}
+
 const defaultValidation = /./;
 
 export const ID = (length) => {
@@ -37,6 +47,7 @@ export const Input = ({
   label,
   type,
   defaultValue,
+  value,
   pattern,
   strict,
   warning,
@@ -53,7 +64,7 @@ export const Input = ({
   name,
   autoComplete,
 }) => {
-  const [value, setValue] = useState(defaultValue);
+  const [localValue, setValue] = useState(defaultValue || value);
   const [showLabel, setShowLabel] = useState(!defaultValue);
   const [invalidChar, setInvalidChar] = useState(false);
   const [invalidInput, setInvalidInput] = useState(false);
@@ -72,14 +83,17 @@ export const Input = ({
     }
   };
   const focus = () => setShowLabel(false);
-  const blur = () => !value && setShowLabel(true);
+  const blur = () => !localValue && setShowLabel(true);
+  useEffect(() => {
+    value && setValue(value);
+  }, [value]);
   return (
     <section
       id={dataId}
       className={`${s.input} ${className || ""} ${
         invalidChar ? s.invalid : ""
       } ${disabled ? s.disabled : ""} ${
-        type === "date" && !value ? s.empty : ""
+        type === "date" && !localValue ? s.empty : ""
       }`}
     >
       <input
@@ -90,7 +104,7 @@ export const Input = ({
         }}
         name={name}
         minLength={min}
-        value={value || ""}
+        value={localValue || ""}
         required={required}
         type={type || "text"}
         onChange={changeHandler}
@@ -385,10 +399,12 @@ export const Combobox = ({
   validationMessage,
 }) => {
   const [value, setValue] = useState(() => {
-    if (defaultValue > -1 && options[defaultValue]) {
+    if (options[defaultValue]) {
       return options[defaultValue];
     } else if (typeof defaultValue === "object") {
       return defaultValue;
+    } else if (typeof defaultValue === "string") {
+      return options.filter((item) => item.value === defaultValue)[0];
     } else {
       return "";
     }
@@ -455,7 +471,7 @@ export const Combobox = ({
               input.current.setCustomValidity("");
             }}
             className={`${s.option} ${
-              value === option.label ? s.selected : ""
+              (value.label || value) === option.label ? s.selected : ""
             }`}
           >
             {option.label}
