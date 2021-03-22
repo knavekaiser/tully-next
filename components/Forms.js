@@ -279,13 +279,11 @@ export function AddEmpWork({ employee, fy, workToEdit, onSuccess }) {
             },
           ]);
         });
-        inputProduction.push(...empWorkProduction);
       }
+      inputProduction.push(...empWorkProduction);
       return {
         ...workToEdit,
-        ...(workToEdit.products.length > 0 && {
-          products: [...inputProduction],
-        }),
+        products: [...inputProduction],
       };
     } else {
       return null;
@@ -548,13 +546,11 @@ export function BillForm({ fy, billToEdit, onSuccess }) {
             },
           ]);
         });
-        products.push(...billProduction);
       }
+      products.push(...billProduction);
       return {
         ...billToEdit,
-        ...(billToEdit.products.length > 0 && {
-          products: [...products],
-        }),
+        products: [...products],
       };
     } else {
       return null;
@@ -658,13 +654,11 @@ export function CostingForm({ fy, costToEdit, onSuccess }) {
             },
           ]);
         });
-        materials.push(...costMaterials);
       }
+      materials.push(...costMaterials);
       return {
         ...costToEdit,
-        ...(costToEdit.materials.length > 0 && {
-          materials: [...materials],
-        }),
+        materials: [...materials],
       };
     } else {
       return null;
@@ -781,13 +775,11 @@ export function AddMaterialPayment({ fy, paymentToEdit, onSuccess }) {
             },
           ]);
         });
-        payments.push(...matPayments);
       }
+      payments.push(...matPayments);
       return {
         ...paymentToEdit,
-        ...(paymentToEdit.payments.length > 0 && {
-          payments: [...payments],
-        }),
+        payments: [...payments],
       };
     } else {
       return null;
@@ -941,13 +933,11 @@ export function AddFabric({ fy, edit, onSuccess }) {
             },
           ]);
         });
-        usage.push(...fabricUsage);
       }
+      usage.push(...fabricUsage);
       return {
         ...edit,
-        ...(edit.usage.length > 0 && {
-          fabricUsage: [...usage],
-        }),
+        fabricUsage: [...usage],
       };
     } else {
       return null;
