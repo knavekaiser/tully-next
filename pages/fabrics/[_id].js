@@ -1,10 +1,12 @@
-import { useEffect, useContext } from "react";
+import { useEffect, useContext, useState } from "react";
 import { SiteContext } from "../../SiteContext";
 import { App } from "../index.js";
 import Table from "../../components/Table";
 import { useRouter } from "next/router";
 import { displayDate, convertUnit } from "../../components/FormElements";
+import { Modal } from "../../components/Modals";
 import s from "../../components/SCSS/Table.module.scss";
+import Img from "next/image";
 
 export async function getServerSideProps(ctx) {
   const { dbConnect, json } = require("../../utils/db");
@@ -41,13 +43,11 @@ export async function getServerSideProps(ctx) {
 }
 
 export default function SingleCosting({ ssrData, ssrUser }) {
+  const [showSample, setShowSample] = useState(false);
   const { setUser } = useContext(SiteContext);
   useEffect(() => {
     setUser(ssrUser);
   }, []);
-  useEffect(() => {
-    console.log(ssrData);
-  }, [ssrData]);
   return (
     <App>
       <Table
@@ -73,8 +73,18 @@ export default function SingleCosting({ ssrData, ssrUser }) {
               </>
             ),
             className: s.name,
+            onClick: () => setShowSample(true),
           },
-          { label: "", className: s.back },
+          {
+            label: (
+              <>
+                {ssrData.img && (
+                  <Img src={ssrData.img} alt="image" layout="fill" />
+                )}
+              </>
+            ),
+            className: s.back,
+          },
           { label: "Lot", className: s.lot },
           { label: "Usage" },
         ]}
@@ -117,6 +127,15 @@ export default function SingleCosting({ ssrData, ssrUser }) {
           </td>
         </tr>
       </Table>
+      <Modal className="sampleImg" open={showSample} setOpen={setShowSample}>
+        <Img
+          src={ssrData.img}
+          alt="sample image"
+          height={500}
+          width={300}
+          layout="responsive"
+        />
+      </Modal>
     </App>
   );
 }

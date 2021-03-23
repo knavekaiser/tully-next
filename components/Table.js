@@ -22,6 +22,7 @@ export default function Table({ className, columns, children, onScroll }) {
                   }
                 }}
                 className={item.className || ""}
+                onClick={item.onClick}
               >
                 {item.label}
               </th>

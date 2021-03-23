@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import {
   Input,
+  ImgUpload,
   PasswordInput,
   Submit,
   MultipleInput,
@@ -912,7 +913,7 @@ export function AddFabric({ fy, edit, onSuccess }) {
   const [name, setName] = useState(edit?.name);
   const [qnt, setQnt] = useState(edit?.qnt || {});
   const [price, setPrice] = useState(edit?.price);
-  const [img, setImg] = useState(edit?.img);
+  const [img, setImg] = useState(edit?.img || "");
   const [preFill, setPreFill] = useState(() => {
     if (edit) {
       let usage = [];
@@ -951,6 +952,7 @@ export function AddFabric({ fy, edit, onSuccess }) {
       headers: { "Content-type": "application/json" },
       body: JSON.stringify({
         ...(edit && { _id: edit._id }),
+        img: edit ? { old: edit.img, new: img } : img,
         fy,
         date,
         dealer,
@@ -977,6 +979,7 @@ export function AddFabric({ fy, edit, onSuccess }) {
       })
       .catch((err) => {
         console.log(err);
+        setLoading(false);
         alert("something went wrong");
       });
   };
@@ -1036,6 +1039,12 @@ export function AddFabric({ fy, edit, onSuccess }) {
           onChange={(t) => setPrice(+t.value)}
         />
       </div>
+      <ImgUpload
+        label="Image"
+        height="5rem"
+        defaultValue={img}
+        onChange={(_img) => setImg(_img)}
+      />
       <h3>Usage</h3>
       <div className={s.fabricUsage}>
         <MultipleInput
@@ -1048,6 +1057,7 @@ export function AddFabric({ fy, edit, onSuccess }) {
         loading={loading}
         label={<ion-icon name="add-outline"></ion-icon>}
       />
+      <div className={s.pBtm} />
     </form>
   );
 }

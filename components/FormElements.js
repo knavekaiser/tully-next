@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef, useLayoutEffect } from "react";
+import Img from "next/image";
 import s from "./SCSS/FormElements.module.scss";
 
 export function convertUnit(value, curr, target) {
@@ -199,6 +200,54 @@ export const Submit = ({ disabled, className, label, loading, onClick }) => {
       )}
       {label}
     </button>
+  );
+};
+
+export const ImgUpload = ({
+  defaultValue,
+  label,
+  height,
+  required,
+  onChange,
+}) => {
+  const [file, setFile] = useState(defaultValue);
+  const handleChange = (e) => {
+    if (!e.target.files[0]) {
+      setFile(defaultValue);
+      return;
+    }
+    const reader = new FileReader();
+    reader.readAsDataURL(e.target.files[0]);
+    reader.onloadend = () => {
+      setFile(reader.result);
+      onChange(reader.result);
+    };
+  };
+  return (
+    <section className={s.upload} style={{ height: height || "4rem" }}>
+      <input
+        required={required}
+        id="img"
+        type="file"
+        accept="image/*"
+        onChange={handleChange}
+      />
+      <label htmlFor="img">{label}</label>
+      {file && (
+        <div className={s.preview}>
+          <span
+            className={s.close}
+            onClick={(e) => {
+              e.stopPropagation();
+              setFile("");
+            }}
+          >
+            <ion-icon name="close-outline"></ion-icon>
+          </span>
+          <Img src={file} alt="chosen" layout="fill" />
+        </div>
+      )}
+    </section>
   );
 };
 

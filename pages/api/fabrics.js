@@ -1,4 +1,5 @@
 import nextConnect from "next-connect";
+import cloudinary, { UploadImg, DeleteImg } from "../../utils/cloudinary.js";
 import { auth } from "./auth";
 
 export default nextConnect({
@@ -14,6 +15,14 @@ export default nextConnect({
     auth(req, true)
       .then(async (user) => {
         const { dealer, date, fy, name, qnt, price, img, usage } = req.body;
+        const img_url = img.startsWith("data:image/")
+          ? await cloudinary.uploader
+              .upload(img, { upload_preset: "ml_default" })
+              .then((data) => {
+                console.log(data);
+                return data.url;
+              })
+          : "";
         const newFabric = new Fabric({
           dealer,
           date,
@@ -21,7 +30,7 @@ export default nextConnect({
           name,
           qnt,
           price,
-          img,
+          img: img_url,
           usage,
         })
           .save()
@@ -40,7 +49,7 @@ export default nextConnect({
   })
   .patch((req, res) => {
     auth(req, true)
-      .then((user) => {
+      .then(async (user) => {
         const {
           _id,
           dealer,
@@ -52,6 +61,10 @@ export default nextConnect({
           img,
           usage,
         } = req.body;
+        const [img_str, old] = await Promise.all([
+          UploadImg(img.new),
+          DeleteImg(img.old),
+        ]);
         Fabric.findByIdAndUpdate(_id, {
           dealer,
           date,
@@ -59,7 +72,7 @@ export default nextConnect({
           name,
           qnt,
           price,
-          img,
+          img: img_str || img.new,
           usage,
         })
           .then(() => Fabric.findById(_id))
@@ -79,10 +92,21 @@ export default nextConnect({
   .delete((req, res) => {
     auth(req, true).then((user) => {
       Fabric.findByIdAndDelete(req.body._id)
-        .then(() => res.json({ code: "ok" }))
+        .then((data) => {
+          res.json({ code: "ok" });
+          return DeleteImg(data.img);
+        })
         .catch((err) => {
           console.log(err);
           res.status(500).json({ message: "something went wrong" });
         });
     });
   });
+
+export const config = {
+  api: {
+    bodyParser: {
+      sizeLimit: "10mb",
+    },
+  },
+};

@@ -388,6 +388,11 @@
       tr {
         grid-template-rows: 1fr min-content;
         .back {
+          position: relative;
+          img {
+            opacity: 0.3;
+            object-fit: cover;
+          }
           grid-area: 1 / 1 / span 1 / span 2;
           background: linear-gradient(
             350deg,
@@ -403,6 +408,10 @@
         .date {
           text-align: right;
           grid-area: 1 / 2 / span 1 / span 1;
+        }
+        .name,
+        .date {
+          z-index: 1;
         }
         .lot {
           text-align: left;
