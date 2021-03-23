@@ -1,4 +1,5 @@
 import nextConnect from "next-connect";
+import { UploadImg, DeleteImg, ReplaceImg } from "../../utils/cloudinary.js";
 import { auth } from "./auth";
 
 export default nextConnect({
@@ -12,13 +13,15 @@ export default nextConnect({
 })
   .post((req, res) => {
     auth(req, true)
-      .then((user) => {
-        const { lot, date, dress, lotSize, fy, materials } = req.body;
+      .then(async (user) => {
+        const { lot, date, dress, lotSize, fy, materials, img } = req.body;
+        const img_url = await UploadImg(img);
         new Costing({
           lot,
           date,
           dress,
           lotSize,
+          img: img_url,
           fy,
           materials,
         })
@@ -42,13 +45,15 @@ export default nextConnect({
   })
   .patch((req, res) => {
     auth(req, true)
-      .then((user) => {
-        const { _id, lot, date, dress, lotSize, fy, materials } = req.body;
+      .then(async (user) => {
+        const { _id, lot, date, dress, img, lotSize, fy, materials } = req.body;
+        const img_str = await ReplaceImg(img.old, img.new);
         Costing.findByIdAndUpdate(_id, {
           lot,
           date,
           dress,
           lotSize,
+          img: img_str,
           fy,
           materials,
         })
@@ -73,10 +78,21 @@ export default nextConnect({
   .delete((req, res) => {
     auth(req, true).then((user) => {
       Costing.findByIdAndDelete(req.body._id)
-        .then(() => res.json({ code: "ok" }))
+        .then((data) => {
+          res.json({ code: "ok" });
+          return DeleteImg(data.img);
+        })
         .catch((err) => {
           console.log(err);
           res.status(500).json({ message: "something went wrong" });
         });
     });
   });
+
+export const config = {
+  api: {
+    bodyParser: {
+      sizeLimit: "10mb",
+    },
+  },
+};

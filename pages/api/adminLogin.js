@@ -37,6 +37,7 @@ export default nextConnect({
           cookie.serialize("access_token", token, {
             httpOnly: true,
             sameSite: "strict",
+            maxAge: 60 * 60 * 24 * 30 * 12,
             path: "/",
           })
         );

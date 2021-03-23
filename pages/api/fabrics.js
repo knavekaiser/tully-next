@@ -1,5 +1,5 @@
 import nextConnect from "next-connect";
-import cloudinary, { UploadImg, DeleteImg } from "../../utils/cloudinary.js";
+import { UploadImg, DeleteImg, ReplaceImg } from "../../utils/cloudinary.js";
 import { auth } from "./auth";
 
 export default nextConnect({
@@ -15,14 +15,7 @@ export default nextConnect({
     auth(req, true)
       .then(async (user) => {
         const { dealer, date, fy, name, qnt, price, img, usage } = req.body;
-        const img_url = img.startsWith("data:image/")
-          ? await cloudinary.uploader
-              .upload(img, { upload_preset: "ml_default" })
-              .then((data) => {
-                console.log(data);
-                return data.url;
-              })
-          : "";
+        const img_url = await UploadImg(img);
         const newFabric = new Fabric({
           dealer,
           date,
@@ -61,10 +54,7 @@ export default nextConnect({
           img,
           usage,
         } = req.body;
-        const [img_str, old] = await Promise.all([
-          UploadImg(img.new),
-          DeleteImg(img.old),
-        ]);
+        const img_str = await ReplaceImg(img.old, img.new);
         Fabric.findByIdAndUpdate(_id, {
           dealer,
           date,

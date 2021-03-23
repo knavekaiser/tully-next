@@ -80,6 +80,7 @@ const costing = new Schema({
   fy: { type: String, required: true },
   dress: { type: String, required: true, trim: true },
   lotSize: { type: Number, required: true },
+  img: { type: String },
   materials: [
     {
       material: { type: String, required: true },

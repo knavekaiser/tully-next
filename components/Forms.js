@@ -628,18 +628,19 @@ export function BillForm({ fy, billToEdit, onSuccess }) {
   );
 }
 
-export function CostingForm({ fy, costToEdit, onSuccess }) {
+export function CostingForm({ fy, edit, onSuccess }) {
   const [loading, setLoading] = useState(false);
-  const [lot, setLot] = useState(costToEdit?.lot);
-  const [lotSize, setLotSize] = useState(costToEdit?.lotSize);
-  const [dress, setDress] = useState(costToEdit?.dress);
-  const [date, setDate] = useState(costToEdit && formatDate(costToEdit.date));
-  const [note, setNote] = useState(costToEdit?.note);
+  const [lot, setLot] = useState(edit?.lot);
+  const [lotSize, setLotSize] = useState(edit?.lotSize);
+  const [dress, setDress] = useState(edit?.dress);
+  const [date, setDate] = useState(edit && formatDate(edit.date));
+  const [note, setNote] = useState(edit?.note);
+  const [img, setImg] = useState(edit?.img);
   const [preFill, setPreFill] = useState(() => {
-    if (costToEdit) {
+    if (edit) {
       let materials = [];
-      if (costToEdit.materials.length > 0) {
-        costToEdit.materials.forEach((item) => {
+      if (edit.materials.length > 0) {
+        edit.materials.forEach((item) => {
           materials.push([
             {
               ...costMaterials[0][0],
@@ -658,7 +659,7 @@ export function CostingForm({ fy, costToEdit, onSuccess }) {
       }
       materials.push(...costMaterials);
       return {
-        ...costToEdit,
+        ...edit,
         materials: [...materials],
       };
     } else {
@@ -671,10 +672,11 @@ export function CostingForm({ fy, costToEdit, onSuccess }) {
     if (materials.length < 1) return;
     setLoading(true);
     fetch("/api/costings", {
-      method: costToEdit ? "PATCH" : "POST",
+      method: edit ? "PATCH" : "POST",
       headers: { "Content-type": "application/json" },
       body: JSON.stringify({
-        ...(preFill && { _id: costToEdit._id }),
+        ...(preFill && { _id: edit._id }),
+        img: edit ? { old: edit.img || "", new: img } : img,
         date,
         fy,
         lot,
@@ -707,14 +709,14 @@ export function CostingForm({ fy, costToEdit, onSuccess }) {
       <Input
         type="number"
         required={true}
-        defaultValue={costToEdit?.lot}
+        defaultValue={edit?.lot}
         label="Lot no"
         onChange={(t) => setLot(t.value)}
       />
       <Input
         className={s.date}
         required={true}
-        defaultValue={costToEdit && formatDate(costToEdit.date)}
+        defaultValue={edit && formatDate(edit.date)}
         type="date"
         label="Date"
         onChange={(t) => setDate(t.value)}
@@ -722,7 +724,7 @@ export function CostingForm({ fy, costToEdit, onSuccess }) {
       <Input
         className={s.dress}
         required={true}
-        defaultValue={costToEdit?.dress}
+        defaultValue={edit?.dress}
         label="Dress"
         onChange={(t) => setDress(t.value)}
       />
@@ -730,9 +732,16 @@ export function CostingForm({ fy, costToEdit, onSuccess }) {
         type="number"
         className={s.lotSize}
         required={true}
-        defaultValue={costToEdit?.lotSize}
+        defaultValue={edit?.lotSize}
         label="Lot size"
         onChange={(t) => setLotSize(t.value)}
+      />
+      <ImgUpload
+        defaultValue={edit.img}
+        label="Image"
+        className={s.imgUpload}
+        height="5rem"
+        onChange={(_img) => setImg(_img)}
       />
       <div className={s.materials}>
         <MultipleInput
@@ -743,7 +752,7 @@ export function CostingForm({ fy, costToEdit, onSuccess }) {
       </div>
       <Input
         className={s.note}
-        defaultValue={costToEdit?.note}
+        defaultValue={edit?.note}
         label="Note"
         onChange={(t) => setNote(t.value)}
       />
@@ -751,6 +760,7 @@ export function CostingForm({ fy, costToEdit, onSuccess }) {
         loading={loading}
         label={<ion-icon name="add-outline"></ion-icon>}
       />
+      <div className={s.pBtm} />
     </form>
   );
 }

@@ -140,7 +140,7 @@ export default function Costings({ ssrData, ssrUser, ssrMonths }) {
       <Modal open={showForm} setOpen={setShowForm}>
         <CostingForm
           fy={fy}
-          costToEdit={costToEdit}
+          edit={costToEdit}
           onSuccess={(newCosting) => {
             setCostings((prev) => {
               const newCostings = prev.filter(

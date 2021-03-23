@@ -21,10 +21,12 @@ export async function getServerSideProps(ctx) {
     ]);
     const newUsage = await Promise.all([
       ...fabric.usage.map((item) =>
-        Costing.findOne({ lot: item.lot }).then((data) => ({
-          ...json(item),
-          ...(data && { lot: json(data) }),
-        }))
+        Costing.findOne({ lot: item.lot }, "dress lotSize lot img").then(
+          (data) => ({
+            ...json(item),
+            ...(data && { lot: json(data) }),
+          })
+        )
       ),
     ]);
     return {
@@ -79,7 +81,13 @@ export default function SingleCosting({ ssrData, ssrUser }) {
             label: (
               <>
                 {ssrData.img && (
-                  <Img src={ssrData.img} alt="image" layout="fill" />
+                  <Img
+                    src={ssrData.img}
+                    alt="image"
+                    layout="fill"
+                    objectFit="cover"
+                    objectPosition="center center"
+                  />
                 )}
               </>
             ),
@@ -89,19 +97,31 @@ export default function SingleCosting({ ssrData, ssrUser }) {
           { label: "Usage" },
         ]}
       >
-        {ssrData.usage.map((item, i) => (
-          <tr key={i}>
-            <td className={s.lot}>
-              {item.lot.dress}
-              <span>
-                Lot no: {item.lot.lot}, Lot size: {item.lot.lotSize}
-              </span>
-            </td>
-            <td className={s.qnt}>
-              {convertUnit(item.qnt.amount, item.qnt.unit, "yard")} yd
-            </td>
-          </tr>
-        ))}
+        {ssrData.usage.map((item, i) =>
+          item.lot.lot ? (
+            <tr key={i}>
+              <td className={s.lot}>
+                {item.lot.dress}
+                <span>
+                  Lot no: {item.lot.lot}, Lot size: {item.lot.lotSize}
+                </span>
+              </td>
+              <td className={s.qnt}>
+                {convertUnit(item.qnt.amount, item.qnt.unit, "yard")} yd
+              </td>
+            </tr>
+          ) : (
+            <tr key={i}>
+              <td className={s.lot}>
+                Lot does not exists!
+                <span>Lot no: {item.lot}</span>
+              </td>
+              <td className={s.qnt}>
+                {convertUnit(item.qnt.amount, item.qnt.unit, "yard")} yd
+              </td>
+            </tr>
+          )
+        )}
         <tr className={s.hr} />
         <tr>
           <td className={s.totalUsage}>Total usage</td>
@@ -127,13 +147,13 @@ export default function SingleCosting({ ssrData, ssrUser }) {
           </td>
         </tr>
       </Table>
-      <Modal className="sampleImg" open={showSample} setOpen={setShowSample}>
+      <Modal className={s.sampleImg} open={showSample} setOpen={setShowSample}>
         <Img
           src={ssrData.img}
           alt="sample image"
-          height={500}
-          width={300}
-          layout="responsive"
+          objectFit="contain"
+          layout="fill"
+          onClick={() => setShowSample(false)}
         />
       </Modal>
     </App>

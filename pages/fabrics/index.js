@@ -136,33 +136,45 @@ export default function Fabrics({ ssrData, ssrUser, ssrMonths }) {
                 {fabric.qnt.unit.substr(0, 1)} • ৳ {fabric.price}
               </span>
             </td>
-            <td className={s.usage}>
-              {convertUnit(
-                fabric.usage.reduce(
-                  (p, c) =>
-                    p + convertUnit(c.qnt.amount, c.qnt.unit, fabric.qnt.unit),
-                  0
-                ),
-                fabric.qnt.unit,
-                "yard"
-              )}
-              yd/{fabric.usage.length} lots
-              <span>
-                remaining{" "}
+            {fabric.usage.length > 0 ? (
+              <td className={s.usage}>
                 {convertUnit(
-                  fabric.qnt.amount -
-                    fabric.usage.reduce(
-                      (p, c) =>
-                        p +
-                        convertUnit(c.qnt.amount, c.qnt.unit, fabric.qnt.unit),
-                      0
-                    ),
+                  fabric.usage.reduce(
+                    (p, c) =>
+                      p +
+                      convertUnit(c.qnt.amount, c.qnt.unit, fabric.qnt.unit),
+                    0
+                  ),
                   fabric.qnt.unit,
                   "yard"
                 )}
-                yd
-              </span>
-            </td>
+                yd/{fabric.usage.length} lots
+                <span>
+                  Remaining{" "}
+                  {convertUnit(
+                    fabric.qnt.amount -
+                      fabric.usage.reduce(
+                        (p, c) =>
+                          p +
+                          convertUnit(
+                            c.qnt.amount,
+                            c.qnt.unit,
+                            fabric.qnt.unit
+                          ),
+                        0
+                      ),
+                    fabric.qnt.unit,
+                    "yard"
+                  )}{" "}
+                  yd
+                </span>
+              </td>
+            ) : (
+              <td className={s.usage}>
+                Remaining{" "}
+                {convertUnit(fabric.qnt.amount, fabric.qnt.unit, "yard")} yd
+              </td>
+            )}
           </Tr>
         ))}
       </Table>

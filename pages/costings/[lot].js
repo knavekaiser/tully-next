@@ -1,9 +1,11 @@
-import { useEffect, useContext } from "react";
+import { useEffect, useContext, useState } from "react";
 import { SiteContext } from "../../SiteContext";
 import { App } from "../index.js";
 import Table from "../../components/Table";
 import { useRouter } from "next/router";
 import { displayDate } from "../../components/FormElements";
+import { Modal } from "../../components/Modals";
+import Img from "next/image";
 import s from "../../components/SCSS/Table.module.scss";
 
 export async function getServerSideProps(ctx) {
@@ -34,6 +36,7 @@ export async function getServerSideProps(ctx) {
 
 export default function SingleCosting({ ssrData, ssrUser }) {
   const { setUser } = useContext(SiteContext);
+  const [showImg, setShowImg] = useState(false);
   useEffect(() => {
     setUser(ssrUser);
   }, []);
@@ -80,7 +83,28 @@ export default function SingleCosting({ ssrData, ssrUser }) {
             ).toLocaleString("en-IN")}
           </td>
         </tr>
+        {ssrData.img && (
+          <tr className={s.img}>
+            <td>
+              <Img
+                src={ssrData.img}
+                layout="fill"
+                objectFit="contain"
+                onClick={() => setShowImg(true)}
+              />
+            </td>
+          </tr>
+        )}
       </Table>
+      <Modal className={s.sampleImg} open={showImg} setOpen={setShowImg}>
+        <Img
+          src={ssrData.img}
+          alt="sample image"
+          objectFit="contain"
+          layout="fill"
+          onClick={() => setShowImg(false)}
+        />
+      </Modal>
     </App>
   );
 }

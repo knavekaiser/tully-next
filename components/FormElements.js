@@ -209,6 +209,7 @@ export const ImgUpload = ({
   height,
   required,
   onChange,
+  className,
 }) => {
   const [file, setFile] = useState(defaultValue);
   const handleChange = (e) => {
@@ -224,7 +225,10 @@ export const ImgUpload = ({
     };
   };
   return (
-    <section className={s.upload} style={{ height: height || "4rem" }}>
+    <section
+      className={`${s.upload} ${className || ""}`}
+      style={{ height: height || "4rem" }}
+    >
       <input
         required={required}
         id="img"
