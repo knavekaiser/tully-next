@@ -1,4 +1,5 @@
 import nextConnect from "next-connect";
+import { json } from "../../utils/db";
 import { auth } from "./auth";
 
 export default nextConnect({
@@ -10,6 +11,45 @@ export default nextConnect({
     res.status(405).json({ message: `${req.method} Method is not allowed` });
   },
 })
+  .get((req, res) => {
+    auth(req, true)
+      .then((user) => {
+        const { fy, dateFilter } = req.query;
+        const query = {
+          ...(fy !== "all" && { fy }),
+          ...(dateFilter && {
+            date: {
+              $gte: new Date(dateFilter.from),
+              $lte: new Date(dateFilter.to),
+            },
+          }),
+        };
+        Employee.findOne({ name: req.query.emp })
+          .populate({
+            path: "work.work",
+            match: query,
+          })
+          .then((emp) => {
+            res.json({
+              code: "ok",
+              content: {
+                ...json(emp),
+                work: emp.work
+                  .map((item) => item.work)
+                  .filter((item) => !!item)
+                  .sort((a, b) => a.date - b.date),
+              },
+            });
+          })
+          .catch((err) => {
+            console.log(err);
+            res.status(500).json({ message: "something went wrong" });
+          });
+      })
+      .catch((err) => {
+        res.status(403).json({ message: "forbidden" });
+      });
+  })
   .post((req, res) => {
     auth(req, true)
       .then((user) => {

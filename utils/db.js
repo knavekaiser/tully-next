@@ -61,8 +61,8 @@ export const getMonths = (Element, fy) => {
         dates: { $addToSet: { year: "$year", month: "$month" } },
       },
     },
-  ]).then(
-    (dates) =>
+  ]).then((dates) => {
+    return (
       dates[0]?.dates
         .sort((a, b) => {
           return (
@@ -78,7 +78,8 @@ export const getMonths = (Element, fy) => {
             }`,
           };
         }) || []
-  );
+    );
+  });
 };
 
 export const json = (data) => JSON.parse(JSON.stringify(data));

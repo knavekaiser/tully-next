@@ -551,6 +551,16 @@
     }
   }
 }
+.unauthorized {
+  display: grid;
+  place-items: center;
+  text-align: center;
+  color: #555;
+  ion-icon {
+    font-size: 4rem;
+    transform: rotate(10deg);
+  }
+}
 
 @media only screen and (max-width: 480px) {
   .table {

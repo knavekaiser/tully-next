@@ -1,42 +1,39 @@
-import { useEffect, useContext } from "react";
+import { useEffect, useContext, useState } from "react";
 import { SiteContext } from "../../SiteContext";
 import { App } from "../index.js";
 import Table from "../../components/Table";
 import { useRouter } from "next/router";
-import { displayDate } from "../../components/FormElements";
+import { displayDate, SS } from "../../components/FormElements";
 import s from "../../components/SCSS/Table.module.scss";
 
-export async function getServerSideProps(ctx) {
-  const { dbConnect, json } = require("../../utils/db");
-  dbConnect();
-  const { verifyToken } = require("../api/auth");
-  const { req, res } = ctx;
-  const token = verifyToken(req);
-  let bill = {};
-  let user = {};
-  if (token?.role === "admin") {
-    user = await Admin.findOne({ _id: token.sub }, "-pass");
-    bill = await Bill.findOne({ ref: ctx.query.ref });
-  } else {
-    return {
-      redirect: {
-        destination: "/",
-      },
-    };
-  }
-  return {
-    props: {
-      ssrData: json(bill),
-      ssrUser: json(user),
-    },
-  };
-}
-
-export default function SingleBill({ ssrData, ssrUser }) {
-  const { setUser } = useContext(SiteContext);
+export default function SingleBill() {
+  const { fy, user } = useContext(SiteContext);
+  const router = useRouter();
+  const [ssrData, setSsrData] = useState(null);
   useEffect(() => {
-    setUser(ssrUser);
+    SS.get("singleBillData") &&
+      setSsrData(JSON.parse(SS.get("singleBillData")));
   }, []);
+  useEffect(() => {
+    if (!user) {
+      router.push("/login");
+    }
+  }, []);
+  if (!user) {
+    return (
+      <App>
+        <div className={s.unauthorized}>
+          <div>
+            <ion-icon name="lock-closed-outline"></ion-icon>
+            <p>Please log in</p>
+          </div>
+        </div>
+      </App>
+    );
+  }
+  if (!ssrData) {
+    return <App />;
+  }
   return (
     <App>
       <Table

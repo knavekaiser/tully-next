@@ -1,5 +1,6 @@
 import nextConnect from "next-connect";
 import { auth } from "./auth";
+import { getMonths } from "../../utils/db";
 
 export default nextConnect({
   onError(err, req, res) {
@@ -10,6 +11,25 @@ export default nextConnect({
     res.status(405).json({ message: `${req.method} Method is not allowed` });
   },
 })
+  .get((req, res) => {
+    auth(req, true)
+      .then(async (user) => {
+        const { fy, from, to } = req.query;
+        const filters = {
+          ...(fy !== "all" && { fy }),
+          ...(from && to && { date: { $gte: from, $lte: to } }),
+        };
+        const [bills, months] = await Promise.all([
+          Bill.find(filters).sort({ ref: 1 }),
+          getMonths(Bill, fy),
+        ]);
+        res.json({ bills, months });
+      })
+      .catch((err) => {
+        console.log(err);
+        res.status(403).json({ message: "forbidden" });
+      });
+  })
   .post((req, res) => {
     auth(req, true)
       .then((user) => {

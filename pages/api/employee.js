@@ -10,24 +10,6 @@ const rate = {
   iS: 2.5,
   iL: 4,
 };
-function dateFilter(fun, date) {
-  let run = false;
-  const from = new Date(dateRange.from),
-    to = new Date(dateRange.to),
-    yearToShow = date.split(":")[1],
-    dateToShow = new Date(date.split(":")[0] + ":00:00");
-  to.setFullYear(dateToShow.getFullYear());
-  from.setFullYear(dateToShow.getFullYear());
-  if (dateToShow >= from && dateToShow <= to) {
-    if (fy === "all") {
-      run = true;
-    } else if (fy === yearToShow) {
-      run = true;
-    }
-  }
-  run && fun && fun(date);
-  return run;
-}
 function getProduction(work, rate, lastDay) {
   const cost = work.reduce(
     (p, c) => p + c?.products.reduce((a, c) => a + c.qnt * rate[c.group], 0),
@@ -66,7 +48,7 @@ export default nextConnect({
   .get((req, res) => {
     auth(req)
       .then((user) => {
-        const { fy, dateFilter } = JSON.parse(req.headers.filters);
+        const { fy, dateFilter } = req.query;
         const query = {
           ...(fy !== "all" && { fy }),
           ...(dateFilter && {
@@ -108,6 +90,9 @@ export default nextConnect({
                 _id: emp._id,
                 name: emp.name,
                 pass: emp.pass,
+                work: emp.work
+                  .map((item) => item?.work)
+                  .filter((item) => !!item),
                 qnt,
                 cost,
                 paid,

@@ -17,7 +17,16 @@ export async function getServerSideProps(ctx) {
       (await Admin.findOne({ _id: token.sub }, "-pass")) ||
       (await Employee.findOne({ _id: token.sub }, "-pass"));
     if (user) {
-      return { props: { ssrData: { user: json(user) } } };
+      return {
+        props: {
+          ssrData: {
+            user: json(user),
+            ...(req.headers.referer && {
+              originalUrl: json(req.headers.referer),
+            }),
+          },
+        },
+      };
     }
   } else {
     return { props: { ssrData: { notLoggedIn: true } } };
@@ -30,7 +39,13 @@ export default function Login({ ssrData }) {
   useEffect(() => {
     if (ssrData.user) {
       setUser(ssrData.user);
-      router.push("/");
+      if (ssrData.originalUrl) {
+        router.push(
+          ssrData.originalUrl.includes("/login") ? "/" : ssrData.originalUrl
+        );
+      } else {
+        router.push("/");
+      }
     }
   }, [ssrData]);
   const [loading, setLoading] = useState(false);

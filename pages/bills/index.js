@@ -1,51 +1,29 @@
-import { useEffect, useState, useContext } from "react";
+import { useEffect, useState, useContext, useRef } from "react";
 import { SiteContext } from "../../SiteContext";
 import { App } from "../index.js";
-import Table, { Tr } from "../../components/Table";
-import { displayDate, AddBtn } from "../../components/FormElements";
+import Table, { Tr, LoadingTr } from "../../components/Table";
+import { displayDate, AddBtn, SS } from "../../components/FormElements";
 import { useRouter } from "next/router";
 import { Modal } from "../../components/Modals";
 import { BillForm } from "../../components/Forms";
+import useSWR from "swr";
 import s from "../../components/SCSS/Table.module.scss";
 
-export async function getServerSideProps(ctx) {
-  const { dbConnect, json, getMonths } = require("../../utils/db");
-  dbConnect();
-  const { verifyToken } = require("../api/auth");
-  const { req, res } = ctx;
-  const { fy, from, to } = ctx.query;
-  const filters = {
-    ...(fy !== "all" && { fy }),
-    ...(from && to && { date: { $gte: from, $lte: to } }),
-  };
-  const token = verifyToken(req);
-  let bills = [];
-  let user = {};
-  let months = [];
-  if (token?.role === "admin") {
-    user = await Admin.findOne({ _id: token.sub }, "-pass");
-    bills = await Bill.find(filters).sort({ ref: 1 });
-    months = await getMonths(Bill, fy);
-  } else {
-    return {
-      redirect: {
-        destination: "/",
-      },
-    };
-  }
-  return {
-    props: {
-      ssrData: json(bills),
-      ssrUser: json(user),
-      ssrMonths: json(months),
-    },
-  };
-}
+const fetcher = (url) => fetch(url).then((res) => res.json());
 
-export default function Bills({ ssrData, ssrUser, ssrMonths }) {
+export default function Bills() {
   const router = useRouter();
-  const { fy, dateFilter, setUser, setMonths } = useContext(SiteContext);
-  const [bills, setBills] = useState(ssrData);
+  const { fy, user, dateFilter, setMonths } = useContext(SiteContext);
+  let { error, data } = useSWR(
+    `/api/bills?fy=${fy}${
+      dateFilter ? `&from=${dateFilter.from}&to=${dateFilter.to}` : ""
+    }`,
+    fetcher
+  );
+  const [bills, setBills] = useState(data?.bills || null);
+  if (data && !bills) {
+    setBills(data.bills);
+  }
   const [showForm, setShowForm] = useState(false);
   const [billToEdit, setBillToEdit] = useState(null);
   const [addBtnStyle, setAddBtnStyle] = useState(false);
@@ -70,10 +48,18 @@ export default function Bills({ ssrData, ssrUser, ssrMonths }) {
         });
     }
   };
-  useEffect(() => setUser(ssrUser), []);
-  useEffect(() => setMonths(ssrMonths), [ssrMonths]);
-  useEffect(() => setBills(ssrData), [ssrData]);
+  const firstRender = useRef(true);
   useEffect(() => {
+    if (data) {
+      setMonths(data.months);
+      setBills(data.bills);
+    }
+  }, [data]);
+  useEffect(() => {
+    if (firstRender.current) {
+      firstRender.current = false;
+      return;
+    }
     router.push({
       pathname: router.pathname,
       query: {
@@ -86,8 +72,25 @@ export default function Bills({ ssrData, ssrUser, ssrMonths }) {
     });
   }, [fy, dateFilter]);
   useEffect(() => !showForm && setBillToEdit(null), [showForm]);
+  useEffect(() => {
+    if (!user) {
+      router.push("/login");
+    }
+  }, []);
+  if (!user) {
+    return (
+      <App>
+        <div className={s.unauthorized}>
+          <div>
+            <ion-icon name="lock-closed-outline"></ion-icon>
+            <p>Please log in</p>
+          </div>
+        </div>
+      </App>
+    );
+  }
   return (
-    <App>
+    <App key="bills">
       <Table
         columns={[
           { label: "date", className: s.date },
@@ -105,7 +108,7 @@ export default function Bills({ ssrData, ssrUser, ssrMonths }) {
           }
         }}
       >
-        {bills.map((bill) => (
+        {bills?.map((bill) => (
           <Tr
             key={bill.ref}
             options={[
@@ -121,7 +124,10 @@ export default function Bills({ ssrData, ssrUser, ssrMonths }) {
                 fun: () => dltBill(bill._id),
               },
             ]}
-            onClick={() => router.push(`/bills/${bill.ref}`)}
+            onClick={() => {
+              router.push(`/bills/${bill.ref}`);
+              SS.set("singleBillData", JSON.stringify(bill));
+            }}
           >
             <td className={s.date}>{displayDate(bill.date)}</td>
             <td className={s.ref}>{bill.ref}</td>
@@ -142,6 +148,7 @@ export default function Bills({ ssrData, ssrUser, ssrMonths }) {
             </td>
           </Tr>
         ))}
+        {!bills && <LoadingTr number={5} />}
       </Table>
       {fy !== "all" && <AddBtn translate={addBtnStyle} onClick={setShowForm} />}
       <Modal open={showForm} setOpen={setShowForm}>

@@ -2,73 +2,30 @@ import { useState, useEffect, useContext, Fragment, useRef } from "react";
 import { SiteContext } from "../../SiteContext";
 import { App } from "../index.js";
 import { Modal } from "../../components/Modals";
-import Table, { Tr } from "../../components/Table";
+import Table, { Tr, LoadingTr } from "../../components/Table";
 import { AddEmpWork } from "../../components/Forms";
-import { displayDate, AddBtn } from "../../components/FormElements";
+import { displayDate, AddBtn, SS } from "../../components/FormElements";
 import s from "../../components/SCSS/Table.module.scss";
 import { useRouter } from "next/router";
+import useSWR from "swr";
 
-export async function getServerSideProps(ctx) {
-  const { dbConnect, json } = require("../../utils/db");
-  const { verifyToken } = require("../api/auth");
-  const { req, res } = ctx;
-  const { fy, from, to } = ctx.query;
-  const filters = {
-    ...(fy !== "all" && { fy }),
-    ...(from && to && { date: { $gte: from, $lte: to } }),
-  };
-  const token = verifyToken(req);
-  let emp = null;
-  let user = null;
-  if (token?.role === "admin") {
-    emp = await Employee.findOne({ name: ctx.query.name })
-      .populate({
-        path: "work.work",
-        match: filters,
-      })
-      .then((emp) => {
-        return {
-          ...json(emp),
-          work: emp.work
-            .map((item) => item.work)
-            .filter((item) => !!item)
-            .sort((a, b) => a.date - b.date),
-        };
-      });
-    user = await Admin.findOne({ _id: token.sub });
-  } else if (token?.role === "viwer") {
-    const user = await Employee.findById(token.sub);
-    if (user.name === ctx.query.name) {
-      emp = await Employee.findOne({ _id: token.sub })
-        .populate({
-          path: "work.work",
-          match: filters,
-        })
-        .then((emp) => {
-          return {
-            ...json(emp),
-            work: emp.work
-              .map((item) => item.work)
-              .filter((item) => !!item)
-              .sort((a, b) => a.date - b.date),
-          };
-        });
-    }
-  } else {
-    return {
-      redirect: {
-        destination: "/",
-      },
-    };
-  }
-  return { props: { empSsr: json(emp), userSsr: json(user) } };
+const fetcher = (url) => fetch(url).then((res) => res.json());
+
+export function getServerSideProps(ctx) {
+  return { props: { empName: ctx.query.name } };
 }
 
-export default function EmpWorkList({ empSsr, userSsr }) {
+export default function EmpWorkList({ empName }) {
   const router = useRouter();
-  const [emp, setEmp] = useState(empSsr);
-  const { user, fy, setUser, empRate, dateFilter, setDateFilter } = useContext(
+  const [emp, setEmp] = useState(null);
+  const { user, fy, empRate, dateFilter, setDateFilter } = useContext(
     SiteContext
+  );
+  const { error, data } = useSWR(
+    `/api/empWork?emp=${empName}&fy=${fy}${
+      dateFilter ? `&from=${dateFilter.from}&to=${dateFilter.to}` : ""
+    }`,
+    fetcher
   );
   const [showForm, setShowForm] = useState(false);
   const [workToEdit, setWorkToEdit] = useState(null);
@@ -115,7 +72,7 @@ export default function EmpWorkList({ empSsr, userSsr }) {
         }),
       },
     });
-  }, [dateFilter]);
+  }, [fy, dateFilter]);
   useEffect(() => {
     if (router.query.from && router.query.to) {
       setDateFilter((prev) => {
@@ -128,11 +85,60 @@ export default function EmpWorkList({ empSsr, userSsr }) {
     }
   }, []);
   useEffect(() => {
-    setEmp(empSsr);
-  }, [empSsr]);
+    if (data) {
+      setEmp(data.content);
+    }
+  }, [data]);
   useEffect(() => {
-    setUser(userSsr);
-  }, [userSsr]);
+    if (!user) {
+      router.push("/login");
+      return;
+    }
+    SS.get("empWork") && setEmp(JSON.parse(SS.get("empWork")));
+  }, []);
+  // if (!data) {
+  //   return (
+  //     <App>
+  //       <Table
+  //         className={s.empWork}
+  //         columns={[
+  //           { label: "Date" },
+  //           { label: "Dress" },
+  //           {
+  //             label: (
+  //               <>
+  //                 Pcs<sup>G</sup>
+  //               </>
+  //             ),
+  //           },
+  //           { label: "Total" },
+  //           { label: "Paid" },
+  //         ]}
+  //         onScroll={(dir) => {
+  //           if (dir === "down") {
+  //             setAddBtnStyle(true);
+  //           } else {
+  //             setAddBtnStyle(false);
+  //           }
+  //         }}
+  //       >
+  //         <LoadingTr number={5} />
+  //       </Table>
+  //     </App>
+  //   );
+  // }
+  if (!user) {
+    return (
+      <App>
+        <div className={s.unauthorized}>
+          <div>
+            <ion-icon name="lock-closed-outline"></ion-icon>
+            <p>Please log in</p>
+          </div>
+        </div>
+      </App>
+    );
+  }
   return (
     <App>
       <Table
@@ -158,7 +164,7 @@ export default function EmpWorkList({ empSsr, userSsr }) {
           }
         }}
       >
-        {emp.work?.map((work, i) => (
+        {emp?.work.map((work, i) => (
           <Tr
             key={i}
             options={[
@@ -188,7 +194,8 @@ export default function EmpWorkList({ empSsr, userSsr }) {
               <Fragment key={j}>
                 <td className={s.dress}>{product.dress}</td>
                 <td className={s.qnt}>
-                  {product.qnt} <sup>{product.group}</sup>
+                  {product.qnt.toLocaleString("en-IN")}{" "}
+                  <sup>{product.group}</sup>
                 </td>
                 <td className={s.total}>
                   {(product.qnt * empRate[product.group]).toLocaleString(
@@ -207,7 +214,7 @@ export default function EmpWorkList({ empSsr, userSsr }) {
       </Table>
       <Modal open={showForm} setOpen={setShowForm}>
         <AddEmpWork
-          employee={emp._id}
+          employee={emp?._id}
           fy={fy}
           onSuccess={(newWork) => {
             setEmp((prev) => {

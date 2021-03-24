@@ -3,7 +3,6 @@ import { SiteContext } from "../SiteContext";
 import Head from "next/head";
 import Sidebar from "../components/Sidebar";
 import Nav from "../components/Nav";
-import { EmpList } from "../components/Employee";
 import Router from "next/router";
 
 export async function getServerSideProps(ctx) {
@@ -59,7 +58,19 @@ export const App = ({ children }) => {
           />
           <Sidebar
             sections={[
-              { label: "Employees", link: "/" },
+              {
+                label: "Employees",
+                link: {
+                  pathname: "/employees",
+                  query: {
+                    fy,
+                    ...(dateFilter && {
+                      from: dateFilter.from,
+                      to: dateFilter.to,
+                    }),
+                  },
+                },
+              },
               { label: "workers", link: "/workers" },
               {
                 label: "bills",
@@ -148,9 +159,5 @@ export default function Home({ ssrData }) {
   if (!ssrData.user) {
     return null;
   }
-  return (
-    <App>
-      <EmpList />
-    </App>
-  );
+  return <App>dashboard</App>;
 }
