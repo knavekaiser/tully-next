@@ -1,51 +1,26 @@
-import { useEffect, useState, useContext } from "react";
+import { useEffect, useState, useContext, useRef } from "react";
 import { SiteContext } from "../../SiteContext";
 import { App } from "../index.js";
-import Table, { Tr } from "../../components/Table";
-import { AddBtn } from "../../components/FormElements";
+import Table, { Tr, LoadingTr } from "../../components/Table";
+import { AddBtn, SS } from "../../components/FormElements";
 import { useRouter } from "next/router";
 import { Modal } from "../../components/Modals";
 import { CostingForm } from "../../components/Forms";
 import s from "../../components/SCSS/Table.module.scss";
+import useSWR from "swr";
 
-export async function getServerSideProps(ctx) {
-  const { dbConnect, json, getMonths } = require("../../utils/db");
-  dbConnect();
-  const { verifyToken } = require("../api/auth");
-  const { req, res } = ctx;
-  const { fy, from, to } = ctx.query;
-  const filters = {
-    ...(fy !== "all" && { fy }),
-    ...(from && to && { date: { $gte: from, $lte: to } }),
-  };
-  const token = verifyToken(req);
-  let costings = [];
-  let user = {};
-  let months = [];
-  if (token?.role === "admin") {
-    user = await Admin.findOne({ _id: token.sub }, "-pass");
-    costings = await Costing.find(filters).sort({ ref: 1 });
-    months = await getMonths(Costing, fy);
-  } else {
-    return {
-      redirect: {
-        destination: "/",
-      },
-    };
-  }
-  return {
-    props: {
-      ssrData: json(costings),
-      ssrUser: json(user),
-      ssrMonths: json(months),
-    },
-  };
-}
+const fetcher = (url) => fetch(url).then((res) => res.json());
 
-export default function Costings({ ssrData, ssrUser, ssrMonths }) {
+export default function Costings() {
   const router = useRouter();
-  const { fy, dateFilter, setUser, setMonths } = useContext(SiteContext);
-  const [costings, setCostings] = useState(ssrData);
+  const { fy, user, dateFilter, setMonths } = useContext(SiteContext);
+  const { error, data } = useSWR(
+    `/api/costings?fy=${fy}${
+      dateFilter ? `&from=${dateFilter.from}&to=${dateFilter.to}` : ""
+    }`,
+    fetcher
+  );
+  const [costings, setCostings] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [costToEdit, setCostToEdit] = useState(null);
   const [addBtnStyle, setAddBtnStyle] = useState(false);
@@ -70,10 +45,12 @@ export default function Costings({ ssrData, ssrUser, ssrMonths }) {
         });
     }
   };
-  useEffect(() => setUser(ssrUser), []);
-  useEffect(() => setMonths(ssrMonths), [ssrMonths]);
-  useEffect(() => setCostings(ssrData), [ssrData]);
+  const firstRender = useRef(true);
   useEffect(() => {
+    if (firstRender.current) {
+      firstRender.current = false;
+      return;
+    }
     router.push({
       pathname: router.pathname,
       query: {
@@ -85,7 +62,55 @@ export default function Costings({ ssrData, ssrUser, ssrMonths }) {
       },
     });
   }, [fy, dateFilter]);
+  useEffect(() => {
+    if (data) {
+      setCostings(data.costings);
+      setMonths(data.months);
+    }
+  }, [data]);
   useEffect(() => !showForm && setCostToEdit(null), [showForm]);
+  useEffect(() => {
+    if (!user) {
+      router.push("/login");
+    }
+  }, []);
+  if (!user) {
+    return (
+      <App>
+        <div className={s.unauthorized}>
+          <div>
+            <ion-icon name="lock-closed-outline"></ion-icon>
+            <p>Please log in</p>
+          </div>
+        </div>
+      </App>
+    );
+  }
+  if (!costings) {
+    return (
+      <App>
+        <Table
+          columns={[
+            { label: "Lot", className: s.lot },
+            { label: "note", className: s.note },
+            { label: "dress", className: s.dress },
+            { label: "lot size" },
+            { label: "cost" },
+          ]}
+          className={s.costings}
+          onScroll={(dir) => {
+            if (dir === "down") {
+              setAddBtnStyle(true);
+            } else {
+              setAddBtnStyle(false);
+            }
+          }}
+        >
+          <LoadingTr number={5} />
+        </Table>
+      </App>
+    );
+  }
   return (
     <App>
       <Table
@@ -121,7 +146,10 @@ export default function Costings({ ssrData, ssrUser, ssrMonths }) {
                 fun: () => dltCosting(costing._id),
               },
             ]}
-            onClick={() => router.push(`/costings/${costing.lot}`)}
+            onClick={() => {
+              router.push(`/costings/${costing.lot}`);
+              SS.set("singleCosting", JSON.stringify(costing));
+            }}
           >
             <td className={s.lot}>{costing.lot}</td>
             <td className={s.note}>{costing.note}</td>

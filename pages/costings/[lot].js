@@ -1,53 +1,95 @@
 import { useEffect, useContext, useState } from "react";
 import { SiteContext } from "../../SiteContext";
 import { App } from "../index.js";
-import Table from "../../components/Table";
+import Table, { LoadingTr } from "../../components/Table";
 import { useRouter } from "next/router";
-import { displayDate } from "../../components/FormElements";
+import { displayDate, SS } from "../../components/FormElements";
 import { Modal } from "../../components/Modals";
 import Img from "next/image";
 import s from "../../components/SCSS/Table.module.scss";
 
-export async function getServerSideProps(ctx) {
-  const { dbConnect, json } = require("../../utils/db");
-  dbConnect();
-  const { verifyToken } = require("../api/auth");
-  const { req, res } = ctx;
-  const token = verifyToken(req);
-  let costing = {};
-  let user = {};
-  if (token?.role === "admin") {
-    user = await Admin.findOne({ _id: token.sub }, "-pass");
-    costing = await Costing.findOne({ lot: ctx.query.lot });
-  } else {
-    return {
-      redirect: {
-        destination: "/",
-      },
-    };
-  }
-  return {
-    props: {
-      ssrData: json(costing),
-      ssrUser: json(user),
-    },
-  };
-}
-
-export default function SingleCosting({ ssrData, ssrUser }) {
-  const { setUser } = useContext(SiteContext);
+export default function SingleCosting() {
+  const router = useRouter();
+  const { fy, user } = useContext(SiteContext);
+  const [data, setData] = useState(null);
   const [showImg, setShowImg] = useState(false);
+  const fetchData = (lotNo) => {
+    fetch(`/api/costings?lot=${lotNo}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.code === "ok") {
+          setData(data.costing);
+          SS.set("singleCosting", JSON.stringify(data.costing));
+        } else if (data.code === 400) {
+          router.push(`/costings?fy=${fy}`);
+        } else {
+          alert("something went ---- wrong");
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
   useEffect(() => {
-    setUser(ssrUser);
+    if (!user) {
+      router.push("/login");
+    }
+    if (!data) {
+      const localData = SS.get("singleCosting")
+        ? JSON.parse(SS.get("singleCosting"))
+        : null;
+      if (localData) {
+        if (+router.query.lot === localData.lot) {
+          setData(localData);
+        } else {
+          fetchData(router.query.lot);
+        }
+      } else {
+        fetchData(router.query.lot);
+      }
+    }
   }, []);
+  if (!user) {
+    return (
+      <App>
+        <div className={s.unauthorized}>
+          <div>
+            <ion-icon name="lock-closed-outline"></ion-icon>
+            <p>Please log in</p>
+          </div>
+        </div>
+      </App>
+    );
+  }
+  if (!data) {
+    return (
+      <App>
+        <Table
+          className={s.singleCosting}
+          columns={[
+            { label: `Date:`, className: s.date },
+            { label: `Lot:`, className: s.lot },
+            { label: `Lot size:`, className: s.lotSize },
+            { label: "", className: s.back },
+            { label: "Material", className: s.material },
+            { label: "qnt" },
+            { label: "price" },
+            { label: "Total" },
+          ]}
+        >
+          <LoadingTr number={4} />
+        </Table>
+      </App>
+    );
+  }
   return (
     <App>
       <Table
         className={s.singleCosting}
         columns={[
-          { label: `Date: ${displayDate(ssrData.date)}`, className: s.date },
-          { label: `Lot: ${ssrData.lot}`, className: s.lot },
-          { label: `Lot size: ${ssrData.lotSize}`, className: s.lotSize },
+          { label: `Date: ${displayDate(data.date)}`, className: s.date },
+          { label: `Lot: ${data.lot}`, className: s.lot },
+          { label: `Lot size: ${data.lotSize}`, className: s.lotSize },
           { label: "", className: s.back },
           { label: "Material", className: s.material },
           { label: "qnt" },
@@ -55,7 +97,7 @@ export default function SingleCosting({ ssrData, ssrUser }) {
           { label: "Total" },
         ]}
       >
-        {ssrData.materials.map((item, i) => (
+        {data.materials.map((item, i) => (
           <tr key={i}>
             <td className={s.material}>{item.material}</td>
             <td className={s.qnt}>{item.qnt}</td>
@@ -70,24 +112,24 @@ export default function SingleCosting({ ssrData, ssrUser }) {
           <td className={s.totalCostLabel}>Total material cost</td>
           <td className={s.totalCost}>
             {Math.ceil(
-              ssrData.materials.reduce((p, c) => p + c.qnt * c.price, 0)
+              data.materials.reduce((p, c) => p + c.qnt * c.price, 0)
             ).toLocaleString("en-IN")}
           </td>
         </tr>
         <tr>
-          <td className={s.perUnitLabel}>Per unit ({ssrData.lotSize})</td>
+          <td className={s.perUnitLabel}>Per unit ({data.lotSize})</td>
           <td className={s.perUnit}>
             {Math.ceil(
-              ssrData.materials.reduce((p, c) => p + c.qnt * c.price, 0) /
-                ssrData.lotSize
+              data.materials.reduce((p, c) => p + c.qnt * c.price, 0) /
+                data.lotSize
             ).toLocaleString("en-IN")}
           </td>
         </tr>
-        {ssrData.img && (
+        {data.img && (
           <tr className={s.img}>
             <td>
               <Img
-                src={ssrData.img}
+                src={data.img}
                 layout="fill"
                 objectFit="contain"
                 onClick={() => setShowImg(true)}
@@ -98,7 +140,7 @@ export default function SingleCosting({ ssrData, ssrUser }) {
       </Table>
       <Modal className={s.sampleImg} open={showImg} setOpen={setShowImg}>
         <Img
-          src={ssrData.img}
+          src={data.img}
           alt="sample image"
           objectFit="contain"
           layout="fill"

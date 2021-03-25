@@ -1,6 +1,7 @@
 import nextConnect from "next-connect";
 import { UploadImg, DeleteImg, ReplaceImg } from "../../utils/cloudinary.js";
 import { auth } from "./auth";
+import { getMonths } from "../../utils/db";
 
 export default nextConnect({
   onError(err, req, res) {
@@ -11,6 +12,36 @@ export default nextConnect({
     res.status(405).json({ message: `${req.method} Method is not allowed` });
   },
 })
+  .get((req, res) => {
+    auth(req, true)
+      .then((user) => {
+        const { fy, from, to, lot } = req.query;
+        if (lot) {
+          Costing.findOne({ lot }).then((costing) => {
+            if (costing) {
+              res.json({ code: "ok", costing });
+            } else {
+              res.json({ code: 400, costing });
+            }
+          });
+          return;
+        }
+        const filters = {
+          ...(fy !== "all" && { fy }),
+          ...(from && to && { date: { $gte: from, $lte: to } }),
+        };
+        Promise.all([
+          Costing.find(filters).sort({ ref: 1 }),
+          getMonths(Costing, fy),
+        ]).then(([costings, months]) => {
+          res.json({ code: "ok", costings, months });
+        });
+      })
+      .catch((err) => {
+        console.log(err);
+        res.status(403).json({ message: "forbidden" });
+      });
+  })
   .post((req, res) => {
     auth(req, true)
       .then(async (user) => {
