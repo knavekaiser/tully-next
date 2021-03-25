@@ -14,15 +14,16 @@ export default nextConnect({
   .get((req, res) => {
     auth(req, true)
       .then((user) => {
-        const { fy, dateFilter } = req.query;
+        const { fy, from, to } = req.query;
         const query = {
           ...(fy !== "all" && { fy }),
-          ...(dateFilter && {
-            date: {
-              $gte: new Date(dateFilter.from),
-              $lte: new Date(dateFilter.to),
-            },
-          }),
+          ...(from &&
+            to && {
+              date: {
+                $gte: new Date(from),
+                $lte: new Date(to),
+              },
+            }),
         };
         Employee.findOne({ name: req.query.emp })
           .populate({

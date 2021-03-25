@@ -1,55 +1,100 @@
 import { useEffect, useContext, useState } from "react";
 import { SiteContext } from "../../SiteContext";
 import { App } from "../index.js";
-import Table from "../../components/Table";
+import Table, { LoadingTr } from "../../components/Table";
 import { useRouter } from "next/router";
-import { displayDate, convertUnit } from "../../components/FormElements";
+import { displayDate, convertUnit, SS } from "../../components/FormElements";
 import { Modal } from "../../components/Modals";
 import s from "../../components/SCSS/Table.module.scss";
 import Img from "next/image";
 
 export async function getServerSideProps(ctx) {
-  const { dbConnect, json } = require("../../utils/db");
-  dbConnect();
-  const { verifyToken } = require("../api/auth");
-  const { req, res } = ctx;
-  const token = verifyToken(req);
-  if (token?.role === "admin") {
-    const [user, fabric] = await Promise.all([
-      Admin.findOne({ _id: token.sub }, "-pass"),
-      Fabric.findOne({ _id: ctx.query._id }),
-    ]);
-    const newUsage = await Promise.all([
-      ...fabric.usage.map((item) =>
-        Costing.findOne({ lot: item.lot }, "dress lotSize lot img").then(
-          (data) => ({
-            ...json(item),
-            ...(data && { lot: json(data) }),
-          })
-        )
-      ),
-    ]);
-    return {
-      props: {
-        ssrData: json({ ...json(fabric), usage: newUsage }),
-        ssrUser: json(user),
-      },
-    };
-  } else {
-    return {
-      redirect: {
-        destination: "/",
-      },
-    };
-  }
+  return {
+    props: {},
+  };
 }
 
-export default function SingleCosting({ ssrData, ssrUser }) {
+export default function SingleCosting() {
+  const router = useRouter();
   const [showSample, setShowSample] = useState(false);
-  const { setUser } = useContext(SiteContext);
+  const [fabric, setFabric] = useState(null);
+  const { user } = useContext(SiteContext);
+  const fetchData = (_id) => {
+    fetch(`/api/fabrics?_id=${_id}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.code === "ok") {
+          setFabric(data.fabric);
+          SS.set("singleCosting", JSON.stringify(data.fabric));
+        } else if (data.code === 400) {
+          router.push(`/costings?fy=${fy}`);
+        } else {
+          alert("something went ---- wrong");
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
   useEffect(() => {
-    setUser(ssrUser);
+    if (!user) {
+      router.push("/login");
+    }
+    if (!fabric) {
+      const localData = SS.get("singleFabric")
+        ? JSON.parse(SS.get("singleFabric"))
+        : null;
+      if (localData) {
+        if (router.query._id === localData._id) {
+          setFabric(localData);
+        } else {
+          fetchData(router.query._id);
+        }
+      } else {
+        fetchData(router.query._id);
+      }
+    }
   }, []);
+  if (!user) {
+    return (
+      <App>
+        <div className={s.unauthorized}>
+          <div>
+            <ion-icon name="lock-closed-outline"></ion-icon>
+            <p>Please log in</p>
+          </div>
+        </div>
+      </App>
+    );
+  }
+  if (!fabric) {
+    return (
+      <App>
+        <Table
+          className={s.singleFabric}
+          columns={[
+            {
+              label: "",
+              className: s.date,
+            },
+            {
+              label: "",
+              className: s.name,
+              onClick: () => setShowSample(true),
+            },
+            {
+              label: "",
+              className: s.back,
+            },
+            { label: "Lot", className: s.lot },
+            { label: "Usage" },
+          ]}
+        >
+          <LoadingTr number={2} />
+        </Table>
+      </App>
+    );
+  }
   return (
     <App>
       <Table
@@ -58,8 +103,8 @@ export default function SingleCosting({ ssrData, ssrUser }) {
           {
             label: (
               <>
-                {displayDate(ssrData.date)}
-                <span>{ssrData.dealer}</span>
+                {displayDate(fabric.date)}
+                <span>{fabric.dealer}</span>
               </>
             ),
             className: s.date,
@@ -67,10 +112,10 @@ export default function SingleCosting({ ssrData, ssrUser }) {
           {
             label: (
               <>
-                {ssrData.name}
+                {fabric.name}
                 <span>
-                  {ssrData.qnt.amount}
-                  {ssrData.qnt.unit.substr(0, 1)} • ৳ {ssrData.price}
+                  {fabric.qnt.amount}
+                  {fabric.qnt.unit.substr(0, 1)} • ৳ {fabric.price}
                 </span>
               </>
             ),
@@ -80,9 +125,9 @@ export default function SingleCosting({ ssrData, ssrUser }) {
           {
             label: (
               <>
-                {ssrData.img && (
+                {fabric.img && (
                   <Img
-                    src={ssrData.img}
+                    src={fabric.img}
                     alt="image"
                     layout="fill"
                     objectFit="cover"
@@ -97,7 +142,7 @@ export default function SingleCosting({ ssrData, ssrUser }) {
           { label: "Usage" },
         ]}
       >
-        {ssrData.usage.map((item, i) =>
+        {fabric.usage.map((item, i) =>
           item.lot.lot ? (
             <tr key={i}>
               <td className={s.lot}>
@@ -126,7 +171,7 @@ export default function SingleCosting({ ssrData, ssrUser }) {
         <tr>
           <td className={s.totalUsage}>Total usage</td>
           <td className={s.qnt}>
-            {ssrData.usage.reduce(
+            {fabric.usage.reduce(
               (p, c) => p + convertUnit(c.qnt.amount, c.qnt.unit, "yard"),
               0
             )}{" "}
@@ -137,8 +182,8 @@ export default function SingleCosting({ ssrData, ssrUser }) {
           <td className={s.totalUsage}>Remaining</td>
           <td className={s.qnt}>
             {(
-              convertUnit(ssrData.qnt.amount, ssrData.qnt.unit, "yard") -
-              ssrData.usage.reduce(
+              convertUnit(fabric.qnt.amount, fabric.qnt.unit, "yard") -
+              fabric.usage.reduce(
                 (p, c) => p + convertUnit(c.qnt.amount, c.qnt.unit, "yard"),
                 0
               )
@@ -149,7 +194,7 @@ export default function SingleCosting({ ssrData, ssrUser }) {
       </Table>
       <Modal className={s.sampleImg} open={showSample} setOpen={setShowSample}>
         <Img
-          src={ssrData.img}
+          src={fabric.img}
           alt="sample image"
           objectFit="contain"
           layout="fill"

@@ -12,17 +12,17 @@ import useSWR from "swr";
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
 export function getServerSideProps(ctx) {
-  return { props: { empName: ctx.query.name } };
+  return { props: {} };
 }
 
-export default function EmpWorkList({ empName }) {
+export default function EmpWorkList() {
   const router = useRouter();
   const [emp, setEmp] = useState(null);
   const { user, fy, empRate, dateFilter, setDateFilter } = useContext(
     SiteContext
   );
   const { error, data } = useSWR(
-    `/api/empWork?emp=${empName}&fy=${fy}${
+    `/api/empWork?emp=${router.query.name}&fy=${fy}${
       dateFilter ? `&from=${dateFilter.from}&to=${dateFilter.to}` : ""
     }`,
     fetcher

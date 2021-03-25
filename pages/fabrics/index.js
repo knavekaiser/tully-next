@@ -1,54 +1,31 @@
-import { useEffect, useState, useContext } from "react";
+import { useEffect, useState, useContext, useRef } from "react";
 import { SiteContext } from "../../SiteContext";
 import { App } from "../index.js";
-import Table, { Tr } from "../../components/Table";
+import Table, { Tr, LoadingTr } from "../../components/Table";
 import {
   AddBtn,
   displayDate,
   convertUnit,
+  SS,
 } from "../../components/FormElements";
 import { useRouter } from "next/router";
 import { Modal } from "../../components/Modals";
 import { AddFabric } from "../../components/Forms";
 import s from "../../components/SCSS/Table.module.scss";
+import useSWR from "swr";
 
-export async function getServerSideProps(ctx) {
-  const { dbConnect, json, getMonths } = require("../../utils/db");
-  dbConnect();
-  const { verifyToken } = require("../api/auth");
-  const { req, res } = ctx;
-  const { fy, from, to } = ctx.query;
-  const filters = {
-    ...(fy !== "all" && { fy }),
-    ...(from && to && { date: { $gte: from, $lte: to } }),
-  };
-  const token = verifyToken(req);
-  if (token?.role === "admin") {
-    const [user, fabrics, months] = await Promise.all([
-      Admin.findOne({ _id: token.sub }, "-pass"),
-      Fabric.find(filters).sort({ date: 1 }),
-      getMonths(Fabric, fy),
-    ]);
-    return {
-      props: {
-        ssrData: json(fabrics),
-        ssrUser: json(user),
-        ssrMonths: json(months),
-      },
-    };
-  } else {
-    return {
-      redirect: {
-        destination: "/",
-      },
-    };
-  }
-}
+const fetcher = (url) => fetch(url).then((res) => res.json());
 
-export default function Fabrics({ ssrData, ssrUser, ssrMonths }) {
+export default function Fabrics() {
   const router = useRouter();
-  const { fy, dateFilter, setUser, setMonths } = useContext(SiteContext);
-  const [fabrics, setFabrics] = useState(ssrData);
+  const { fy, user, dateFilter, setMonths } = useContext(SiteContext);
+  const { error, data } = useSWR(
+    `/api/fabrics?fy=${fy}${
+      dateFilter ? `&from=${dateFilter.from}&to=${dateFilter.to}` : ""
+    }`,
+    fetcher
+  );
+  const [fabrics, setFabrics] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [edit, setEdit] = useState(null);
   const [addBtnStyle, setAddBtnStyle] = useState(false);
@@ -73,10 +50,12 @@ export default function Fabrics({ ssrData, ssrUser, ssrMonths }) {
         });
     }
   };
-  useEffect(() => setUser(ssrUser), []);
-  useEffect(() => setMonths(ssrMonths), [ssrMonths]);
-  useEffect(() => setFabrics(ssrData), [ssrData]);
+  const firstRender = useRef(true);
   useEffect(() => {
+    if (firstRender.current) {
+      firstRender.current = false;
+      return;
+    }
     router.push({
       pathname: router.pathname,
       query: {
@@ -88,8 +67,53 @@ export default function Fabrics({ ssrData, ssrUser, ssrMonths }) {
       },
     });
   }, [fy, dateFilter]);
+  useEffect(() => {
+    if (data) {
+      setFabrics(data.fabrics);
+      setMonths(data.months);
+    }
+  }, [data]);
   useEffect(() => !showForm && setEdit(null), [showForm]);
-  // console.log(ssrData);
+  useEffect(() => {
+    if (!user) {
+      router.push("/login");
+    }
+  }, []);
+  if (!user) {
+    return (
+      <App>
+        <div className={s.unauthorized}>
+          <div>
+            <ion-icon name="lock-closed-outline"></ion-icon>
+            <p>Please log in</p>
+          </div>
+        </div>
+      </App>
+    );
+  }
+  if (!fabrics) {
+    return (
+      <App>
+        <Table
+          columns={[
+            { label: "Date", className: s.date },
+            { label: "Fabric", className: s.fabric },
+            { label: "Usage", className: s.usage },
+          ]}
+          className={s.fabrics}
+          onScroll={(dir) => {
+            if (dir === "down") {
+              setAddBtnStyle(true);
+            } else {
+              setAddBtnStyle(false);
+            }
+          }}
+        >
+          <LoadingTr number={3} />
+        </Table>
+      </App>
+    );
+  }
   return (
     <App>
       <Table
@@ -123,7 +147,10 @@ export default function Fabrics({ ssrData, ssrUser, ssrMonths }) {
                 fun: () => dltFabric(fabric._id),
               },
             ]}
-            onClick={() => router.push(`/fabrics/${fabric._id}`)}
+            onClick={() => {
+              router.push(`/fabrics/${fabric._id}`);
+              SS.set("singleFabric", JSON.stringify(fabric));
+            }}
           >
             <td className={s.date}>
               {displayDate(fabric.date)}

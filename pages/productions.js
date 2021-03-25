@@ -17,7 +17,8 @@ export default function Productions() {
   const [showForm, setShowForm] = useState(false);
   const [paymentToEdit, setPaymentToEdit] = useState(false);
   const [payments, setPayments] = useState(null);
-  const [bills, setBills] = useState([]);
+  const [bills, setBills] = useState(null);
+  const [summery, setSummery] = useState(null);
   const { error, data } = useSWR(
     `/api/payments?payment=production&fy=${fy}${
       dateFilter ? `&from=${dateFilter.from}&to=${dateFilter.to}` : ""
@@ -70,6 +71,7 @@ export default function Productions() {
     if (data) {
       setBills(data.bills);
       setPayments(data.payments);
+      setSummery(data.summery);
       setMonths(data.months);
     }
   }, [data]);
@@ -182,10 +184,10 @@ export default function Productions() {
               </td>
             </tr>
           ))}
-          <tr className={s.grandTotal}>
+          <tr className={s.totalRecieved}>
             <td>Total Production</td>
             <td className={s.amount}>
-              {data.summery.totalProduction.toLocaleString("en-IN")}
+              {summery.totalProduction.toLocaleString("en-IN")}
             </td>
           </tr>
         </Table>
@@ -243,13 +245,13 @@ export default function Productions() {
           <tr className={s.grandTotalReceived}>
             <td>Recieved</td>
             <td className={s.amount}>
-              {data.summery.totalPaymentReceived.toLocaleString("en-IN")}
+              {summery.totalPaymentReceived.toLocaleString("en-IN")}
             </td>
           </tr>
           <tr className={s.grandTotalDeu}>
             <td>Deu</td>
             <td className={s.amount}>
-              {data.summery.totalPaymentDeu.toLocaleString("en-IN")}
+              {summery.totalPaymentDeu.toLocaleString("en-IN")}
             </td>
           </tr>
           <tr className={s.hr} /> <tr className={s.hr} />
@@ -257,35 +259,35 @@ export default function Productions() {
           <tr className={s.past}>
             <td>Previous</td>
             <td className={s.amount}>
-              {data.summery.previous.toLocaleString("en-IN")}
+              {summery.previous.toLocaleString("en-IN")}
             </td>
           </tr>
           <tr>
             <td>Recieved</td>
             <td className={s.amount}>
-              + {data.summery.totalPaymentReceived.toLocaleString("en-IN")}
+              + {summery.totalPaymentReceived.toLocaleString("en-IN")}
             </td>
           </tr>
           <tr className={s.hr} />
           <tr>
             <td>Total</td>
             <td className={s.amount}>
-              {(
-                data.summery.previous + data.summery.totalPaymentReceived
-              ).toLocaleString("en-IN")}
+              {(summery.previous + summery.totalPaymentReceived).toLocaleString(
+                "en-IN"
+              )}
             </td>
           </tr>
           <tr>
             <td>Total production</td>
             <td className={s.amount}>
-              - {data.summery.totalProduction.toLocaleString("en-IN")}
+              - {summery.totalProduction.toLocaleString("en-IN")}
             </td>
           </tr>
           <tr className={s.hr} />
           <tr>
             <td>Todate</td>
             <td className={s.amount}>
-              {data.summery.todate.toLocaleString("en-IN")}
+              {summery.todate.toLocaleString("en-IN")}
             </td>
           </tr>
         </Table>

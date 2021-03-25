@@ -10,6 +10,7 @@ export default function Nav({ sidebarOpen, setSidebarOpen }) {
   const [showForm, setShowForm] = useState(false);
   const router = useRouter();
   const [backBtn, setBackBtn] = useState(false);
+  const [showMonthFilter, setShowMonthFilter] = useState(false);
   useEffect(() => {
     if (
       router.pathname === "/" ||
@@ -23,8 +24,10 @@ export default function Nav({ sidebarOpen, setSidebarOpen }) {
       router.pathname === "/employees"
     ) {
       setBackBtn(false);
+      setShowMonthFilter(true);
     } else {
       setBackBtn(true);
+      setShowMonthFilter(false);
     }
   }, [router]);
   return (
@@ -54,7 +57,7 @@ export default function Nav({ sidebarOpen, setSidebarOpen }) {
           <div className={s.after}></div>
         </div>
       </div>
-      {
+      {showMonthFilter && (
         <select
           className={s.month_filter}
           defaultValue={dateFilter?.label || "all"}
@@ -86,7 +89,7 @@ export default function Nav({ sidebarOpen, setSidebarOpen }) {
             </option>
           ))}
         </select>
-      }
+      )}
       {showForm && (
         <Modal open={showForm} setOpen={setShowForm}>
           <DateFilter

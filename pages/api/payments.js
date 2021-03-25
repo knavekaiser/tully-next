@@ -93,7 +93,6 @@ export default nextConnect({
             getMonths(WagePayment, fy),
           ]).then(
             ([wages, previousWage, payments, previousWagePayments, months]) => {
-              console.log("got this far");
               res.json({
                 code: "ok",
                 months,

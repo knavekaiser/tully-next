@@ -48,15 +48,16 @@ export default nextConnect({
   .get((req, res) => {
     auth(req)
       .then((user) => {
-        const { fy, dateFilter } = req.query;
+        const { fy, from, to } = req.query;
         const query = {
           ...(fy !== "all" && { fy }),
-          ...(dateFilter && {
-            date: {
-              $gte: new Date(dateFilter.from),
-              $lte: new Date(dateFilter.to),
-            },
-          }),
+          ...(from &&
+            to && {
+              date: {
+                $gte: new Date(from),
+                $lte: new Date(to),
+              },
+            }),
         };
         Promise.all([
           Employee.find({
@@ -68,18 +69,8 @@ export default nextConnect({
           }),
           getMonths(EmpWork, fy),
           EmpWork.findOne({}, "-_id date").sort({ date: -1 }),
-          // EmpWork.aggregate([
-          //   {
-          //     $match: query,
-          //   },
-          //   {
-          //     $group: {
-          //       _id: "$employee",
-          //     },
-          //   },
-          // ]),
         ])
-          .then(([emps, months, lastWeek, more]) => {
+          .then(([emps, months, lastWeek]) => {
             const allEmps = emps.map((emp) => {
               const { qnt, cost, paid, deu, lastDay } = getProduction(
                 emp.work.map((item) => item?.work).filter((item) => !!item),

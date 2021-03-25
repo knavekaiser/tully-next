@@ -17,6 +17,7 @@ export default function Productions() {
   const { fy, user, dateFilter, setMonths } = useContext(SiteContext);
   const [payments, setPayments] = useState(null);
   const [bills, setBills] = useState(null);
+  const [summery, setSummery] = useState(null);
   const { error, data } = useSWR(
     `/api/payments?payment=wages&fy=${fy}${
       dateFilter ? `&from=${dateFilter.from}&to=${dateFilter.to}` : ""
@@ -72,6 +73,7 @@ export default function Productions() {
       setPayments(data.payments);
       setMonths(data.months);
       setBills(data.wages);
+      setSummery(data.summery);
     }
   }, [data]);
   useEffect(() => {
@@ -183,22 +185,22 @@ export default function Productions() {
           <tr className={`${s.totalRecieved} ${s.total}`}>
             <td>Total Production</td>
             <td className={s.amount}>
-              {data.summery.totalWage.toLocaleString("en-IN")}
+              {summery.totalWage.toLocaleString("en-IN")}
             </td>
           </tr>
           <tr className={s.total}>
             <td>Previous</td>
             <td className={s.amount}>
-              + {data.summery.previousWage.toLocaleString("en-IN")}
+              + {summery.previousWage.toLocaleString("en-IN")}
             </td>
           </tr>
           <tr className={s.hr} />
           <tr className={s.total}>
             <td>Total</td>
             <td className={s.amount}>
-              {(
-                data.summery.totalWage + data.summery.previousWage
-              ).toLocaleString("en-IN")}
+              {(summery.totalWage + summery.previousWage).toLocaleString(
+                "en-IN"
+              )}
             </td>
           </tr>
           <tr className={s.total}>
@@ -215,8 +217,8 @@ export default function Productions() {
             <td>Current</td>
             <td className={s.amount}>
               {(
-                data.summery.totalWage +
-                data.summery.previousWage -
+                summery.totalWage +
+                summery.previousWage -
                 payments.reduce((p, c) => p + c.amount, 0)
               ).toLocaleString("en-IN")}
             </td>
@@ -275,8 +277,7 @@ export default function Productions() {
             <td>Deu</td>
             <td className={s.amount}>
               {(
-                data.summery.totalWage -
-                payments.reduce((p, c) => p + c.amount, 0)
+                summery.totalWage - payments.reduce((p, c) => p + c.amount, 0)
               ).toLocaleString("en-IN")}
             </td>
           </tr>

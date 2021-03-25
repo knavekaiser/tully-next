@@ -1,52 +1,26 @@
-import { useEffect, useState, useContext, Fragment } from "react";
+import { useEffect, useState, useContext, Fragment, useRef } from "react";
 import { SiteContext } from "../SiteContext";
 import { App } from "./index.js";
-import Table, { Tr } from "../components/Table";
+import Table, { Tr, LoadingTr } from "../components/Table";
 import { displayDate, AddBtn } from "../components/FormElements";
 import { useRouter } from "next/router";
 import { Modal } from "../components/Modals";
 import { AddEmpWork } from "../components/Forms";
 import s from "../components/SCSS/Table.module.scss";
+import useSWR from "swr";
 
-export async function getServerSideProps(ctx) {
-  const { dbConnect, json, getMonths } = require("../utils/db");
-  dbConnect();
-  const { verifyToken } = require("./api/auth");
-  const { req, res } = ctx;
-  const { fy, from, to } = ctx.query;
-  const filters = {
-    ...(fy !== "all" && { fy }),
-    ...(from && to && { date: { $gte: from, $lte: to } }),
-  };
-  const token = verifyToken(req);
-  if (token?.role === "admin") {
-    const [user, lots, months] = await Promise.all([
-      Admin.findOne({ _id: token.sub }, "-pass"),
-      Lot.find(filters).sort({ ref: 1 }),
-      getMonths(Lot, fy),
-    ]);
-    return {
-      props: {
-        ssrUser: json(user),
-        ssrData: json(lots),
-        ssrMonths: json(months),
-      },
-    };
-  } else {
-    return {
-      redirect: {
-        destination: "/",
-      },
-    };
-  }
-}
+const fetcher = (url) => fetch(url).then((res) => res.json());
 
-export default function Lots({ ssrData, ssrUser, ssrMonths }) {
+export default function Lots() {
   const router = useRouter();
-  const { fy, dateFilter, setUser, setMonths, empRate } = useContext(
-    SiteContext
+  const { fy, dateFilter, user, setMonths, empRate } = useContext(SiteContext);
+  const [lots, setLots] = useState(null);
+  const { error, data } = useSWR(
+    `/api/lots?fy=${fy}${
+      dateFilter ? `&from=${dateFilter.from}&to=${dateFilter.to}` : ""
+    }`,
+    fetcher
   );
-  const [lots, setLots] = useState(ssrData);
   const [showForm, setShowForm] = useState(false);
   const [edit, setEdit] = useState(null);
   const dltCosting = (_id) => {
@@ -71,10 +45,12 @@ export default function Lots({ ssrData, ssrUser, ssrMonths }) {
     }
   };
   const [addBtnStyle, setAddBtnStyle] = useState(false);
-  useEffect(() => setUser(ssrUser), []);
-  useEffect(() => setMonths(ssrMonths), [ssrMonths]);
-  useEffect(() => setLots(ssrData), [ssrData]);
+  const firstRedner = useRef(true);
   useEffect(() => {
+    if (firstRedner.current) {
+      firstRedner.current = false;
+      return;
+    }
     router.push({
       pathname: router.pathname,
       query: {
@@ -87,6 +63,59 @@ export default function Lots({ ssrData, ssrUser, ssrMonths }) {
     });
   }, [fy, dateFilter]);
   useEffect(() => !showForm && setEdit(null), [showForm]);
+  useEffect(() => {
+    if (!user) {
+      router.push("/login");
+    }
+  }, []);
+  useEffect(() => {
+    if (data) {
+      setLots(data.lots);
+      setMonths(data.months);
+    }
+  }, [data]);
+  if (!user) {
+    return (
+      <App>
+        <div className={s.unauthorized}>
+          <div>
+            <ion-icon name="lock-closed-outline"></ion-icon>
+            <p>Please log in</p>
+          </div>
+        </div>
+      </App>
+    );
+  }
+  if (!lots) {
+    return (
+      <App>
+        <Table
+          columns={[
+            { label: "Date" },
+            { label: "Dress" },
+            {
+              label: (
+                <>
+                  Pcs<sup>G</sup>
+                </>
+              ),
+            },
+            { label: "Total" },
+          ]}
+          className={s.lots}
+          onScroll={(dir) => {
+            if (dir === "down") {
+              setAddBtnStyle(true);
+            } else {
+              setAddBtnStyle(false);
+            }
+          }}
+        >
+          <LoadingTr number={4} />
+        </Table>
+      </App>
+    );
+  }
   return (
     <App>
       <Table
