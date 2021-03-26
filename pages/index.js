@@ -52,6 +52,10 @@ export const App = ({ children }) => {
             type="module"
             src="https://unpkg.com/ionicons@5.4.0/dist/ionicons/ionicons.esm.js"
           ></script>
+          <link
+            href="https://fonts.maateen.me/solaiman-lipi/font.css"
+            rel="stylesheet"
+          />
         </Head>
         <div className="innerContainer" style={sidebarOpen ? { left: 0 } : {}}>
           <span

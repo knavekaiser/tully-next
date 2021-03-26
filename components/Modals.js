@@ -11,6 +11,7 @@ export const Modal = forwardRef(
       className,
       backdropClick,
       block,
+      id,
     },
     ref
   ) => {
@@ -31,7 +32,9 @@ export const Modal = forwardRef(
             backdropClick && !block && backdropClick();
           }}
         />
-        <div className={`modal ${className || ""}`}>{children}</div>
+        <div id={id} className={`modal ${className || ""}`}>
+          {children}
+        </div>
       </>,
       document.querySelector("#portal")
     );
