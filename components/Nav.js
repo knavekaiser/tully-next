@@ -60,8 +60,7 @@ export default function Nav({ sidebarOpen, setSidebarOpen }) {
       {showMonthFilter && (
         <select
           className={s.month_filter}
-          defaultValue={dateFilter?.label || "all"}
-          value={dateFilter?.label}
+          value={dateFilter?.label || "all"}
           onChange={(e) => {
             const value = e.target.value;
             if (value === "all") {

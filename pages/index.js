@@ -4,6 +4,8 @@ import Head from "next/head";
 import Sidebar from "../components/Sidebar";
 import Nav from "../components/Nav";
 import Router from "next/router";
+import Link from "next/link";
+import s from "../styles/Dashboard.module.scss";
 
 export async function getServerSideProps(ctx) {
   const { dbConnect, json } = require("../utils/db");
@@ -152,12 +154,18 @@ export const App = ({ children }) => {
 };
 
 export default function Home({ ssrData }) {
-  const { setUser } = useContext(SiteContext);
+  const { setUser, fy } = useContext(SiteContext);
   useEffect(() => {
     setUser(ssrData.user);
   }, []);
   if (!ssrData.user) {
     return null;
   }
-  return <App>dashboard</App>;
+  return (
+    <App>
+      <div className={s.container}>
+        <Link href={`employees?fy=${fy}`}>Employees</Link>
+      </div>
+    </App>
+  );
 }

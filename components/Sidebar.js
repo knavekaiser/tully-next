@@ -87,10 +87,12 @@ export default function Sidebar({ sections, sidebarOpen, setSidebarOpen }) {
                 <p>Lots</p>
               </li>
             </Link>
-            <li>
-              <ion-icon name="analytics-outline"></ion-icon>
-              <p>Data</p>
-            </li>
+            <Link href="/">
+              <li>
+                <ion-icon name="analytics-outline"></ion-icon>
+                <p>Data</p>
+              </li>
+            </Link>
             {
               // <li onClick={() => setBackupOpen(!backupOpen)}>
               //   <ion-icon name="download-outline"></ion-icon>

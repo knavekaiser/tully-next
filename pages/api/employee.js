@@ -60,20 +60,50 @@ export default nextConnect({
             }),
         };
         Promise.all([
-          Employee.find({
-            ...(user.role === "viwer" && { name: user.name }),
-          }).populate({
-            path: "work.work",
-            match: query,
-            select: "-_id products paid date",
-          }),
+          EmpWork.aggregate([
+            { $match: query },
+            {
+              $group: {
+                _id: "$employee",
+                work: {
+                  $push: {
+                    _id: "$_id",
+                    paid: "$paid",
+                    date: "$date",
+                    fy: "$fy",
+                    products: "$products",
+                  },
+                },
+              },
+            },
+            {
+              $lookup: {
+                from: "employees",
+                localField: "_id",
+                foreignField: "_id",
+                as: "emp",
+              },
+            },
+            {
+              $set: {
+                name: { $first: "$emp.name" },
+                pass: { $first: "$emp.pass" },
+              },
+            },
+            {
+              $sort: {
+                name: 1,
+              },
+            },
+            { $unset: "emp" },
+          ]),
           getMonths(EmpWork, fy),
           EmpWork.findOne({}, "-_id date").sort({ date: -1 }),
         ])
           .then(([emps, months, lastWeek]) => {
             const allEmps = emps.map((emp) => {
               const { qnt, cost, paid, deu, lastDay } = getProduction(
-                emp.work.map((item) => item?.work).filter((item) => !!item),
+                emp.work,
                 rate,
                 lastWeek?.date
               );
@@ -81,9 +111,7 @@ export default nextConnect({
                 _id: emp._id,
                 name: emp.name,
                 pass: emp.pass,
-                work: emp.work
-                  .map((item) => item?.work)
-                  .filter((item) => !!item),
+                work: emp.work,
                 qnt,
                 cost,
                 paid,
@@ -91,7 +119,6 @@ export default nextConnect({
                 lastDay,
               };
             });
-            // console.log(more);
             res.json({ code: "ok", content: { allEmps, months } });
           })
           .catch((err) => {

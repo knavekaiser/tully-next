@@ -50,34 +50,32 @@ export const getMonths = (Element, fy) => {
       $match: { fy },
     },
     {
-      $project: {
-        year: { $year: "$date" },
-        month: { $month: "$date" },
+      $group: {
+        _id: {
+          $concat: [
+            { $toString: { $year: "$date" } },
+            "-",
+            { $toString: { $month: "$date" } },
+          ],
+        },
+        originalDate: { $first: "$date" },
       },
     },
     {
-      $group: {
-        _id: null,
-        dates: { $addToSet: { year: "$year", month: "$month" } },
+      $sort: {
+        originalDate: 1,
       },
     },
+    { $unset: "originalDate" },
   ]).then((dates) => {
     return (
-      dates[0]?.dates
-        .sort((a, b) => {
-          return (
-            new Date(`${a.year}-${a.month}-01`) -
-            new Date(`${b.year}-${b.month}-01`)
-          );
-        })
-        .map((date) => {
-          return {
-            label: `${months[date.month - 1]} ${date.year}`,
-            value: `${date.year}-${
-              date.month < 10 ? "0" + date.month : date.month
-            }`,
-          };
-        }) || []
+      dates.map((date) => {
+        const [year, month] = date._id.split("-");
+        return {
+          label: `${months[month - 1]} ${year}`,
+          value: `${year}-${month < 10 ? "0" + month : month}`,
+        };
+      }) || []
     );
   });
 };

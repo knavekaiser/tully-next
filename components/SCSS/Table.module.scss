@@ -247,6 +247,9 @@
         grid-template-columns: 1fr;
       }
     }
+    tbody {
+      max-height: calc((var(--vh) * 100) - (2rem + 56px + 91px));
+    }
   }
   &.costings {
     tr {
@@ -585,6 +588,31 @@
         max-height: calc((var(--vh) * 100) - (1rem + 50px + 56px));
       }
     }
+  }
+  .singleBill {
+    tbody {
+      max-height: calc((var(--vh) * 100) - (1rem + 56px + 91px));
+    }
+  }
+  .singleCosting {
+    tbody {
+      max-height: calc((var(--vh) * 100) - (1rem + 86px + 56px));
+    }
+  }
+  .singleFabric {
+    tbody {
+      max-height: calc((var(--vh) * 100) - (1rem + 111px + 56px));
+    }
+  }
+  .production {
+    .payment {
+      tbody {
+        max-height: calc((var(--vh) * 100) - (1rem + 50px + 56px));
+      }
+    }
+  }
+  .sampleImg {
+    max-height: calc((var(--vh) * 100) - 1rem);
   }
 }
 

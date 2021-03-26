@@ -14,12 +14,14 @@ const fetcher = (url) => fetch(url).then((res) => res.json());
 export default function EmpList() {
   const router = useRouter();
   const { user, empRate, fy, dateFilter, setMonths } = useContext(SiteContext);
-  const { error, data } = useSWR(
-    `/api/employee?fy=${fy}${
-      dateFilter ? `&from=${dateFilter.from}&to=${dateFilter.to}` : ""
-    }`,
-    fetcher
-  );
+  const { error, data } = user
+    ? useSWR(
+        `/api/employee?fy=${fy}${
+          dateFilter ? `&from=${dateFilter.from}&to=${dateFilter.to}` : ""
+        }`,
+        fetcher
+      )
+    : {};
   const [showForm, setShowForm] = useState(false);
   const [showUpdateForm, setShowUpdateForm] = useState(false);
   const [employees, setEmployees] = useState(null);
@@ -70,6 +72,7 @@ export default function EmpList() {
       });
   };
   useEffect(() => {
+    if (!user) return;
     if (data) {
       setEmployees(data.content.allEmps);
       setMonths(data.content.months);
@@ -92,7 +95,7 @@ export default function EmpList() {
       </App>
     );
   }
-  if (!data) {
+  if (!employees) {
     return (
       <App>
         <Table
