@@ -34,6 +34,12 @@ export default function Sidebar({ sections, sidebarOpen, setSidebarOpen }) {
       <ul>
         {!user?.work && (
           <>
+            <Link href="/">
+              <li onClick={() => setSidebarOpen(false)}>
+                <ion-icon name="home-outline"></ion-icon>
+                <p>Home</p>
+              </li>
+            </Link>
             <li onClick={() => setSectionOpen(!sectionOpen)}>
               <ion-icon name="albums-outline"></ion-icon>
               <p>Section</p>
@@ -43,12 +49,15 @@ export default function Sidebar({ sections, sidebarOpen, setSidebarOpen }) {
                 {sections.map((section) =>
                   section.link ? (
                     <Link href={section.link} key={section.label}>
-                      <li>
+                      <li onClick={() => setSidebarOpen(false)}>
                         <p>{section.label}</p>
                       </li>
                     </Link>
                   ) : (
-                    <li key={section.label}>
+                    <li
+                      key={section.label}
+                      onClick={() => setSidebarOpen(false)}
+                    >
                       <p>{section.label}</p>
                     </li>
                   )
@@ -85,12 +94,6 @@ export default function Sidebar({ sections, sidebarOpen, setSidebarOpen }) {
               <li>
                 <ion-icon name="layers-outline"></ion-icon>
                 <p>Lots</p>
-              </li>
-            </Link>
-            <Link href="/">
-              <li>
-                <ion-icon name="analytics-outline"></ion-icon>
-                <p>Data</p>
               </li>
             </Link>
             {

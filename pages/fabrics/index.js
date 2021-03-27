@@ -131,79 +131,85 @@ export default function Fabrics() {
           }
         }}
       >
-        {fabrics.map((fabric, i) => (
-          <Tr
-            key={i}
-            options={[
-              {
-                label: "Edit",
-                fun: () => {
-                  setEdit(fabric);
-                  setShowForm(true);
+        {fabrics.length > 0 ? (
+          fabrics.map((fabric, i) => (
+            <Tr
+              key={i}
+              options={[
+                {
+                  label: "Edit",
+                  fun: () => {
+                    setEdit(fabric);
+                    setShowForm(true);
+                  },
                 },
-              },
-              {
-                label: "Delete",
-                fun: () => dltFabric(fabric._id),
-              },
-            ]}
-            onClick={() => {
-              router.push(`/fabrics/${fabric._id}`);
-              SS.set("singleFabric", JSON.stringify(fabric));
-            }}
-          >
-            <td className={s.date}>
-              {displayDate(fabric.date)}
-              <span>{fabric.dealer}</span>
-            </td>
-            <td className={s.fabric}>
-              {fabric.name}
-              <span>
-                {fabric.qnt.amount}
-                {fabric.qnt.unit.substr(0, 1)} • ৳ {fabric.price}
-              </span>
-            </td>
-            {fabric.usage.length > 0 ? (
-              <td className={s.usage}>
-                {convertUnit(
-                  fabric.usage.reduce(
-                    (p, c) =>
-                      p +
-                      convertUnit(c.qnt.amount, c.qnt.unit, fabric.qnt.unit),
-                    0
-                  ),
-                  fabric.qnt.unit,
-                  "yard"
-                )}
-                yd/{fabric.usage.length} lots
+                {
+                  label: "Delete",
+                  fun: () => dltFabric(fabric._id),
+                },
+              ]}
+              onClick={() => {
+                router.push(`/fabrics/${fabric._id}`);
+                SS.set("singleFabric", JSON.stringify(fabric));
+              }}
+            >
+              <td className={s.date}>
+                {displayDate(fabric.date)}
+                <span>{fabric.dealer}</span>
+              </td>
+              <td className={s.fabric}>
+                {fabric.name}
                 <span>
-                  Remaining{" "}
-                  {convertUnit(
-                    fabric.qnt.amount -
-                      fabric.usage.reduce(
-                        (p, c) =>
-                          p +
-                          convertUnit(
-                            c.qnt.amount,
-                            c.qnt.unit,
-                            fabric.qnt.unit
-                          ),
-                        0
-                      ),
-                    fabric.qnt.unit,
-                    "yard"
-                  )}{" "}
-                  yd
+                  {fabric.qnt.amount}
+                  {fabric.qnt.unit.substr(0, 1)} • ৳ {fabric.price}
                 </span>
               </td>
-            ) : (
-              <td className={s.usage}>
-                Remaining{" "}
-                {convertUnit(fabric.qnt.amount, fabric.qnt.unit, "yard")} yd
-              </td>
-            )}
-          </Tr>
-        ))}
+              {fabric.usage.length > 0 ? (
+                <td className={s.usage}>
+                  {convertUnit(
+                    fabric.usage.reduce(
+                      (p, c) =>
+                        p +
+                        convertUnit(c.qnt.amount, c.qnt.unit, fabric.qnt.unit),
+                      0
+                    ),
+                    fabric.qnt.unit,
+                    "yard"
+                  )}
+                  yd/{fabric.usage.length} lots
+                  <span>
+                    Remaining{" "}
+                    {convertUnit(
+                      fabric.qnt.amount -
+                        fabric.usage.reduce(
+                          (p, c) =>
+                            p +
+                            convertUnit(
+                              c.qnt.amount,
+                              c.qnt.unit,
+                              fabric.qnt.unit
+                            ),
+                          0
+                        ),
+                      fabric.qnt.unit,
+                      "yard"
+                    )}{" "}
+                    yd
+                  </span>
+                </td>
+              ) : (
+                <td className={s.usage}>
+                  Remaining{" "}
+                  {convertUnit(fabric.qnt.amount, fabric.qnt.unit, "yard")} yd
+                </td>
+              )}
+            </Tr>
+          ))
+        ) : (
+          <tr>
+            <td>- Nothing much -</td>
+          </tr>
+        )}
       </Table>
       {fy !== "all" && <AddBtn translate={addBtnStyle} onClick={setShowForm} />}
       <Modal open={showForm} setOpen={setShowForm}>

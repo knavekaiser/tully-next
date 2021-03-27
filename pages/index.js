@@ -6,6 +6,9 @@ import Nav from "../components/Nav";
 import Router, { useRouter } from "next/router";
 import Link from "next/link";
 import s from "../styles/Dashboard.module.scss";
+import useSWR from "swr";
+
+const fetcher = (url) => fetch(url).then((res) => res.json());
 
 export async function getServerSideProps(ctx) {
   const { dbConnect, json } = require("../utils/db");
@@ -158,8 +161,15 @@ export const App = ({ children }) => {
 };
 
 export default function Home({ ssrData }) {
-  const router = useRouter;
-  const { setUser, fy } = useContext(SiteContext);
+  const router = useRouter();
+  const { setUser, fy, dateFilter } = useContext(SiteContext);
+  const { error, data } = useSWR(
+    `/api/dashboardData?fy=${fy}${
+      dateFilter ? `&from=${dateFilter.from}&to=${dateFilter.to}` : ""
+    }`,
+    fetcher
+  );
+  const [summery, setSummery] = useState(null);
   useEffect(() => {
     if (ssrData.user) {
       setUser(ssrData.user);
@@ -167,10 +177,37 @@ export default function Home({ ssrData }) {
       rotuer.push("/login");
     }
   }, []);
+  useEffect(() => {
+    if (data) {
+      console.log(data.summery);
+      setSummery(data.summery);
+    }
+  }, [data]);
+  if (!summery) {
+    return (
+      <App>
+        <div className={s.container}>
+          <Link href={`employees?fy=${fy}`}>Employees</Link>
+          <Link href={`bills?fy=${fy}`}>Bills</Link>
+          <Link href={`fabrics?fy=${fy}`}>Fabrics</Link>
+          <Link href={`costings?fy=${fy}`}>Costings</Link>
+          <Link href={`wages?fy=${fy}`}>Wages</Link>
+          <Link href={`productions?fy=${fy}`}>Productions</Link>
+        </div>
+      </App>
+    );
+  }
   return (
     <App>
       <div className={s.container}>
         <Link href={`employees?fy=${fy}`}>Employees</Link>
+        <Link href={`bills?fy=${fy}`}>Bills</Link>
+        <Link href={`fabrics?fy=${fy}`}>Fabrics</Link>
+        <Link href={`costings?fy=${fy}`}>Costings</Link>
+        <Link href={`wages?fy=${fy}`}>
+          <a>Wages {summery.wage.toLocaleString("en-IN")}</a>
+        </Link>
+        <Link href={`productions?fy=${fy}`}>Productions</Link>
       </div>
     </App>
   );

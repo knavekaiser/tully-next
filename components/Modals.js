@@ -9,6 +9,7 @@ export const Modal = forwardRef(
       setOpen,
       children,
       className,
+      backDropClass,
       backdropClick,
       block,
       id,
@@ -26,7 +27,7 @@ export const Modal = forwardRef(
       <>
         <div
           ref={ref}
-          className="modalBackdrop"
+          className={`modalBackdrop ${backDropClass || ""}`}
           onClick={() => {
             setOpen && !block && setOpen(false);
             backdropClick && !block && backdropClick();

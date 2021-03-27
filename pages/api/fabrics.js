@@ -24,11 +24,12 @@ export default nextConnect({
         }
         const filters = {
           ...(fy !== "all" && { fy }),
-          ...(from && to && { date: { $gte: from, $lte: to } }),
+          ...(from &&
+            to && { date: { $gte: new Date(from), $lte: new Date(to) } }),
         };
         Promise.all([
           Fabric.aggregate([
-            { $match: { ...filters } },
+            { $match: filters },
             {
               $unwind: {
                 path: "$usage",

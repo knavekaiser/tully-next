@@ -27,42 +27,37 @@ class Bill_Class extends Component {
     return (
       <div className={s.billPrint}>
         <header>
-          <small>বিসমিল্লাহির রাহ্‌মানির রাহিম</small>
-          <p className={s.pill}>ক্যাশ মেমো</p>
-          <p className={s.mobile}>মোবাঃ ০১৭১৭-১৪১০৭৭</p>
+          <p className={s.memo}>ক্যাশ মেমো</p>
+          <p className={s.ref}>{bill.ref}</p>
           <h1>মোঃ হোসেন</h1>
           <p className={s.add}>
-            ৭২ টেকের হাটি মেইন রোড, কামরাঙ্গীরচর, ঢাকা ১২১১
-          </p>
-          <p className={s.ref}>
-            <span className={s.label}>নং </span>
-            {bill.ref.toLocaleString("bn-BD")}
-          </p>
-          <p className={s.date}>
-            <span className={s.label}>তারিখ </span>
-            {displayDate(bill.date).bn()}
-          </p>
-          <p className={s.name}>
-            <span className={s.label}>নাম </span>আলম গার্মেন্টস
-          </p>
-          <p className={s.customerAdd}>
-            <span className={s.label}>ঠিকানা </span>গাউসিয়া মার্কেট
+            ৭২ টেকের হাটি মেইন রোড, কামরাঙ্গীরচর, ঢাকা ১২১১ • ০১৭১৭-১৪১০৭৭
           </p>
         </header>
-        <table className={s.content}>
+        <div className={s.detail}>
+          <p>খদ্দের -</p>
+          <p className={s.name}>আলম গার্মেন্টস • গাউসিয়া মার্কেট</p>
+          <p className={s.date}>{`${new Date(bill.date)
+            .getDate()
+            .toLocaleString("bn-BD")} • ${(
+            new Date(bill.date).getMonth() + 1
+          ).toLocaleString("bn-BD")} • ${new Date(bill.date)
+            .getFullYear()
+            .toString()
+            .bn()}`}</p>
+        </div>
+        <table className={s.content} cellSpacing={0} cellPadding={0}>
           <thead>
             <tr>
-              <th className={s.no}>সংখ্যা</th>
               <th>মালের বিবরণ</th>
               <th>পরিমাণ</th>
               <th>দর</th>
               <th>টাকা</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody className={s.products}>
             {bill.products.map((product, i) => (
               <tr key={i}>
-                <td>{(i + 1).toLocaleString("bn-BD")}</td>
                 <td className={s.dress}>{product.dress}</td>
                 <td>{product.qnt.toLocaleString("bn-BD")}</td>
                 <td>{product.cost.toLocaleString("bn-BD")}</td>
@@ -71,28 +66,21 @@ class Bill_Class extends Component {
                 </td>
               </tr>
             ))}
+          </tbody>
+          <tbody className={s.summery}>
             {bill.products.length > 1 && (
-              <>
-                <tr className={s.hr} />
-                <tr>
-                  <td className={s.taka}>
-                    {bill.products
-                      .reduce((p, c) => p + c.qnt * c.cost, 0)
-                      .toLocaleString("bn-BD")}
-                  </td>
-                </tr>
-              </>
+              <tr>
+                <td>মোট</td>
+                <td className={s.taka}>
+                  ৳{" "}
+                  {bill.products
+                    .reduce((p, c) => p + c.qnt * c.cost, 0)
+                    .toLocaleString("bn-BD")}
+                </td>
+              </tr>
             )}
-            <tr className={s.gap} />
             <tr>
-              <td />
               <td>মজুরী বাদ</td>
-              <td>
-                {bill.products
-                  .reduce((p, c) => p + c.qnt, 0)
-                  .toLocaleString("bn-BD")}
-              </td>
-              <td>-</td>
               <td className={s.taka}>
                 -{" "}
                 {bill.products
@@ -102,7 +90,9 @@ class Bill_Class extends Component {
             </tr>
             <tr className={s.hr} />
             <tr>
+              <td>সর্বমোট</td>
               <td className={s.taka}>
+                ৳{" "}
                 {bill.products
                   .reduce((p, c) => p + (c.qnt * c.cost - c.qnt * c.wage), 0)
                   .toLocaleString("bn-BD")}
@@ -112,9 +102,45 @@ class Bill_Class extends Component {
         </table>
         <footer>
           <p>ক্রেতার স্বাক্ষর</p>
-          <p className={s.thanks}>ধন্যবাদ আবার আসবেন</p>
+          <p className={s.thanks} contentEditable={true}>
+            ধন্যবাদ আবার আসবেন
+          </p>
           <p>বিক্রেতার স্বাক্ষর</p>
         </footer>
+        <svg
+          className={s.topWave}
+          xmlns="http://www.w3.org/2000/svg"
+          width="278"
+          height="191"
+          viewBox="29 5 200 170"
+        >
+          <g>
+            <g>
+              <path
+                d="M2.6638712879121593,162.1317202649126 C2.6638712879121593,162.1317202649126 24.432885784333976,156.0415904603013 35.470137805551325,140.55019231653296 C46.507389826768666,125.05879417276476 58.69674876884821,106.9719462922821 77.00467706641558,95.90894957399449 C95.31260536398294,84.84472103333557 100.33537519029977,84.86935748076522 123.05384015998249,82.013993223668 C145.77243053588276,79.15862896657076 184.24454996356368,73.86795188105198 208.22974313697222,59.249915798664915 C232.21493631038072,44.63187971627799 252.1720817752779,2.4875409207353183 252.1720817752779,2.4875409207353183 L3.8677709766328636,2.4875409207353183 L2.6638712879121593,162.1317202649126 z"
+                fill="#f4eae9"
+              />
+            </g>
+          </g>
+        </svg>
+        <svg
+          className={s.bottomWave}
+          xmlns="http://www.w3.org/2000/svg"
+          width="295"
+          height="191"
+          viewBox="50 20 200 160"
+        >
+          <g>
+            <g>
+              <path
+                d="M26.44089014014605,188.14780875063036 C26.44089014014605,188.14780875063036 26.24751375264528,177.64652303373896 49.615959148019584,160.94917078828902 C72.98440454339388,144.25181854283892 125.37510924729709,138.52014904832933 151.04450792273883,120.74248858308883 C176.71390659818056,102.96482811784834 205.4871091586054,63.89511796152682 233.81261152228717,56.293542107106106 C262.13811388596895,48.691966252685525 277.15300031623246,57.77172895288558 277.15300031623246,57.77172895288558 L277.4539752384127,188.73908348894201 L26.44089014014605,188.14780875063036 z"
+                fill="#f0f1fd"
+              />
+            </g>
+          </g>
+        </svg>
+        <div className={`${s.circle} ${s.top}`} />
+        <div className={`${s.circle} ${s.bottom}`} />
       </div>
     );
   }
@@ -215,7 +241,12 @@ export default function SingleBill() {
           <td onClick={() => setShowPrint(true)}>Print</td>
         </tr>
       </Table>
-      <Modal className={s.container} open={showPrint} setOpen={setShowPrint}>
+      <Modal
+        className={s.container}
+        backDropClass={s.printBackdrop}
+        open={showPrint}
+        setOpen={setShowPrint}
+      >
         <Bill_Class bill={ssrData} ref={componentRef} />
         <button onClick={handlePrint}>Print this out!</button>
         <button onClick={() => setShowPrint(false)}>Close</button>

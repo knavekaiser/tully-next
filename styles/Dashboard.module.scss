@@ -1,2 +1,15 @@
 .container {
+  padding: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  grid-gap: 1rem;
+  height: min-content;
+  a {
+    border-radius: 0.25rem;
+    height: min-content;
+    min-width: 12rem;
+    flex: 1;
+    padding: 1rem;
+    border: 1px solid #aaa;
+  }
 }
