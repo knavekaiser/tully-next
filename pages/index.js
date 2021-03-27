@@ -3,7 +3,7 @@ import { SiteContext } from "../SiteContext";
 import Head from "next/head";
 import Sidebar from "../components/Sidebar";
 import Nav from "../components/Nav";
-import Router from "next/router";
+import Router, { useRouter } from "next/router";
 import Link from "next/link";
 import s from "../styles/Dashboard.module.scss";
 
@@ -158,13 +158,15 @@ export const App = ({ children }) => {
 };
 
 export default function Home({ ssrData }) {
+  const router = useRouter;
   const { setUser, fy } = useContext(SiteContext);
   useEffect(() => {
-    setUser(ssrData.user);
+    if (ssrData.user) {
+      setUser(ssrData.user);
+    } else {
+      rotuer.push("/login");
+    }
   }, []);
-  if (!ssrData.user) {
-    return null;
-  }
   return (
     <App>
       <div className={s.container}>

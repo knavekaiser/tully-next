@@ -737,7 +737,7 @@ export function CostingForm({ fy, edit, onSuccess }) {
         onChange={(t) => setLotSize(t.value)}
       />
       <ImgUpload
-        defaultValue={edit.img}
+        defaultValue={edit?.img}
         label="Image"
         className={s.imgUpload}
         height="5rem"
