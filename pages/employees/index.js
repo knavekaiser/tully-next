@@ -2,7 +2,7 @@ import { useState, useEffect, useContext } from "react";
 import { SiteContext } from "../../SiteContext";
 import { App } from "../index.js";
 import { AddEmp, UpdateEmp, AddEmpWork } from "../../components/Forms";
-import { AddBtn, SS } from "../../components/FormElements";
+import { AddBtn, SS, displayDate } from "../../components/FormElements";
 import { Modal } from "../../components/Modals";
 import Table, { Tr, LoadingTr } from "../../components/Table";
 import { useRouter } from "next/router";
@@ -162,7 +162,9 @@ export default function EmpList() {
         className={s.empList}
         columns={[
           { label: "Name" },
-          { label: "Last Week" },
+          {
+            label: displayDate(data.content.lastDate),
+          },
           { label: "Production" },
           { label: "Payment" },
         ]}

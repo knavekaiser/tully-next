@@ -119,7 +119,10 @@ export default nextConnect({
                 lastDay,
               };
             });
-            res.json({ code: "ok", content: { allEmps, months } });
+            res.json({
+              code: "ok",
+              content: { allEmps, months, lastDate: lastWeek.date },
+            });
           })
           .catch((err) => {
             console.log(err);

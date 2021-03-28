@@ -4,6 +4,7 @@ import { DateFilter } from "./Forms";
 import s from "./SCSS/Nav.module.scss";
 import { useRouter } from "next/router";
 import { Modal } from "./Modals";
+import Link from "next/link";
 
 export default function Nav({ sidebarOpen, setSidebarOpen }) {
   const { months, setDateFilter, dateFilter } = useContext(SiteContext);
@@ -33,11 +34,13 @@ export default function Nav({ sidebarOpen, setSidebarOpen }) {
   return (
     <header className={s.header}>
       <span className={s.gred + ` gred`} />
-      <a href="/">
-        <div>
-          <h1>WORKPLACE</h1>
-        </div>
-      </a>
+      <Link href="/">
+        <a>
+          <div>
+            <h1>WORKPLACE</h1>
+          </div>
+        </a>
+      </Link>
       <div
         className={`${s.btn_sidebar} ${backBtn ? s.back : ""} ${
           sidebarOpen ? s.side_back : ""

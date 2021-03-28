@@ -200,14 +200,25 @@ export default function Home({ ssrData }) {
   return (
     <App>
       <div className={s.container}>
-        <Link href={`employees?fy=${fy}`}>Employees</Link>
-        <Link href={`bills?fy=${fy}`}>Bills</Link>
+        <Link href={`employees?fy=${fy}`}>
+          <a>
+            Employees{" "}
+            {(summery.emp.production - summery.emp.paid).toLocaleString(
+              "en-IN"
+            )}
+          </a>
+        </Link>
+        <Link href={`bills?fy=${fy}`}>
+          <a>Bills {summery.bill.toLocaleString("en-IN")}</a>
+        </Link>
         <Link href={`fabrics?fy=${fy}`}>Fabrics</Link>
         <Link href={`costings?fy=${fy}`}>Costings</Link>
         <Link href={`wages?fy=${fy}`}>
           <a>Wages {summery.wage.toLocaleString("en-IN")}</a>
         </Link>
-        <Link href={`productions?fy=${fy}`}>Productions</Link>
+        <Link href={`productions?fy=${fy}`}>
+          <a>Productions {summery.production.toLocaleString("en-IN")}</a>
+        </Link>
       </div>
     </App>
   );

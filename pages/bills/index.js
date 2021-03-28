@@ -20,10 +20,7 @@ export default function Bills() {
     }`,
     fetcher
   );
-  const [bills, setBills] = useState(data?.bills || null);
-  if (data && !bills) {
-    setBills(data.bills);
-  }
+  const [bills, setBills] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [billToEdit, setBillToEdit] = useState(null);
   const [addBtnStyle, setAddBtnStyle] = useState(false);

@@ -233,9 +233,6 @@
           text-align: left;
           grid-area: 2 / 1 / span 1 / span 1;
         }
-        .qnt {
-          text-align: left;
-        }
         th {
           text-align: right;
         }
@@ -259,6 +256,10 @@
       &.total {
         grid-template-columns: 1fr;
       }
+    }
+    .qnt,
+    .cost {
+      text-align: center !important;
     }
     tbody {
       max-height: calc((var(--vh) * 100) - (2rem + 56px + 91px));

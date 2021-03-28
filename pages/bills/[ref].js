@@ -195,8 +195,8 @@ export default function SingleBill() {
           { label: `Date: ${displayDate(ssrData.date)}`, className: s.date },
           { label: "", className: s.gred },
           { label: "Dress", className: s.dress },
-          { label: "qtn", className: s.qnt },
-          { label: "cost/wage", className: s.cost },
+          { label: "qnt", className: s.qnt },
+          { label: "cost", className: s.cost },
           { label: "taka", className: s.taka },
         ]}
       >

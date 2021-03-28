@@ -29,27 +29,63 @@ export default nextConnect({
               wage: {
                 $sum: { $multiply: ["$products.qnt", "$products.wage"] },
               },
-            },
-          },
-        ]),
-        WagePayment.aggregate([
-          {
-            $group: {
-              _id: "total",
-              wage: {
-                $sum: "$amount",
+              production: {
+                $sum: { $multiply: ["$products.qnt", "$products.cost"] },
               },
             },
           },
-        ]),
-      ]).then(([totalWage, totalWagePayment]) => {
+          {
+            $set: {
+              production: { $subtract: ["$production", "$wage"] },
+            },
+          },
+        ]).then((data) => data[0]),
+        Payment.aggregate([
+          {
+            $group: {
+              _id: null,
+              wage: { $sum: "$amount" },
+              production: { $sum: { $sum: "$payments.amount" } },
+            },
+          },
+        ]).then((data) => data[0]),
+        EmpWork.aggregate([
+          { $unwind: "$products" },
+          {
+            $group: {
+              _id: null,
+              paid: { $sum: "$paid" },
+              production: {
+                $sum: {
+                  $multiply: [
+                    "$products.qnt",
+                    {
+                      $switch: {
+                        branches: [
+                          { case: { $eq: ["$products.group", "L"] }, then: 36 },
+                          { case: { $eq: ["$products.group", "S"] }, then: 24 },
+                          { case: { $eq: ["$products.group", 1] }, then: 20 },
+                          { case: { $eq: ["$products.group", "F"] }, then: 43 },
+                        ],
+                        default: 0,
+                      },
+                    },
+                  ],
+                },
+              },
+            },
+          },
+        ]).then((data) => data[0]),
+      ]).then(([bills, payments, emp]) => {
+        console.log(emp);
         res.json({
           code: "ok",
           summery: {
-            wage:
-              totalWage[0].wage +
-              +process.env.PREVIOUS_WAGE -
-              totalWagePayment[0].wage,
+            emp,
+            bill: bills.production,
+            wage: bills.wage + +process.env.PREVIOUS_WAGE - payments.wage,
+            production:
+              payments.production + +process.env.PREVIOUS - bills.production,
           },
         });
       });
