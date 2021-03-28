@@ -1,7 +1,9 @@
-import React, { createContext, useState } from "react";
+import React, { createContext, useState, useEffect, useRef } from "react";
+import { useRouter } from "next/router";
 
 export const SiteContext = createContext();
 export const Provider = ({ children }) => {
+  const router = useRouter();
   const [user, setUser] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [fy, setFy] = useState("2020-21");
@@ -15,6 +17,20 @@ export const Provider = ({ children }) => {
   });
   const [dateFilter, setDateFilter] = useState(null);
   const [months, setMonths] = useState([]);
+  const firstRender = useRef(true);
+  useEffect(() => {
+    if (firstRender.current) {
+      firstRender.current = false;
+      return;
+    }
+    router.push({
+      pathname: router.pathname,
+      query: {
+        ...router.query,
+        fy,
+      },
+    });
+  }, [fy]);
   return (
     <SiteContext.Provider
       value={{

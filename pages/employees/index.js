@@ -163,7 +163,7 @@ export default function EmpList() {
         columns={[
           { label: "Name" },
           {
-            label: displayDate(data.content.lastDate),
+            label: displayDate(data?.content.lastDate),
           },
           { label: "Production" },
           { label: "Payment" },
