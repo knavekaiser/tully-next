@@ -120,7 +120,7 @@ export default function SingleCosting() {
               </>
             ),
             className: s.name,
-            onClick: () => setShowSample(true),
+            onClick: () => fabric.img && setShowSample(true),
           },
           {
             label: (

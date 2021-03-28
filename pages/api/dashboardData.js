@@ -1,5 +1,4 @@
 import nextConnect from "next-connect";
-import { UploadImg, DeleteImg, ReplaceImg } from "../../utils/cloudinary.js";
 import { auth } from "./auth";
 import { getMonths } from "../../utils/db";
 
@@ -50,11 +49,21 @@ export default nextConnect({
           },
         ]).then((data) => data[0]),
         EmpWork.aggregate([
-          { $unwind: "$products" },
           {
             $group: {
               _id: null,
               paid: { $sum: "$paid" },
+              products: {
+                $push: "$products",
+              },
+            },
+          },
+          { $unwind: "$products" },
+          { $unwind: "$products" },
+          {
+            $group: {
+              _id: null,
+              paid: { $first: "$paid" },
               production: {
                 $sum: {
                   $multiply: [

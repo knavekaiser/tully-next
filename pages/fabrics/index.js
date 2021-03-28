@@ -193,7 +193,7 @@ export default function Fabrics() {
                         ),
                       fabric.qnt.unit,
                       "yard"
-                    )}{" "}
+                    ).toLocalString("en-IN")}{" "}
                     yd
                   </span>
                 </td>

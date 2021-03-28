@@ -1,5 +1,5 @@
 import nextConnect from "next-connect";
-import { UploadImg, DeleteImg, ReplaceImg } from "../../utils/cloudinary.js";
+import { DeleteImg, ReplaceImg } from "../../utils/cloudinary.js";
 import { auth } from "./auth";
 import { getMonths } from "../../utils/db";
 
@@ -110,7 +110,6 @@ export default nextConnect({
     auth(req, true)
       .then(async (user) => {
         const { dealer, date, fy, name, qnt, price, img, usage } = req.body;
-        const img_url = await UploadImg(img);
         const newFabric = new Fabric({
           dealer,
           date,
@@ -118,7 +117,7 @@ export default nextConnect({
           name,
           qnt,
           price,
-          img: img_url,
+          img,
           usage,
         })
           .save()
@@ -149,7 +148,7 @@ export default nextConnect({
           img,
           usage,
         } = req.body;
-        const img_str = await ReplaceImg(img.old, img.new);
+        await DeleteImg(img.old);
         Fabric.findByIdAndUpdate(_id, {
           dealer,
           date,
@@ -157,7 +156,7 @@ export default nextConnect({
           name,
           qnt,
           price,
-          img: img_str || img.new,
+          img: img.new,
           usage,
         })
           .then(() => Fabric.findById(_id))

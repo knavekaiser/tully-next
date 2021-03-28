@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import {
   Input,
   ImgUpload,
+  uploadImg,
   PasswordInput,
   Submit,
   MultipleInput,
@@ -84,6 +85,7 @@ const costMaterials = [
     },
   ],
 ];
+const defaultCostMaterials = ["zipper", "cotton"];
 const matPayments = [
   [
     {
@@ -666,25 +668,39 @@ export function CostingForm({ fy, edit, onSuccess }) {
       return null;
     }
   });
-  const submit = (e) => {
+  const submit = async (e) => {
     e.preventDefault();
-    const materials = GetGroupData($(".modal #materials"));
-    if (materials.length < 1) return;
     setLoading(true);
+    const materials = GetGroupData($(".modal #materials"));
+    const formData = {
+      ...(preFill && { _id: edit._id }),
+      date,
+      fy,
+      lot,
+      lotSize,
+      dress,
+      materials,
+      note,
+    };
+    if (edit) {
+      if (img.startsWith("data:image/")) {
+        formData.img = { new: await uploadImg(img), old: edit.img };
+      } else {
+        formData.img =
+          edit.img === img ? { new: img, old: "" } : { new: "", old: edit.img };
+      }
+    } else {
+      if (img.startsWith("data:image/")) {
+        formData.img = await uploadImg(img);
+      } else {
+        formData.img = "";
+      }
+    }
+    if (materials.length < 1) return;
     fetch("/api/costings", {
       method: edit ? "PATCH" : "POST",
       headers: { "Content-type": "application/json" },
-      body: JSON.stringify({
-        ...(preFill && { _id: edit._id }),
-        img: edit ? { old: edit.img || "", new: img } : img,
-        date,
-        fy,
-        lot,
-        lotSize,
-        dress,
-        materials,
-        note,
-      }),
+      body: JSON.stringify(formData),
     })
       .then((res) => res.json())
       .then((data) => {
@@ -703,6 +719,7 @@ export function CostingForm({ fy, edit, onSuccess }) {
         alert("something went wrong");
       });
   };
+  console.log(preFill?.materials);
   return (
     <form className={`${s.form} ${s.costing}`} onSubmit={submit}>
       <h2>Add Costing</h2>
@@ -746,7 +763,29 @@ export function CostingForm({ fy, edit, onSuccess }) {
       <div className={s.materials}>
         <MultipleInput
           id="materials"
-          inputs={preFill?.materials || costMaterials}
+          inputs={
+            preFill?.materials ||
+            costMaterials ||
+            defaultCostMaterials.map((item) => [
+              {
+                id: "material",
+                type: "text",
+                label: "Material",
+                clone: true,
+                value: item,
+              },
+              {
+                id: "qnt",
+                type: "number",
+                label: "Qnt",
+              },
+              {
+                id: "price",
+                type: "number",
+                label: "Price",
+              },
+            ])
+          }
           refInput={costMaterials}
         />
       </div>
@@ -954,29 +993,43 @@ export function AddFabric({ fy, edit, onSuccess }) {
       return null;
     }
   });
-  const submit = (e) => {
+  const submit = async (e) => {
     e.preventDefault();
     setLoading(true);
+    const formData = {
+      ...(edit && { _id: edit._id }),
+      fy,
+      date,
+      dealer,
+      name,
+      qnt,
+      price,
+      usage: GetGroupData($(".modal #fabricUsage")).map((item) => ({
+        lot: item.lotNo,
+        qnt: {
+          amount: item.qnt,
+          unit: item.unit,
+        },
+      })),
+    };
+    if (edit) {
+      if (img.startsWith("data:image/")) {
+        formData.img = { new: await uploadImg(img), old: edit.img };
+      } else {
+        formData.img =
+          edit.img === img ? { new: img, old: "" } : { new: "", old: edit.img };
+      }
+    } else {
+      if (img.startsWith("data:image/")) {
+        formData.img = await uploadImg(img);
+      } else {
+        formData.img = "";
+      }
+    }
     fetch("/api/fabrics", {
       method: edit ? "PATCH" : "POST",
       headers: { "Content-type": "application/json" },
-      body: JSON.stringify({
-        ...(edit && { _id: edit._id }),
-        img: edit ? { old: edit.img, new: img } : img,
-        fy,
-        date,
-        dealer,
-        name,
-        qnt,
-        price,
-        usage: GetGroupData($(".modal #fabricUsage")).map((item) => ({
-          lot: item.lotNo,
-          qnt: {
-            amount: item.qnt,
-            unit: item.unit,
-          },
-        })),
-      }),
+      body: JSON.stringify(formData),
     })
       .then((res) => res.json())
       .then((data) => {

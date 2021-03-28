@@ -87,13 +87,13 @@ export default function SingleCosting() {
       <Table
         className={s.singleCosting}
         columns={[
-          { label: `Date: ${displayDate(data.date)}`, className: s.date },
+          { label: `${displayDate(data.date)}`, className: s.date },
           { label: `Lot: ${data.lot}`, className: s.lot },
           { label: `Lot size: ${data.lotSize}`, className: s.lotSize },
           { label: "", className: s.back },
           { label: "Material", className: s.material },
-          { label: "qnt" },
-          { label: "price" },
+          { label: "qnt", className: s.qnt },
+          { label: "price", className: s.price },
           { label: "Total" },
         ]}
       >

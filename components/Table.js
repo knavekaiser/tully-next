@@ -48,7 +48,7 @@ export default function Table({ className, columns, children, onScroll }) {
   );
 }
 
-export const Tr = ({ children, options, onClick }) => {
+export const Tr = ({ children, options, onClick, className }) => {
   const { user } = useContext(SiteContext);
   const [menuOpen, setMenuOpen] = useState(false);
   const [style, setStyle] = useState({ top: 0, left: 0 });
@@ -56,7 +56,7 @@ export const Tr = ({ children, options, onClick }) => {
   return (
     <tr
       onClick={onClick}
-      className={s.trContext}
+      className={s.trContext + " " + className || ""}
       onContextMenu={(e) => {
         setMenuOpen(!menuOpen);
         const x = e.clientX;

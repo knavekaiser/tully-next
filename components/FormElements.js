@@ -14,6 +14,19 @@ export function convertUnit(value, curr, target) {
 
 const defaultValidation = /./;
 
+export const uploadImg = (img) => {
+  const formData = new FormData();
+  formData.append("file", img);
+  formData.append("upload_preset", "dxrnr2ha");
+  return new Promise((resolve, reject) => {
+    fetch("https://api.cloudinary.com/v1_1/knave-kaiser-lab-works/upload", {
+      method: "POST",
+      body: formData,
+    })
+      .then((res) => res.json())
+      .then((data) => resolve(data.secure_url));
+  }).catch((err) => reject(err));
+};
 export const ID = (length) => {
   var result = "";
   var characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
@@ -248,6 +261,7 @@ export const ImgUpload = ({
             className={s.close}
             onClick={(e) => {
               e.stopPropagation();
+              onChange("");
               setFile("");
             }}
           >

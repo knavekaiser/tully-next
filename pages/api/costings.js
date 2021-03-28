@@ -1,5 +1,5 @@
 import nextConnect from "next-connect";
-import { UploadImg, DeleteImg, ReplaceImg } from "../../utils/cloudinary.js";
+import { DeleteImg, ReplaceImg } from "../../utils/cloudinary.js";
 import { auth } from "./auth";
 import { getMonths } from "../../utils/db";
 
@@ -31,7 +31,7 @@ export default nextConnect({
           ...(from && to && { date: { $gte: from, $lte: to } }),
         };
         Promise.all([
-          Costing.find(filters).sort({ ref: 1 }),
+          Costing.find(filters).sort({ lot: 1 }),
           getMonths(Costing, fy),
         ]).then(([costings, months]) => {
           res.json({ code: "ok", costings, months });
@@ -46,13 +46,12 @@ export default nextConnect({
     auth(req, true)
       .then(async (user) => {
         const { lot, date, dress, lotSize, fy, materials, img } = req.body;
-        const img_url = await UploadImg(img);
         new Costing({
           lot,
           date,
           dress,
           lotSize,
-          img: img_url,
+          img,
           fy,
           materials,
         })
@@ -78,13 +77,13 @@ export default nextConnect({
     auth(req, true)
       .then(async (user) => {
         const { _id, lot, date, dress, img, lotSize, fy, materials } = req.body;
-        const img_str = await ReplaceImg(img.old, img.new);
+        await DeleteImg(img.old);
         Costing.findByIdAndUpdate(_id, {
           lot,
           date,
           dress,
           lotSize,
-          img: img_str,
+          img: img.new,
           fy,
           materials,
         })

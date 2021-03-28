@@ -92,7 +92,6 @@ export default function Costings() {
         <Table
           columns={[
             { label: "Lot", className: s.lot },
-            { label: "note", className: s.note },
             { label: "dress", className: s.dress },
             { label: "lot size" },
             { label: "cost" },
@@ -116,7 +115,6 @@ export default function Costings() {
       <Table
         columns={[
           { label: "Lot", className: s.lot },
-          { label: "note", className: s.note },
           { label: "dress", className: s.dress },
           { label: "lot size" },
           { label: "cost" },
@@ -150,17 +148,18 @@ export default function Costings() {
               router.push(`/costings/${costing.lot}`);
               SS.set("singleCosting", JSON.stringify(costing));
             }}
+            className={costing.note ? s.withNote : ""}
           >
             <td className={s.lot}>{costing.lot}</td>
-            <td className={s.note}>{costing.note}</td>
             <td className={s.dress}>{costing.dress}</td>
-            <td>{costing.lotSize}</td>
-            <td>
+            <td className={s.lotSize}>{costing.lotSize}</td>
+            <td className={s.cost}>
               {Math.ceil(
                 costing.materials.reduce((p, c) => p + c.qnt * c.price, 0) /
                   costing.lotSize
               )}
             </td>
+            {costing.note && <td className={s.note}>Note: {costing.note}</td>}
           </Tr>
         ))}
       </Table>

@@ -21,7 +21,8 @@ body {
   -ms-user-select: none;
   user-select: none;
   #__next {
-    height: 100vh;
+    // height: 100vh;
+    height: calc((var(--vh) * 100));
     width: 100%;
   }
 }
