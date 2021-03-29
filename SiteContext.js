@@ -17,6 +17,7 @@ export const Provider = ({ children }) => {
   });
   const [dateFilter, setDateFilter] = useState(null);
   const [months, setMonths] = useState([]);
+  const [nameTag, setNameTag] = useState(null);
   const firstRender = useRef(true);
   useEffect(() => {
     if (firstRender.current) {
@@ -45,6 +46,8 @@ export const Provider = ({ children }) => {
         setDateFilter,
         months,
         setMonths,
+        nameTag,
+        setNameTag,
       }}
     >
       {children}

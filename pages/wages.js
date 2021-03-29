@@ -14,7 +14,9 @@ const fetcher = (url) => fetch(url).then((res) => res.json());
 
 export default function Productions() {
   const router = useRouter();
-  const { fy, user, dateFilter, setMonths } = useContext(SiteContext);
+  const { fy, user, dateFilter, setMonths, setNameTag } = useContext(
+    SiteContext
+  );
   const [payments, setPayments] = useState(null);
   const [bills, setBills] = useState(null);
   const [summery, setSummery] = useState(null);
@@ -79,6 +81,8 @@ export default function Productions() {
   useEffect(() => {
     if (!user) {
       router.push("/login");
+    } else {
+      setNameTag("Wages");
     }
   }, []);
   if (!user) {

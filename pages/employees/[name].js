@@ -18,9 +18,14 @@ export function getServerSideProps(ctx) {
 export default function EmpWorkList() {
   const router = useRouter();
   const [emp, setEmp] = useState(null);
-  const { user, fy, empRate, dateFilter, setDateFilter } = useContext(
-    SiteContext
-  );
+  const {
+    user,
+    fy,
+    empRate,
+    dateFilter,
+    setDateFilter,
+    setNameTag,
+  } = useContext(SiteContext);
   const { error, data } = useSWR(
     `/api/empWork?emp=${router.query.name}&fy=${fy}${
       dateFilter ? `&from=${dateFilter.from}&to=${dateFilter.to}` : ""
@@ -92,9 +97,10 @@ export default function EmpWorkList() {
   useEffect(() => {
     if (!user) {
       router.push("/login");
-      return;
+    } else {
+      setNameTag(router.query.name);
+      SS.get("empWork") && setEmp(JSON.parse(SS.get("empWork")));
     }
-    SS.get("empWork") && setEmp(JSON.parse(SS.get("empWork")));
   }, []);
   // if (!data) {
   //   return (

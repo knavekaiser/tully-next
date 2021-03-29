@@ -13,7 +13,9 @@ const fetcher = (url) => fetch(url).then((res) => res.json());
 
 export default function Productions() {
   const router = useRouter();
-  const { fy, user, dateFilter, setMonths } = useContext(SiteContext);
+  const { fy, user, dateFilter, setMonths, setNameTag } = useContext(
+    SiteContext
+  );
   const [showForm, setShowForm] = useState(false);
   const [paymentToEdit, setPaymentToEdit] = useState(false);
   const [payments, setPayments] = useState(null);
@@ -78,6 +80,8 @@ export default function Productions() {
   useEffect(() => {
     if (!user) {
       router.push("/login");
+    } else {
+      setNameTag("Productions");
     }
   }, []);
   if (!user) {
@@ -185,7 +189,7 @@ export default function Productions() {
             </tr>
           ))}
           <tr className={s.totalRecieved}>
-            <td>Total Production</td>
+            <td>Total</td>
             <td className={s.amount}>
               {summery.totalProduction.toLocaleString("en-IN")}
             </td>
@@ -278,7 +282,7 @@ export default function Productions() {
             </td>
           </tr>
           <tr>
-            <td>Total production</td>
+            <td>Production</td>
             <td className={s.amount}>
               - {summery.totalProduction.toLocaleString("en-IN")}
             </td>

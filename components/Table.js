@@ -65,23 +65,44 @@ export const Tr = ({ children, options, onClick, className }) => {
         const width = 77.03;
         setStyle((prev) => {
           const newPos = { ...prev };
-          if (x + width <= window.innerWidth) {
-            newPos.left = `${x}px`;
-            newPos.transformOrigin = `0 0`;
+          if (window.innerWidth < 480) {
+            if (x + width <= window.innerWidth) {
+              newPos.left = `${Math.max(x - width / 2, 25)}px`;
+              newPos.transformOrigin = `0 0`;
+            } else {
+              newPos.left = `${x - width}px`;
+              newPos.transformOrigin = `100% 100%`;
+            }
+            if (y + height <= window.innerHeight) {
+              newPos.top = `${y - height - 25}px`;
+              newPos.transformOrigin = `${
+                x + width <= window.innerWidth ? 0 : 100
+              }% 0`;
+            } else {
+              newPos.top = `${y - height}px`;
+              newPos.transformOrigin = `${
+                x + width <= window.innerWidth ? 0 : 100
+              }% 100%`;
+            }
           } else {
-            newPos.left = `${x - width}px`;
-            newPos.transformOrigin = `100% 100%`;
-          }
-          if (y + height <= window.innerHeight) {
-            newPos.top = `${y}px`;
-            newPos.transformOrigin = `${
-              x + width <= window.innerWidth ? 0 : 100
-            }% 0`;
-          } else {
-            newPos.top = `${y - height}px`;
-            newPos.transformOrigin = `${
-              x + width <= window.innerWidth ? 0 : 100
-            }% 100%`;
+            if (x + width <= window.innerWidth) {
+              newPos.left = `${x}px`;
+              newPos.transformOrigin = `0 0`;
+            } else {
+              newPos.left = `${x - width}px`;
+              newPos.transformOrigin = `100% 100%`;
+            }
+            if (y + height <= window.innerHeight) {
+              newPos.top = `${y}px`;
+              newPos.transformOrigin = `${
+                x + width <= window.innerWidth ? 0 : 100
+              }% 0`;
+            } else {
+              newPos.top = `${y - height}px`;
+              newPos.transformOrigin = `${
+                x + width <= window.innerWidth ? 0 : 100
+              }% 100%`;
+            }
           }
           return newPos;
         });

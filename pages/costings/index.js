@@ -13,7 +13,9 @@ const fetcher = (url) => fetch(url).then((res) => res.json());
 
 export default function Costings() {
   const router = useRouter();
-  const { fy, user, dateFilter, setMonths } = useContext(SiteContext);
+  const { fy, user, dateFilter, setMonths, setNameTag } = useContext(
+    SiteContext
+  );
   const { error, data } = useSWR(
     `/api/costings?fy=${fy}${
       dateFilter ? `&from=${dateFilter.from}&to=${dateFilter.to}` : ""
@@ -72,6 +74,8 @@ export default function Costings() {
   useEffect(() => {
     if (!user) {
       router.push("/login");
+    } else {
+      setNameTag("Costings");
     }
   }, []);
   if (!user) {
@@ -105,7 +109,7 @@ export default function Costings() {
             }
           }}
         >
-          <LoadingTr number={5} />
+          <LoadingTr number={4} />
         </Table>
       </App>
     );
@@ -159,7 +163,11 @@ export default function Costings() {
                   costing.lotSize
               )}
             </td>
-            {costing.note && <td className={s.note}>Note: {costing.note}</td>}
+            {costing.note ? (
+              <td className={s.note}>Note: {costing.note}</td>
+            ) : (
+              <></>
+            )}
           </Tr>
         ))}
       </Table>

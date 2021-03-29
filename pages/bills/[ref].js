@@ -147,7 +147,7 @@ class Bill_Class extends Component {
 }
 
 export default function SingleBill() {
-  const { fy, user } = useContext(SiteContext);
+  const { fy, user, setNameTag } = useContext(SiteContext);
   const router = useRouter();
   const [ssrData, setSsrData] = useState(null);
   const [showPrint, setShowPrint] = useState(false);
@@ -162,20 +162,10 @@ export default function SingleBill() {
   useEffect(() => {
     if (!user) {
       router.push("/login");
+    } else {
+      setNameTag(`Bill: ${router.query.ref}`);
     }
   }, []);
-  if (!user) {
-    return (
-      <App>
-        <div className={s.unauthorized}>
-          <div>
-            <ion-icon name="lock-closed-outline"></ion-icon>
-            <p>Please log in</p>
-          </div>
-        </div>
-      </App>
-    );
-  }
   if (!ssrData) {
     return <App />;
   }

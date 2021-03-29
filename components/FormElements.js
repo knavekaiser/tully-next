@@ -216,7 +216,7 @@ export const Submit = ({ disabled, className, label, loading, onClick }) => {
           <div></div>
         </div>
       )}
-      {label}
+      {loading ? <ion-icon name="reload-outline"></ion-icon> : label}
     </button>
   );
 };

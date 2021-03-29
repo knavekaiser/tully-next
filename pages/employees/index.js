@@ -13,7 +13,9 @@ const fetcher = (url) => fetch(url).then((res) => res.json());
 
 export default function EmpList() {
   const router = useRouter();
-  const { user, empRate, fy, dateFilter, setMonths } = useContext(SiteContext);
+  const { user, empRate, fy, dateFilter, setMonths, setNameTag } = useContext(
+    SiteContext
+  );
   const { error, data } = user
     ? useSWR(
         `/api/employee?fy=${fy}${
@@ -81,6 +83,8 @@ export default function EmpList() {
   useEffect(() => {
     if (!user) {
       router.push("/login");
+    } else {
+      setNameTag("Employees");
     }
   }, []);
   if (!user) {

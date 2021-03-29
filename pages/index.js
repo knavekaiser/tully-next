@@ -162,7 +162,7 @@ export const App = ({ children }) => {
 
 export default function Home({ ssrData }) {
   const router = useRouter();
-  const { setUser, fy, dateFilter } = useContext(SiteContext);
+  const { setUser, fy, dateFilter, setNameTag } = useContext(SiteContext);
   const { error, data } = useSWR(
     `/api/dashboardData?fy=${fy}${
       dateFilter ? `&from=${dateFilter.from}&to=${dateFilter.to}` : ""
@@ -178,6 +178,7 @@ export default function Home({ ssrData }) {
     }
   }, []);
   useEffect(() => {
+    setNameTag(null);
     if (data) {
       console.log(data.summery);
       setSummery(data.summery);

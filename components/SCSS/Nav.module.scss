@@ -26,6 +26,7 @@
     margin: auto;
     h1,
     a h3 {
+      white-space: nowrap;
       font-size: 1.5rem;
       font-weight: 300;
       letter-spacing: 0.5em;
@@ -143,6 +144,7 @@
       margin: auto;
       margin-right: 0;
       h1 {
+        white-space: nowrap;
       }
     }
   }

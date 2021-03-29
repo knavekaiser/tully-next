@@ -7,7 +7,9 @@ import { Modal } from "./Modals";
 import Link from "next/link";
 
 export default function Nav({ sidebarOpen, setSidebarOpen }) {
-  const { months, setDateFilter, dateFilter } = useContext(SiteContext);
+  const { months, setDateFilter, dateFilter, nameTag } = useContext(
+    SiteContext
+  );
   const [showForm, setShowForm] = useState(false);
   const router = useRouter();
   const [backBtn, setBackBtn] = useState(false);
@@ -36,9 +38,7 @@ export default function Nav({ sidebarOpen, setSidebarOpen }) {
       <span className={s.gred + ` gred`} />
       <Link href="/">
         <a>
-          <div>
-            <h1>WORKPLACE</h1>
-          </div>
+          <div>{nameTag ? <h1>{nameTag}</h1> : <h1>WORKPLACE</h1>}</div>
         </a>
       </Link>
       <div

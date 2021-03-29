@@ -14,6 +14,7 @@
 .table {
   position: relative;
   thead {
+    box-shadow: 0 4px 0.5rem rgba(0, 0, 0, 0.1);
     tr {
       border-bottom: 1px dotted #999;
       th {
@@ -534,7 +535,7 @@
         grid-column: 2/3;
       }
       .date {
-        grid-row: 1/10;
+        grid-row: 1 / span 5;
       }
     }
   }
@@ -865,10 +866,12 @@
       }
     }
   }
-  .production {
+  .productions {
+    height: 100%;
+    .production,
     .payment {
       tbody {
-        max-height: calc((var(--vh) * 100) - (1rem + 50px + 56px));
+        max-height: calc((var(--vh) * 100) - (1rem + 56px + 50px));
       }
     }
   }

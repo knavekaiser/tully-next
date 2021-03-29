@@ -18,7 +18,9 @@ const fetcher = (url) => fetch(url).then((res) => res.json());
 
 export default function Fabrics() {
   const router = useRouter();
-  const { fy, user, dateFilter, setMonths } = useContext(SiteContext);
+  const { fy, user, dateFilter, setMonths, setNameTag } = useContext(
+    SiteContext
+  );
   const { error, data } = useSWR(
     `/api/fabrics?fy=${fy}${
       dateFilter ? `&from=${dateFilter.from}&to=${dateFilter.to}` : ""
@@ -77,6 +79,8 @@ export default function Fabrics() {
   useEffect(() => {
     if (!user) {
       router.push("/login");
+    } else {
+      setNameTag("Fabrics");
     }
   }, []);
   if (!user) {

@@ -125,7 +125,7 @@ export default function SingleCosting() {
             ).toLocaleString("en-IN")}
           </td>
         </tr>
-        {data.img && (
+        {data.img ? (
           <tr className={s.img}>
             <td>
               <Img
@@ -136,6 +136,8 @@ export default function SingleCosting() {
               />
             </td>
           </tr>
+        ) : (
+          <></>
         )}
       </Table>
       <Modal className={s.sampleImg} open={showImg} setOpen={setShowImg}>

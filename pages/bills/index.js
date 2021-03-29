@@ -13,7 +13,9 @@ const fetcher = (url) => fetch(url).then((res) => res.json());
 
 export default function Bills() {
   const router = useRouter();
-  const { fy, user, dateFilter, setMonths } = useContext(SiteContext);
+  const { fy, user, dateFilter, setMonths, setNameTag } = useContext(
+    SiteContext
+  );
   let { error, data } = useSWR(
     `/api/bills?fy=${fy}${
       dateFilter ? `&from=${dateFilter.from}&to=${dateFilter.to}` : ""
@@ -72,6 +74,8 @@ export default function Bills() {
   useEffect(() => {
     if (!user) {
       router.push("/login");
+    } else {
+      setNameTag("Bills");
     }
   }, []);
   if (!user) {

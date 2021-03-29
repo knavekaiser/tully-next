@@ -310,6 +310,9 @@
   ion-icon {
     font-size: 2em;
     margin: -0.35rem;
+    &[name="reload-outline"] {
+      animation: roundNround 1s infinite linear;
+    }
   }
   &:hover {
     background: rgb(96, 255, 121);
@@ -363,6 +366,14 @@
   }
   100% {
     transform: translateX(0);
+  }
+}
+@keyframes roundNround {
+  0% {
+    transform: rotate(0);
+  }
+  100% {
+    transform: rotate(360deg);
   }
 }
 
