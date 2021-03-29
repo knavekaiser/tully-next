@@ -151,7 +151,9 @@ export default function Bills() {
         ))}
         {!bills && <LoadingTr number={5} />}
       </Table>
-      {fy !== "all" && <AddBtn translate={addBtnStyle} onClick={setShowForm} />}
+      {fy !== "all" && (
+        <AddBtn translate={addBtnStyle || showForm} onClick={setShowForm} />
+      )}
       <Modal open={showForm} setOpen={setShowForm}>
         <BillForm
           fy={fy}

@@ -58,6 +58,7 @@ export const Tr = ({ children, options, onClick, className }) => {
       onClick={onClick}
       className={s.trContext + " " + className || ""}
       onContextMenu={(e) => {
+        if (!menuOpen) navigator.vibrate(10);
         setMenuOpen(!menuOpen);
         const x = e.clientX;
         const y = e.clientY;
@@ -68,7 +69,7 @@ export const Tr = ({ children, options, onClick, className }) => {
           if (window.innerWidth < 480) {
             if (x + width <= window.innerWidth) {
               newPos.left = `${Math.max(x - width / 2, 25)}px`;
-              newPos.transformOrigin = `0 0`;
+              newPos.transformOrigin = `100% 50%`;
             } else {
               newPos.left = `${x - width}px`;
               newPos.transformOrigin = `100% 100%`;
@@ -76,8 +77,8 @@ export const Tr = ({ children, options, onClick, className }) => {
             if (y + height <= window.innerHeight) {
               newPos.top = `${y - height - 25}px`;
               newPos.transformOrigin = `${
-                x + width <= window.innerWidth ? 0 : 100
-              }% 0`;
+                x + width <= window.innerWidth ? 50 : 100
+              }% 100%`;
             } else {
               newPos.top = `${y - height}px`;
               newPos.transformOrigin = `${

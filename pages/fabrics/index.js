@@ -215,7 +215,9 @@ export default function Fabrics() {
           </tr>
         )}
       </Table>
-      {fy !== "all" && <AddBtn translate={addBtnStyle} onClick={setShowForm} />}
+      {fy !== "all" && (
+        <AddBtn translate={addBtnStyle || showForm} onClick={setShowForm} />
+      )}
       <Modal open={showForm} setOpen={setShowForm}>
         <AddFabric
           fy={fy}

@@ -23,6 +23,7 @@
   ul {
     display: grid;
     .fold {
+      overflow: hidden;
       background: rgba(255, 255, 255, 0.1);
     }
     text-transform: capitalize;

@@ -47,7 +47,11 @@ export const App = ({ children }) => {
   }, []);
   return (
     <>
-      <div className="container" onContextMenu={(e) => e.preventDefault()}>
+      <div
+        key="main"
+        className="container"
+        onContextMenu={(e) => e.preventDefault()}
+      >
         <Head>
           <title>Tully</title>
           <link rel="icon" href="/favicon.ico" />

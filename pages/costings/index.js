@@ -171,7 +171,9 @@ export default function Costings() {
           </Tr>
         ))}
       </Table>
-      {fy !== "all" && <AddBtn translate={addBtnStyle} onClick={setShowForm} />}
+      {fy !== "all" && (
+        <AddBtn translate={addBtnStyle || showForm} onClick={setShowForm} />
+      )}
       <Modal open={showForm} setOpen={setShowForm}>
         <CostingForm
           fy={fy}

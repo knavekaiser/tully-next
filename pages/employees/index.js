@@ -241,7 +241,12 @@ export default function EmpList() {
           );
         })}
       </Table>
-      {!user?.work && <AddBtn translate={addBtnStyle} onClick={setShowForm} />}
+      {!user?.work && (
+        <AddBtn
+          translate={addBtnStyle || showForm || showUpdateForm}
+          onClick={setShowForm}
+        />
+      )}
     </App>
   );
 }

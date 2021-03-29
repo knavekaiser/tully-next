@@ -177,7 +177,7 @@ export default function SingleBill() {
           {
             label: (
               <>
-                Nō<span>{ssrData.ref}</span>
+                Nō <span>{ssrData.ref}</span>
               </>
             ),
             className: s.ref,

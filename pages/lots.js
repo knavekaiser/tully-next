@@ -182,7 +182,9 @@ export default function Lots() {
           </Tr>
         ))}
       </Table>
-      {fy !== "all" && <AddBtn translate={addBtnStyle} onClick={setShowForm} />}
+      {fy !== "all" && (
+        <AddBtn translate={addBtnStyle || showForm} onClick={setShowForm} />
+      )}
       <Modal open={showForm} setOpen={setShowForm}>
         <AddEmpWork
           fy={fy}

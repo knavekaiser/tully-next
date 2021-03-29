@@ -296,7 +296,7 @@ export default function Productions() {
           </tr>
         </Table>
         {fy !== "all" && (
-          <AddBtn translate={addBtnStyle} onClick={setShowForm} />
+          <AddBtn translate={addBtnStyle || showForm} onClick={setShowForm} />
         )}
       </div>
       <Modal open={showForm} setOpen={setShowForm}>

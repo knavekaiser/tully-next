@@ -73,6 +73,7 @@
           left: 0;
         }
         .menu {
+          animation: ctxMenu 0.2s ease-in-out;
           position: fixed;
           z-index: 10;
           background: rgba(0, 0, 0, 0.8);
@@ -223,8 +224,17 @@
           margin: 0 -1.2rem;
         }
         .ref {
+          position: relative;
           text-align: left;
           grid-area: 1 / 1 / span 1 / span 2;
+          span {
+            font-weight: lighter;
+            left: 1.7rem;
+            top: 50%;
+            transform: translateY(-50%);
+            position: absolute;
+            font-size: 1.5rem;
+          }
         }
         .date {
           text-align: right;
@@ -529,6 +539,10 @@
           color: #666;
         }
       }
+      .ref {
+        text-align: left;
+        font-size: 1rem;
+      }
       .total,
       .amount {
         text-align: right;
@@ -537,6 +551,11 @@
       .date {
         grid-row: 1 / span 5;
       }
+    }
+  }
+  .production {
+    tbody {
+      max-height: calc((var(--vh) * 100) - (2rem + 54px + 56px));
     }
   }
   .payment {
@@ -558,6 +577,9 @@
     }
   }
   .totalRecieved {
+    .amount {
+      padding: 1rem 0;
+    }
     background: linear-gradient(
       153deg,
       rgba(0, 240, 27, 0.2) 0%,
@@ -658,11 +680,6 @@
       font-size: 0.9rem;
     }
     .ref {
-      font-size: 1.7rem;
-      font-family: stamp;
-      text-align: right;
-      color: rgb(74, 68, 53);
-      text-shadow: 0 0 4px rgba(150, 122, 81, 0.2);
     }
     h1 {
       font-weight: lighter;
@@ -820,6 +837,15 @@
     }
   }
 }
+tbody .ref,
+.singleBill .ref span,
+.billPrint .ref {
+  font-size: 1.7rem;
+  font-family: stamp;
+  text-align: right;
+  color: rgb(74, 68, 53);
+  text-shadow: 0 0 4px rgba(150, 122, 81, 0.2);
+}
 .printBackdrop {
   backdrop-filter: blur(20px);
 }
@@ -868,10 +894,14 @@
   }
   .productions {
     height: 100%;
-    .production,
     .payment {
       tbody {
         max-height: calc((var(--vh) * 100) - (1rem + 56px + 50px));
+      }
+    }
+    .production {
+      tbody {
+        max-height: calc((var(--vh) * 100) - (1rem + 54px + 56px));
       }
     }
   }
@@ -913,5 +943,13 @@
 
   100% {
     background-position: 100px;
+  }
+}
+@keyframes ctxMenu {
+  from {
+    transform: scale(0);
+  }
+  to {
+    transform: scale(1);
   }
 }

@@ -5,6 +5,7 @@ import s from "./SCSS/Nav.module.scss";
 import { useRouter } from "next/router";
 import { Modal } from "./Modals";
 import Link from "next/link";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function Nav({ sidebarOpen, setSidebarOpen }) {
   const { months, setDateFilter, dateFilter, nameTag } = useContext(
@@ -38,7 +39,27 @@ export default function Nav({ sidebarOpen, setSidebarOpen }) {
       <span className={s.gred + ` gred`} />
       <Link href="/">
         <a>
-          <div>{nameTag ? <h1>{nameTag}</h1> : <h1>WORKPLACE</h1>}</div>
+          <div>
+            <AnimatePresence>
+              {nameTag ? (
+                <motion.h1
+                  initial={{ opacity: 0, y: 50 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -50 }}
+                >
+                  {nameTag}
+                </motion.h1>
+              ) : (
+                <motion.h1
+                  initial={{ opacity: 0, y: 50 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -50 }}
+                >
+                  WORKPLACE
+                </motion.h1>
+              )}
+            </AnimatePresence>
+          </div>
         </a>
       </Link>
       <div

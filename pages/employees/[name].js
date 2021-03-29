@@ -237,7 +237,7 @@ export default function EmpWorkList() {
         />
       </Modal>
       {fy !== "all" && !user?.work && (
-        <AddBtn translate={addBtnStyle} onClick={setShowForm} />
+        <AddBtn translate={addBtnStyle || showForm} onClick={setShowForm} />
       )}
     </App>
   );
