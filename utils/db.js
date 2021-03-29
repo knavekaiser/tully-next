@@ -81,4 +81,68 @@ export const getMonths = (Element, fy) => {
   });
 };
 
+export const monthAggregate = (fy) => [
+  { $match: { fy } },
+  {
+    $group: {
+      _id: {
+        $concat: [
+          { $toString: { $year: "$date" } },
+          "-",
+          { $toString: { $month: "$date" } },
+        ],
+      },
+      originalDate: { $first: "$date" },
+    },
+  },
+  {
+    $group: {
+      _id: null,
+      months: {
+        $addToSet: {
+          month: "$_id",
+          date: "$originalDate",
+        },
+      },
+    },
+  },
+  { $unset: "_id" },
+  { $unwind: "$months" },
+  {
+    $sort: {
+      "months.date": 1,
+    },
+  },
+  {
+    $project: {
+      value: "$months.month",
+      label: {
+        $concat: [
+          {
+            $arrayElemAt: [
+              [
+                "Jan",
+                "Feb",
+                "Mar",
+                "Apr",
+                "May",
+                "Jun",
+                "Jul",
+                "Aug",
+                "Sep",
+                "Oct",
+                "Nov",
+                "Dec",
+              ],
+              { $subtract: [{ $month: "$months.date" }, 1] },
+            ],
+          },
+          " ",
+          { $toString: { $year: "$months.date" } },
+        ],
+      },
+    },
+  },
+];
+
 export const json = (data) => JSON.parse(JSON.stringify(data));

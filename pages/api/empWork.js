@@ -14,7 +14,7 @@ export default nextConnect({
   .get((req, res) => {
     auth(req, true)
       .then((user) => {
-        const { fy, from, to } = req.query;
+        const { fy, from, to, emp } = req.query;
         const query = {
           ...(fy !== "all" && { fy }),
           ...(from &&
@@ -25,10 +25,10 @@ export default nextConnect({
               },
             }),
         };
-        Employee.findOne({ name: req.query.emp })
+        Employee.findOne({ name: emp })
           .populate({
             path: "work.work",
-            match: query,
+            match: { ...query },
           })
           .then((emp) => {
             res.json({
@@ -82,7 +82,6 @@ export default nextConnect({
         EmpWork.findByIdAndUpdate(_id, { date, fy, products, paid })
           .then(() => EmpWork.findById(_id))
           .then((update) => {
-            console.log(date, update.date);
             res.json({ code: "ok", content: update });
           })
           .catch((err) => {

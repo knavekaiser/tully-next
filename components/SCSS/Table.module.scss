@@ -845,6 +845,7 @@
     }
   }
 }
+
 tbody .ref,
 .singleBill .ref span,
 .billPrint .ref {
@@ -941,6 +942,13 @@ tbody .ref,
         width: 12rem;
       }
     }
+  }
+}
+
+@media print {
+  .billPrint {
+    height: 210mm;
+    width: 148mm;
   }
 }
 

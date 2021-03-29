@@ -1,6 +1,6 @@
 import nextConnect from "next-connect";
 import { auth } from "./auth";
-import { getMonths } from "../../utils/db";
+import { monthAggregate } from "../../utils/db";
 
 const rate = {
   1: 20,
@@ -11,15 +11,6 @@ const rate = {
   iL: 4,
 };
 function getProduction(work, rate, lastDay) {
-  const cost = work.reduce(
-    (p, c) => p + c?.products.reduce((a, c) => a + c.qnt * rate[c.group], 0),
-    0
-  );
-  const paid = work.reduce((p, c) => p + c?.paid, 0);
-  const qnt = work.reduce(
-    (p, c) => p + c?.products.reduce((p, c) => p + c.qnt, 0),
-    0
-  );
   const lastWork = work.filter(
     (item) => item?.date.toString() === lastDay.toString()
   )[0];
@@ -27,13 +18,7 @@ function getProduction(work, rate, lastDay) {
     paid: lastWork?.paid || 0,
     qnt: lastWork?.products.reduce((p, c) => p + c.qnt, 0) || 0,
   };
-  return {
-    qnt: qnt || 0,
-    cost: cost || 0,
-    paid: paid || 0,
-    deu: cost - paid || 0,
-    lastDay: lastWeek,
-  };
+  return { lastDay: lastWeek };
 }
 
 export default nextConnect({
@@ -59,69 +44,123 @@ export default nextConnect({
               },
             }),
         };
-        Promise.all([
-          EmpWork.aggregate([
-            { $match: query },
-            {
-              $group: {
-                _id: "$employee",
-                work: {
-                  $push: {
-                    _id: "$_id",
-                    paid: "$paid",
-                    date: "$date",
-                    fy: "$fy",
-                    products: "$products",
+        EmpWork.aggregate([
+          {
+            $facet: {
+              emps: [
+                { $match: query },
+                {
+                  $set: {
+                    products: {
+                      $map: {
+                        input: "$products",
+                        in: {
+                          _id: "$$this._id",
+                          qnt: "$$this.qnt",
+                          dress: "$$this.dress",
+                          group: "$$this.group",
+                          cost: {
+                            $multiply: [
+                              "$$this.qnt",
+                              {
+                                $switch: {
+                                  branches: [
+                                    {
+                                      case: { $eq: ["$$this.group", "L"] },
+                                      then: 36,
+                                    },
+                                    {
+                                      case: { $eq: ["$$this.group", "S"] },
+                                      then: 24,
+                                    },
+                                    {
+                                      case: { $eq: ["$$this.group", "1"] },
+                                      then: 20,
+                                    },
+                                    {
+                                      case: { $eq: ["$$this.group", "F"] },
+                                      then: 43,
+                                    },
+                                  ],
+                                  default: 0,
+                                },
+                              },
+                            ],
+                          },
+                        },
+                      },
+                    },
                   },
                 },
-              },
+                {
+                  $group: {
+                    _id: "$employee",
+                    paid: { $sum: "$paid" },
+                    qnt: { $sum: { $sum: "$products.qnt" } },
+                    production: { $sum: { $sum: "$products.cost" } },
+                    work: {
+                      $push: {
+                        _id: "$_id",
+                        paid: "$paid",
+                        date: "$date",
+                        cost: "$cost",
+                        fy: "$fy",
+                        products: "$products",
+                      },
+                    },
+                  },
+                },
+                {
+                  $lookup: {
+                    from: "employees",
+                    localField: "_id",
+                    foreignField: "_id",
+                    as: "emp",
+                  },
+                },
+                {
+                  $set: {
+                    name: { $first: "$emp.name" },
+                    pass: { $first: "$emp.pass" },
+                  },
+                },
+                {
+                  $sort: { name: 1 },
+                },
+                { $unset: "emp" },
+              ],
+              lastDate: [
+                { $sort: { date: -1 } },
+                { $limit: 1 },
+                { $project: { date: "$date" } },
+              ],
+              months: [...monthAggregate(fy)],
             },
-            {
-              $lookup: {
-                from: "employees",
-                localField: "_id",
-                foreignField: "_id",
-                as: "emp",
-              },
+          },
+          {
+            $project: {
+              lastDate: { $first: "$lastDate.date" },
+              months: "$months",
+              emps: "$emps",
             },
-            {
-              $set: {
-                name: { $first: "$emp.name" },
-                pass: { $first: "$emp.pass" },
-              },
-            },
-            {
-              $sort: {
-                name: 1,
-              },
-            },
-            { $unset: "emp" },
-          ]),
-          getMonths(EmpWork, fy),
-          EmpWork.findOne({}, "-_id date").sort({ date: -1 }),
+          },
         ])
-          .then(([emps, months, lastWeek]) => {
+          .then((data_arr) => {
+            const { months, emps, lastDate } = data_arr[0];
+            return [emps, months, lastDate];
+          })
+          .then(([emps, months, lastDate]) => {
             const allEmps = emps.map((emp) => {
-              const { qnt, cost, paid, deu, lastDay } = getProduction(
-                emp.work,
-                rate,
-                lastWeek?.date
-              );
+              const { lastDay } = getProduction(emp.work, rate, lastDate);
               return {
-                _id: emp._id,
-                name: emp.name,
-                pass: emp.pass,
-                work: emp.work,
-                qnt,
-                cost,
-                paid,
-                deu,
+                ...emp,
+                deu: emp.production - emp.paid,
                 lastDay,
               };
             });
             res.json({
               code: "ok",
-              content: { allEmps, months, lastDate: lastWeek.date },
+              content: { allEmps, months, lastDate },
             });
           })
           .catch((err) => {

@@ -1,7 +1,7 @@
 import { Component, useEffect, useContext, useState, useRef } from "react";
 import { SiteContext } from "../../SiteContext";
 import { App } from "../index.js";
-import Table from "../../components/Table";
+import Table, { LoadingTr } from "../../components/Table";
 import { useRouter } from "next/router";
 import { displayDate, SS } from "../../components/FormElements";
 import s from "../../components/SCSS/Table.module.scss";
@@ -35,7 +35,7 @@ class Bill_Class extends Component {
           </p>
         </header>
         <div className={s.detail}>
-          <p>খদ্দের -</p>
+          <p>ক্রেতা -</p>
           <p className={s.name}>আলম গার্মেন্টস • গাউসিয়া মার্কেট</p>
           <p className={s.date}>{`${new Date(bill.date)
             .getDate()
@@ -163,7 +163,7 @@ export default function SingleBill() {
       .then((data) => {
         if (data.code === "ok") {
           setData(data.bill);
-          SS.set("singleBill", JSON.stringify(data.bill));
+          SS.set("singleBillData", JSON.stringify(data.bill));
         } else if (data.code === 400) {
           router.push(`/bills?fy=${fy}`);
         } else {
@@ -177,7 +177,7 @@ export default function SingleBill() {
   useEffect(() => {
     if (SS.get("singleBillData")) {
       const localData = JSON.parse(SS.get("singleBillData"));
-      if (localData.ref === router.query.ref) {
+      if (localData.ref === +router.query.ref) {
         setData(localData);
       } else {
         fetchData();
@@ -194,7 +194,27 @@ export default function SingleBill() {
     }
   }, []);
   if (!data) {
-    return <App />;
+    return (
+      <App>
+        <Table
+          className={s.singleBill}
+          columns={[
+            {
+              label: <>Nō</>,
+              className: s.ref,
+            },
+            { label: `Date:`, className: s.date },
+            { label: "", className: s.gred },
+            { label: "Dress", className: s.dress },
+            { label: "qnt", className: s.qnt },
+            { label: "cost", className: s.cost },
+            { label: "taka", className: s.taka },
+          ]}
+        >
+          <LoadingTr number={4} />
+        </Table>
+      </App>
+    );
   }
   return (
     <App>

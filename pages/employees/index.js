@@ -226,8 +226,8 @@ export default function EmpList() {
                 </span>
               </td>
               <td>
-                <span className={s.cost}>
-                  {emp.cost.toLocaleString("en-IN")}
+                <span className={s.production}>
+                  {emp.production.toLocaleString("en-IN")}
                 </span>
                 <span className={s.qnt}>{emp.qnt.toLocaleString("en-IN")}</span>
               </td>

@@ -7,7 +7,6 @@ import { AddEmpWork } from "../../components/Forms";
 import { displayDate, AddBtn, SS } from "../../components/FormElements";
 import s from "../../components/SCSS/Table.module.scss";
 import { useRouter } from "next/router";
-import useSWR from "swr";
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
@@ -26,12 +25,6 @@ export default function EmpWorkList() {
     setDateFilter,
     setNameTag,
   } = useContext(SiteContext);
-  const { error, data } = useSWR(
-    `/api/empWork?emp=${router.query.name}&fy=${fy}${
-      dateFilter ? `&from=${dateFilter.from}&to=${dateFilter.to}` : ""
-    }`,
-    fetcher
-  );
   const [showForm, setShowForm] = useState(false);
   const [workToEdit, setWorkToEdit] = useState(null);
   const [addBtnStyle, setAddBtnStyle] = useState(false);
@@ -78,22 +71,35 @@ export default function EmpWorkList() {
       },
     });
   }, [fy, dateFilter]);
-  useEffect(() => {
-    if (router.query.from && router.query.to) {
-      setDateFilter((prev) => {
-        return {
-          label: prev?.label || "custom",
-          from: router.query.from,
-          to: router.query.to,
-        };
+  const fetchData = (lotNo) => {
+    fetch(`/api/empWork?emp=${router.query.name}&fy=${fy}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.code === "ok") {
+          setEmp(data.content);
+          SS.set("empWork", JSON.stringify(data.content));
+        } else if (data.code === 400) {
+          router.push(`/employees?fy=${fy}`);
+        } else {
+          alert("something went");
+        }
+      })
+      .catch((err) => {
+        console.log(err);
       });
+  };
+  useEffect(() => {
+    if (SS.get("empWork")) {
+      const localData = JSON.parse(SS.get("empWork"));
+      if (localData.name === router.query.name) {
+        setEmp(localData);
+      } else {
+        fetchData();
+      }
+    } else {
+      fetchData();
     }
   }, []);
-  useEffect(() => {
-    if (data) {
-      setEmp(data.content);
-    }
-  }, [data]);
   useEffect(() => {
     if (!user) {
       router.push("/login");
