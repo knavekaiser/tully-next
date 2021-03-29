@@ -209,6 +209,14 @@
         text-align: left;
       }
     }
+    tbody {
+      .ref {
+        display: grid;
+        align-items: center;
+        font-size: 1.4rem;
+        margin: -0.5rem 0;
+      }
+    }
   }
   &.singleBill {
     thead {

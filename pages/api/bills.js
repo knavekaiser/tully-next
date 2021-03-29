@@ -14,7 +14,17 @@ export default nextConnect({
   .get((req, res) => {
     auth(req, true)
       .then(async (user) => {
-        const { fy, from, to } = req.query;
+        const { fy, from, to, ref } = req.query;
+        if (ref) {
+          Bill.findOne({ ref }).then((bill) => {
+            if (bill) {
+              res.json({ code: "ok", bill });
+            } else {
+              res.json({ code: 400 });
+            }
+          });
+          return;
+        }
         const filters = {
           ...(fy !== "all" && { fy }),
           ...(from && to && { date: { $gte: from, $lte: to } }),

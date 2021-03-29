@@ -7,6 +7,7 @@ import { Modal } from "../components/Modals";
 import s from "../components/SCSS/Table.module.scss";
 import { displayDate, AddBtn } from "../components/FormElements";
 import { useRouter } from "next/router";
+import Link from "next/link";
 import useSWR from "swr";
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
@@ -177,16 +178,18 @@ export default function Productions() {
           ]}
         >
           {bills.map((bill, i) => (
-            <tr key={i}>
-              <td className={s.date}>
-                <span className={s.ref}>{bill.ref}</span>
-                {displayDate(bill.date)}
-              </td>
-              <td className={s.total}>
-                <span className={s.qnt}>{bill.qnt}</span>
-                {bill.total.toLocaleString("en-IN")}
-              </td>
-            </tr>
+            <Link key={i} href={`/bills/${bill.ref}`}>
+              <tr>
+                <td className={s.date}>
+                  <span className={s.ref}>{bill.ref}</span>
+                  {displayDate(bill.date)}
+                </td>
+                <td className={s.total}>
+                  <span className={s.qnt}>{bill.qnt}</span>
+                  {bill.total.toLocaleString("en-IN")}
+                </td>
+              </tr>
+            </Link>
           ))}
           <tr className={s.totalRecieved}>
             <td>Total</td>

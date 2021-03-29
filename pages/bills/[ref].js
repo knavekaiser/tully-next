@@ -146,18 +146,45 @@ class Bill_Class extends Component {
   }
 }
 
+export function getServerSideProps() {
+  return { props: {} };
+}
+
 export default function SingleBill() {
   const { fy, user, setNameTag } = useContext(SiteContext);
   const router = useRouter();
-  const [ssrData, setSsrData] = useState(null);
+  const [data, setData] = useState(null);
   const [showPrint, setShowPrint] = useState(false);
   const componentRef = useRef();
-  const handlePrint = useReactToPrint({
-    content: () => componentRef.current,
-  });
+  const handlePrint = useReactToPrint({ content: () => componentRef.current });
+  const fetchData = (lotNo) => {
+    fetch(`/api/bills?ref=${router.query.ref}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.code === "ok") {
+          setData(data.bill);
+          SS.set("singleBill", JSON.stringify(data.bill));
+        } else if (data.code === 400) {
+          router.push(`/bills?fy=${fy}`);
+        } else {
+          alert("something went");
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
   useEffect(() => {
-    SS.get("singleBillData") &&
-      setSsrData(JSON.parse(SS.get("singleBillData")));
+    if (SS.get("singleBillData")) {
+      const localData = JSON.parse(SS.get("singleBillData"));
+      if (localData.ref === router.query.ref) {
+        setData(localData);
+      } else {
+        fetchData();
+      }
+    } else {
+      fetchData();
+    }
   }, []);
   useEffect(() => {
     if (!user) {
@@ -166,7 +193,7 @@ export default function SingleBill() {
       setNameTag(`Bill: ${router.query.ref}`);
     }
   }, []);
-  if (!ssrData) {
+  if (!data) {
     return <App />;
   }
   return (
@@ -177,12 +204,12 @@ export default function SingleBill() {
           {
             label: (
               <>
-                Nō <span>{ssrData.ref}</span>
+                Nō <span>{data.ref}</span>
               </>
             ),
             className: s.ref,
           },
-          { label: `Date: ${displayDate(ssrData.date)}`, className: s.date },
+          { label: `Date: ${displayDate(data.date)}`, className: s.date },
           { label: "", className: s.gred },
           { label: "Dress", className: s.dress },
           { label: "qnt", className: s.qnt },
@@ -190,7 +217,7 @@ export default function SingleBill() {
           { label: "taka", className: s.taka },
         ]}
       >
-        {ssrData.products.map((item, i) => (
+        {data.products.map((item, i) => (
           <tr key={i}>
             <td className={s.dress}>{item.dress}</td>
             <td className={s.qnt}>{item.qnt}</td>
@@ -203,13 +230,13 @@ export default function SingleBill() {
         <tr className={s.hr} />
         <tr className={s.total}>
           <td>
-            {ssrData.products
+            {data.products
               .reduce((p, c) => p + c.qnt * c.cost, 0)
               .toLocaleString("en-IN")}
           </td>
         </tr>
         <tr className={s.hr} />
-        {ssrData.products.map((item, i) => (
+        {data.products.map((item, i) => (
           <tr key={i}>
             <td className={s.deduction}>Deduction</td>
             <td className={s.qnt}>{item.qnt}</td>
@@ -222,7 +249,7 @@ export default function SingleBill() {
         <tr className={s.hr} />
         <tr>
           <td className={s.final}>
-            {ssrData.products
+            {data.products
               .reduce((p, c) => p + (c.qnt * c.cost - c.qnt * c.wage), 0)
               .toLocaleString("en-IN")}
           </td>
@@ -237,7 +264,7 @@ export default function SingleBill() {
         open={showPrint}
         setOpen={setShowPrint}
       >
-        <Bill_Class bill={ssrData} ref={componentRef} />
+        <Bill_Class bill={data} ref={componentRef} />
         <button onClick={handlePrint}>Print this out!</button>
         <button onClick={() => setShowPrint(false)}>Close</button>
         <div className={s.pBtm} />
