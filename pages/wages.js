@@ -71,10 +71,10 @@ export default function Productions() {
     });
   }, [fy, dateFilter]);
   useEffect(() => {
-    if (data) {
+    if (data?.payments) {
       setPayments(data.payments);
       setMonths(data.months);
-      setBills(data.wages);
+      setBills(data.bills);
       setSummery(data.summery);
     }
   }, [data]);
@@ -181,7 +181,7 @@ export default function Productions() {
                 </td>
                 <td className={s.total}>
                   <span className={s.qnt}>{bill.qnt}</span>
-                  {bill.total.toLocaleString("en-IN")}
+                  {bill.wage.toLocaleString("en-IN")}
                 </td>
               </tr>
             </Link>

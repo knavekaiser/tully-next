@@ -86,7 +86,7 @@ export default nextConnect({
           },
         ]).then((data) => data[0]),
       ]).then(([bills, payments, emp]) => {
-        console.log(emp);
+        // console.log(emp);
         res.json({
           code: "ok",
           summery: {

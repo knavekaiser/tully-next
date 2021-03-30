@@ -42,7 +42,7 @@ export default nextConnect({
                   date: "$date",
                   ref: "$_id",
                   qnt: "$qnt",
-                  total: { $sum: "$wage" },
+                  wage: { $sum: "$wage" },
                 },
               },
               { $sort: { ref: 1 } },
@@ -92,14 +92,14 @@ export default nextConnect({
             ]).then((data) => data[0]?.wage || 0),
             getMonths(WagePayment, fy),
           ]).then(
-            ([wages, previousWage, payments, previousWagePayments, months]) => {
+            ([bills, previousWage, payments, previousWagePayments, months]) => {
               res.json({
                 code: "ok",
                 months,
-                wages,
+                bills,
                 payments,
                 summery: {
-                  totalWage: wages.reduce((p, c) => p + c.total, 0),
+                  totalWage: bills.reduce((p, c) => p + c.wage, 0),
                   previousWage:
                     previousWage +
                     +process.env.PREVIOUS_WAGE -

@@ -184,7 +184,7 @@ export default function Home({ ssrData }) {
   useEffect(() => {
     setNameTag(null);
     if (data) {
-      console.log(data.summery);
+      // console.log(data.summery);
       setSummery(data.summery);
     }
   }, [data]);

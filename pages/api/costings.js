@@ -1,7 +1,7 @@
 import nextConnect from "next-connect";
 import { DeleteImg, ReplaceImg } from "../../utils/cloudinary.js";
 import { auth } from "./auth";
-import { getMonths } from "../../utils/db";
+import { monthAggregate } from "../../utils/db";
 
 export default nextConnect({
   onError(err, req, res) {
@@ -28,12 +28,18 @@ export default nextConnect({
         }
         const filters = {
           ...(fy !== "all" && { fy }),
-          ...(from && to && { date: { $gte: from, $lte: to } }),
+          ...(from &&
+            to && { date: { $gte: new Date(from), $lte: new Date(to) } }),
         };
-        Promise.all([
-          Costing.find(filters).sort({ lot: 1 }),
-          getMonths(Costing, fy),
-        ]).then(([costings, months]) => {
+        Costing.aggregate([
+          {
+            $facet: {
+              costings: [{ $match: filters }, { $sort: { lot: 1 } }],
+              months: monthAggregate(fy),
+            },
+          },
+        ]).then((data) => {
+          const { costings, months } = data[0];
           res.json({ code: "ok", costings, months });
         });
       })

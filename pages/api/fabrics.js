@@ -1,7 +1,7 @@
 import nextConnect from "next-connect";
 import { DeleteImg, ReplaceImg } from "../../utils/cloudinary.js";
 import { auth } from "./auth";
-import { getMonths } from "../../utils/db";
+import { monthAggregate } from "../../utils/db";
 
 export default nextConnect({
   onError(err, req, res) {
@@ -27,77 +27,82 @@ export default nextConnect({
           ...(from &&
             to && { date: { $gte: new Date(from), $lte: new Date(to) } }),
         };
-        Promise.all([
-          Fabric.aggregate([
-            { $match: filters },
-            {
-              $unwind: {
-                path: "$usage",
-                preserveNullAndEmptyArrays: true,
-              },
-            },
-            {
-              $lookup: {
-                from: "costings",
-                localField: "usage.lot",
-                foreignField: "lot",
-                as: "lotFull",
-              },
-            },
-            {
-              $addFields: {
-                lotFull: {
-                  $map: {
-                    input: "$lotFull",
-                    in: {
-                      dress: "$$this.dress",
-                      lot: "$$this.lot",
-                      lotSize: "$$this.lotSize",
-                      img: "$$this.img",
+        Fabric.aggregate([
+          {
+            $facet: {
+              fabrics: [
+                { $match: filters },
+                {
+                  $unwind: {
+                    path: "$usage",
+                    preserveNullAndEmptyArrays: true,
+                  },
+                },
+                {
+                  $lookup: {
+                    from: "costings",
+                    localField: "usage.lot",
+                    foreignField: "lot",
+                    as: "lotFull",
+                  },
+                },
+                {
+                  $addFields: {
+                    lotFull: {
+                      $map: {
+                        input: "$lotFull",
+                        in: {
+                          dress: "$$this.dress",
+                          lot: "$$this.lot",
+                          lotSize: "$$this.lotSize",
+                          img: "$$this.img",
+                        },
+                      },
                     },
                   },
                 },
-              },
-            },
-            {
-              $group: {
-                _id: "$_id",
-                date: { $first: "$date" },
-                fy: { $first: "$fy" },
-                name: { $first: "$name" },
-                dealer: { $first: "$dealer" },
-                qnt: { $first: "$qnt" },
-                price: { $first: "$price" },
-                img: { $first: "$img" },
-                usage: {
-                  $push: {
-                    _id: "$usage._id",
-                    lot: {
-                      $cond: [
-                        { $or: [{ $first: "$lotFull" }] },
-                        { $first: "$lotFull" },
-                        "$usage.lot",
-                      ],
+                {
+                  $group: {
+                    _id: "$_id",
+                    date: { $first: "$date" },
+                    fy: { $first: "$fy" },
+                    name: { $first: "$name" },
+                    dealer: { $first: "$dealer" },
+                    qnt: { $first: "$qnt" },
+                    price: { $first: "$price" },
+                    img: { $first: "$img" },
+                    usage: {
+                      $push: {
+                        _id: "$usage._id",
+                        lot: {
+                          $cond: [
+                            { $or: [{ $first: "$lotFull" }] },
+                            { $first: "$lotFull" },
+                            "$usage.lot",
+                          ],
+                        },
+                        qnt: "$usage.qnt",
+                      },
                     },
-                    qnt: "$usage.qnt",
                   },
                 },
-              },
-            },
-            {
-              $addFields: {
-                usage: {
-                  $filter: {
-                    input: "$usage",
-                    cond: { $or: ["$$this.lot"] },
+                {
+                  $addFields: {
+                    usage: {
+                      $filter: {
+                        input: "$usage",
+                        cond: { $or: ["$$this.lot"] },
+                      },
+                    },
                   },
                 },
-              },
+                { $sort: { date: 1 } },
+              ],
+              months: monthAggregate(fy),
             },
-            { $sort: { date: 1 } },
-          ]),
-          getMonths(Fabric, fy),
-        ]).then(([fabrics, months]) => {
+          },
+        ]).then((data) => {
+          const { fabrics, months } = data[0];
           res.json({ code: "ok", fabrics, months });
         });
       })

@@ -1,6 +1,6 @@
 import nextConnect from "next-connect";
 import { auth } from "./auth";
-import { getMonths } from "../../utils/db";
+import { monthAggregate } from "../../utils/db";
 
 export default nextConnect({
   onError(err, req, res) {
@@ -17,12 +17,18 @@ export default nextConnect({
         const { fy, from, to } = req.query;
         const filters = {
           ...(fy !== "all" && { fy }),
-          ...(from && to && { date: { $gte: from, $lte: to } }),
+          ...(from &&
+            to && { date: { $gte: new Date(from), $lte: new Date(to) } }),
         };
-        Promise.all([
-          Lot.find(filters).sort({ ref: 1 }),
-          getMonths(Lot, fy),
-        ]).then(([lots, months]) => {
+        Lot.aggregate([
+          {
+            $facet: {
+              lots: [{ $match: filters }, { $sort: { ref: 1 } }],
+              months: monthAggregate(fy),
+            },
+          },
+        ]).then((data) => {
+          const { lots, months } = data[0];
           res.json({ code: "ok", lots, months });
         });
       })
