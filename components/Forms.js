@@ -637,7 +637,7 @@ export function CostingForm({ fy, edit, onSuccess }) {
   const [dress, setDress] = useState(edit?.dress);
   const [date, setDate] = useState(edit && formatDate(edit.date));
   const [note, setNote] = useState(edit?.note);
-  const [img, setImg] = useState(edit?.img);
+  const [img, setImg] = useState(edit?.img || "");
   const [preFill, setPreFill] = useState(() => {
     if (edit) {
       let materials = [];
@@ -719,7 +719,6 @@ export function CostingForm({ fy, edit, onSuccess }) {
         alert("something went wrong");
       });
   };
-  console.log(preFill?.materials);
   return (
     <form className={`${s.form} ${s.costing}`} onSubmit={submit}>
       <h2>Add Costing</h2>
