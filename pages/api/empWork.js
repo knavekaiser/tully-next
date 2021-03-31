@@ -12,6 +12,7 @@ export default nextConnect({
   },
 })
   .get((req, res) => {
+    console.log("this was callled");
     auth(req, true)
       .then((user) => {
         const { fy, from, to, emp } = req.query;
@@ -31,16 +32,20 @@ export default nextConnect({
             match: { ...query },
           })
           .then((emp) => {
-            res.json({
-              code: "ok",
-              content: {
-                ...json(emp),
-                work: emp.work
-                  .map((item) => item.work)
-                  .filter((item) => !!item)
-                  .sort((a, b) => a.date - b.date),
-              },
-            });
+            if (emp) {
+              res.json({
+                code: "ok",
+                content: {
+                  ...json(emp),
+                  work: emp.work
+                    .map((item) => item.work)
+                    .filter((item) => !!item)
+                    .sort((a, b) => a.date - b.date),
+                },
+              });
+            } else {
+              res.status(400).json({ code: 400 });
+            }
           })
           .catch((err) => {
             console.log(err);

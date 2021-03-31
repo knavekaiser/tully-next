@@ -10,7 +10,7 @@ import { useRouter } from "next/router";
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
-export function getServerSideProps(ctx) {
+export function getServerSideProps() {
   return { props: {} };
 }
 

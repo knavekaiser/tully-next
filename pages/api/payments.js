@@ -74,7 +74,7 @@ export default nextConnect({
                 },
               },
             ]).then((data) => data[0]?.total || 0),
-            WagePayment.find(filters),
+            WagePayment.find(filters).sort({ date: 1 }),
             WagePayment.aggregate([
               {
                 $match: from
@@ -168,7 +168,7 @@ export default nextConnect({
                 },
               },
             ]).then((data) => data[0]?.total || 0),
-            MaterialPayment.find(filters),
+            MaterialPayment.find(filters).sort({ date: 1 }),
             MaterialPayment.aggregate([
               {
                 $match: from
