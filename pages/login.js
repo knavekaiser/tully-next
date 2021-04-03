@@ -129,31 +129,35 @@ export default function Login({ ssrData }) {
             <Submit label="Log in" loading={loading} />
           </form>
           <p onClick={() => setAdminForm(true)}>management</p>
-          <Modal open={adminForm} setOpen={setAdminForm}>
-            <form
-              className={`${s.adminForm} ${s2.form}`}
-              onSubmit={adminFormSubmit}
-            >
-              <h2>Admin Login</h2>
-              <Input
-                className={wrongInfo.admin ? s2.wrong : ""}
-                required={true}
-                label="User"
-                value={admin.id}
-                onChange={(t) => setAdmin((prev) => ({ ...prev, id: t.value }))}
-              />
-              <PasswordInput
-                className={wrongInfo.admin ? s2.wrong : ""}
-                required={true}
-                label="Password"
-                value={admin.pass}
-                onChange={(t) =>
-                  setAdmin((prev) => ({ ...prev, pass: t.value }))
-                }
-              />
-              <Submit label="Log in" loading={loading} />
-            </form>
-          </Modal>
+          {adminForm && (
+            <Modal open={adminForm} setOpen={setAdminForm}>
+              <form
+                className={`${s.adminForm} ${s2.form}`}
+                onSubmit={adminFormSubmit}
+              >
+                <h2>Admin Login</h2>
+                <Input
+                  className={wrongInfo.admin ? s2.wrong : ""}
+                  required={true}
+                  label="User"
+                  value={admin.id}
+                  onChange={(t) =>
+                    setAdmin((prev) => ({ ...prev, id: t.value }))
+                  }
+                />
+                <PasswordInput
+                  className={wrongInfo.admin ? s2.wrong : ""}
+                  required={true}
+                  label="Password"
+                  value={admin.pass}
+                  onChange={(t) =>
+                    setAdmin((prev) => ({ ...prev, pass: t.value }))
+                  }
+                />
+                <Submit label="Log in" loading={loading} />
+              </form>
+            </Modal>
+          )}
         </div>
       </div>
     </App>
