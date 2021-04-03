@@ -132,9 +132,12 @@ export default function Sidebar({ sections, sidebarOpen, setSidebarOpen }) {
               fetch("/api/logout")
                 .then((res) => res.json())
                 .then((data) => {
-                  setUser(data.user);
-                  setIsAuthenticated(data.isAuthenticated);
-                  router.push("/login");
+                  console.log(data);
+                  if (data.success) {
+                    setUser(data.user);
+                    setIsAuthenticated(data.isAuthenticated);
+                    router.push("/login");
+                  }
                 });
             }}
           >
