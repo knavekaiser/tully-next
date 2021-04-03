@@ -9,14 +9,22 @@ export default nextConnect({
     res.status(405).json({ message: `${req.method} Method is not allowed` });
   },
 }).get((req, res) => {
+  // res.setHeader(
+  //   "Set-Cookie",
+  //   cookie.serialize(
+  //     "access_token",
+  //     {},
+  //     {
+  //       httpOnly: true,
+  //       sameSite: "strict",
+  //       maxAge: -1,
+  //       path: "/",
+  //     }
+  //   )
+  // );
   res.setHeader(
     "Set-Cookie",
-    cookie.serialize("access_token", "", {
-      httpOnly: true,
-      sameSite: "strict",
-      maxAge: -1,
-      path: "/",
-    })
+    "access_token=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT"
   );
   res.json({ user: null, success: true });
 });
