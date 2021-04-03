@@ -129,10 +129,11 @@ export default function Sidebar({ sections, sidebarOpen, setSidebarOpen }) {
           <li
             className="logout"
             onClick={() => {
-              document.cookie = `access_token=; Path=/; Expires=${new Date().toUTCString()}`;
+              console.log("calling logout api");
               fetch("/api/logout")
                 .then((res) => res.json())
                 .then((data) => {
+                  console.log("call ended", data);
                   if (data.success) {
                     setUser(data.user);
                     setIsAuthenticated(data.isAuthenticated);
