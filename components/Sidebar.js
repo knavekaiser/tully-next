@@ -129,13 +129,13 @@ export default function Sidebar({ sections, sidebarOpen, setSidebarOpen }) {
           <li
             className="logout"
             onClick={() => {
+              document.cookie = `access_token=; Path=/; Expires=${new Date().toUTCString()}`;
               fetch("/api/logout")
                 .then((res) => res.json())
                 .then((data) => {
                   if (data.success) {
                     setUser(data.user);
                     setIsAuthenticated(data.isAuthenticated);
-                    document.cookie = `access_token=; Path=/; Expires=${new Date().toUTCString()}`;
                     router.push("/login");
                   }
                 });
