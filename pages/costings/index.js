@@ -65,7 +65,7 @@ export default function Costings() {
     });
   }, [fy, dateFilter]);
   useEffect(() => {
-    if (data) {
+    if (data?.costings) {
       setCostings(data.costings);
       setMonths(data.months);
     }

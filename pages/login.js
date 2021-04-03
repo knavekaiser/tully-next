@@ -22,7 +22,7 @@ export async function getServerSideProps(ctx) {
       return {
         props: {
           ssrData: {
-            user: json(user),
+            user: { ...json(user), role: token.role },
             ...(req.headers.referer && {
               originalUrl: json(req.headers.referer),
             }),
@@ -36,17 +36,20 @@ export async function getServerSideProps(ctx) {
 }
 
 export default function Login({ ssrData }) {
-  const { setUser } = useContext(SiteContext);
+  const { setUser, fy } = useContext(SiteContext);
   const router = useRouter();
   useEffect(() => {
-    if (ssrData.user) {
-      setUser(ssrData.user);
-      if (ssrData.originalUrl) {
-        router.push(
-          ssrData.originalUrl.includes("/login") ? "/" : ssrData.originalUrl
-        );
+    const { user, originalUrl } = ssrData;
+    if (user) {
+      setUser(user);
+      if (user.role === "admin") {
+        if (originalUrl) {
+          router.push(originalUrl.includes("/login") ? "/" : originalUrl);
+        } else {
+          router.push("/");
+        }
       } else {
-        router.push("/");
+        router.push(`/employees`);
       }
     }
   }, [ssrData]);

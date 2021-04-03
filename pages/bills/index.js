@@ -49,7 +49,7 @@ export default function Bills() {
   };
   const firstRender = useRef(true);
   useEffect(() => {
-    if (data) {
+    if (data?.bills) {
       setMonths(data.months);
       setBills(data.bills);
     }

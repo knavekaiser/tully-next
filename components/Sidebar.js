@@ -131,20 +131,10 @@ export default function Sidebar({ sections, sidebarOpen, setSidebarOpen }) {
             onClick={() => {
               console.log("calling logout api");
               fetch("/api/logout").then((res) => {
+                setUser(null);
+                setIsAuthenticated(false);
                 router.push("/login");
               });
-              // .then((res) => res.json())
-              // .then((data) => {
-              //   console.log("call ended", data);
-              //   if (data.success) {
-              //     setUser(data.user);
-              //     setIsAuthenticated(data.isAuthenticated);
-              //     // router.push("/login");
-              //   }
-              // })
-              // .catch((err) => {
-              //   console.log(err);
-              // });
             }}
           >
             <ion-icon name="log-out-outline"></ion-icon>

@@ -16,14 +16,12 @@ export default function EmpList() {
   const { user, empRate, fy, dateFilter, setMonths, setNameTag } = useContext(
     SiteContext
   );
-  const { error, data } = user
-    ? useSWR(
-        `/api/employee?fy=${fy}${
-          dateFilter ? `&from=${dateFilter.from}&to=${dateFilter.to}` : ""
-        }`,
-        fetcher
-      )
-    : {};
+  const { error, data } = useSWR(
+    `/api/employee?fy=${fy}${
+      user?.role === "viwer" ? `&emp=${user?._id}` : ""
+    }${dateFilter ? `&from=${dateFilter.from}&to=${dateFilter.to}` : ""}`,
+    fetcher
+  );
   const [showForm, setShowForm] = useState(false);
   const [showUpdateForm, setShowUpdateForm] = useState(false);
   const [employees, setEmployees] = useState(null);
@@ -74,8 +72,7 @@ export default function EmpList() {
       });
   };
   useEffect(() => {
-    if (!user) return;
-    if (data) {
+    if (data?.content) {
       setEmployees(data.content.allEmps);
       setMonths(data.content.months);
     }

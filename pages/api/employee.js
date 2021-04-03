@@ -33,8 +33,9 @@ export default nextConnect({
   .get((req, res) => {
     auth(req)
       .then((user) => {
-        const { fy, from, to } = req.query;
+        const { fy, from, to, emp } = req.query;
         const query = {
+          ...(emp && { employee: ObjectID(emp) }),
           ...(fy !== "all" && { fy }),
           ...(from &&
             to && {

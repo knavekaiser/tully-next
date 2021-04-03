@@ -70,7 +70,7 @@ export default function Fabrics() {
     });
   }, [fy, dateFilter]);
   useEffect(() => {
-    if (data) {
+    if (data?.fabrics) {
       setFabrics(data.fabrics);
       setMonths(data.months);
     }

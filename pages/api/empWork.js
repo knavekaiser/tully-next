@@ -12,8 +12,7 @@ export default nextConnect({
   },
 })
   .get((req, res) => {
-    console.log("this was callled");
-    auth(req, true)
+    auth(req)
       .then((user) => {
         const { fy, from, to, emp } = req.query;
         const query = {

@@ -69,7 +69,7 @@ export default function Lots() {
     }
   }, []);
   useEffect(() => {
-    if (data) {
+    if (data?.lots) {
       setLots(data.lots);
       setMonths(data.months);
     }

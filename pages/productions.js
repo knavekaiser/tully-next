@@ -71,7 +71,7 @@ export default function Productions() {
     !showForm && setPaymentToEdit(null);
   }, [showForm]);
   useEffect(() => {
-    if (data) {
+    if (data?.payments) {
       setBills(data.bills);
       setPayments(data.payments);
       setSummery(data.summery);

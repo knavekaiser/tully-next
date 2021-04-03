@@ -6,32 +6,10 @@ import Nav from "../components/Nav";
 import Router, { useRouter } from "next/router";
 import Link from "next/link";
 import s from "../styles/Dashboard.module.scss";
+import s2 from "../components/SCSS/Table.module.scss";
 import useSWR from "swr";
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
-
-export async function getServerSideProps(ctx) {
-  const { dbConnect, json } = require("../utils/db");
-  dbConnect();
-  const { verifyToken } = require("./api/auth");
-  const { req, res } = ctx;
-  const token = verifyToken(req);
-  if (token) {
-    let user =
-      (await Admin.findOne({ _id: token.sub }, "-pass")) ||
-      (await Employee.findOne({ _id: token.sub }, "-pass"));
-    if (user) {
-      return { props: { ssrData: { user: json(user) } } };
-    }
-  } else {
-    return {
-      redirect: {
-        destination: "/login",
-      },
-    };
-  }
-  return { props: { ssrData: { user: {} } } };
-}
 
 function resizeWindow() {
   let vh = window.innerHeight * 0.01;
@@ -164,9 +142,9 @@ export const App = ({ children }) => {
   );
 };
 
-export default function Home({ ssrData }) {
+export default function Home() {
   const router = useRouter();
-  const { setUser, fy, dateFilter, setNameTag } = useContext(SiteContext);
+  const { user, fy, dateFilter, setNameTag } = useContext(SiteContext);
   const { error, data } = useSWR(
     `/api/dashboardData?fy=${fy}${
       dateFilter ? `&from=${dateFilter.from}&to=${dateFilter.to}` : ""
@@ -175,19 +153,30 @@ export default function Home({ ssrData }) {
   );
   const [summery, setSummery] = useState(null);
   useEffect(() => {
-    if (ssrData.user) {
-      setUser(ssrData.user);
-    } else {
-      rotuer.push("/login");
-    }
-  }, []);
-  useEffect(() => {
-    setNameTag(null);
     if (data) {
       // console.log(data.summery);
       setSummery(data.summery);
     }
   }, [data]);
+  useEffect(() => {
+    if (!user) {
+      router.push("/login");
+    } else {
+      setNameTag(null);
+    }
+  }, []);
+  if (!user) {
+    return (
+      <App>
+        <div className={s2.unauthorized}>
+          <div>
+            <ion-icon name="lock-closed-outline"></ion-icon>
+            <p>Please log in</p>
+          </div>
+        </div>
+      </App>
+    );
+  }
   if (!summery) {
     return (
       <App>
