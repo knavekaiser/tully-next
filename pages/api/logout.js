@@ -11,12 +11,13 @@ export default nextConnect({
 }).get((req, res) => {
   res.setHeader(
     "Set-Cookie",
-    cookie.serialize("access_token", "old", {
+    cookie.serialize("access_token", "", {
       httpOnly: true,
       sameSite: "strict",
-      maxAge: 60 * 60 * 24 * 30 * 12,
+      maxAge: -1,
       path: "/",
     })
   );
-  res.json({ user: null, success: true });
+  res.redirect(307, "/login");
+  // res.json({ user: null, success: true });
 });
