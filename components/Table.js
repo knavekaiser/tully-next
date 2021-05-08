@@ -138,6 +138,5 @@ export const LoadingTr = ({ number }) => {
   for (var i = 0; i < number; i++) {
     tds.push(<td key={i}></td>);
   }
-
   return <tr className={s.loadingTr}>{tds}</tr>;
 };

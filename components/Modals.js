@@ -85,7 +85,7 @@ export const Modal = forwardRef(
               className={`modal ${className || ""}`}
             >
               {children}
-            </motion.div>{" "}
+            </motion.div>
           </>
         )}
       </AnimatePresence>,
