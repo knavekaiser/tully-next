@@ -519,6 +519,11 @@
   .payment {
     tbody {
       max-height: calc((var(--vh) * 100) - (2rem + 50px + 56px));
+      tr {
+        .ref {
+          font-size: 1rem;
+        }
+      }
     }
     tr {
       grid-template-columns: 1fr 1fr;
@@ -549,7 +554,6 @@
       }
       .ref {
         text-align: left;
-        font-size: 1rem;
       }
       .total,
       .amount {
@@ -857,6 +861,25 @@ tbody .ref,
 }
 .printBackdrop {
   backdrop-filter: blur(20px);
+}
+
+.empty {
+  grid-template-columns: 1fr !important;
+  place-items: center;
+  border-bottom: none !important;
+  &:hover {
+    background: none !important;
+  }
+  padding: 1.5rem 0 !important;
+  td {
+    color: rgba(#000000, 0.6);
+    display: grid;
+    place-items: center;
+    grid-gap: 0.5rem;
+    ion-icon {
+      font-size: 3rem;
+    }
+  }
 }
 
 @media only screen and (max-width: 480px) {

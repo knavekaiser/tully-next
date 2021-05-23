@@ -108,37 +108,6 @@ export default function EmpWorkList() {
       SS.get("empWork") && setEmp(JSON.parse(SS.get("empWork")));
     }
   }, []);
-  // if (!data) {
-  //   return (
-  //     <App>
-  //       <Table
-  //         className={s.empWork}
-  //         columns={[
-  //           { label: "Date" },
-  //           { label: "Dress" },
-  //           {
-  //             label: (
-  //               <>
-  //                 Pcs<sup>G</sup>
-  //               </>
-  //             ),
-  //           },
-  //           { label: "Total" },
-  //           { label: "Paid" },
-  //         ]}
-  //         onScroll={(dir) => {
-  //           if (dir === "down") {
-  //             setAddBtnStyle(true);
-  //           } else {
-  //             setAddBtnStyle(false);
-  //           }
-  //         }}
-  //       >
-  //         <LoadingTr number={5} />
-  //       </Table>
-  //     </App>
-  //   );
-  // }
   if (!user) {
     return (
       <App>
@@ -190,7 +159,14 @@ export default function EmpWorkList() {
               {
                 label: "Delete",
                 fun: () => {
-                  if (confirm("You sure you want to delete this task?")) {
+                  if (
+                    confirm(
+                      `Do you want to delete the date ${work.date.replace(
+                        /T.*$/,
+                        ""
+                      )}?`
+                    )
+                  ) {
                     dltWork(work._id);
                   }
                 },
@@ -223,6 +199,13 @@ export default function EmpWorkList() {
             </td>
           </Tr>
         ))}
+        {emp?.work.length === 0 && (
+          <tr className={s.empty}>
+            <td>
+              <ion-icon name="file-tray-outline"></ion-icon> Nothing yet!
+            </td>
+          </tr>
+        )}
       </Table>
       <Modal open={showForm} setOpen={setShowForm}>
         <AddEmpWork

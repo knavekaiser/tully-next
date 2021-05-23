@@ -197,13 +197,6 @@ export default nextConnect({
                 0
               );
               const totalPaymentDeu = totalProduction - totalPaymentReceived;
-              console.log({
-                prev: +process.env.PREVIOUS,
-                previouslyReceivedPayment,
-                previousProduction,
-                thisMonthPaid: totalPaymentReceived,
-                thisMonthReceived: totalProduction,
-              });
               const previous =
                 +process.env.PREVIOUS +
                 previouslyReceivedPayment -

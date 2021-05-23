@@ -125,11 +125,40 @@ export default nextConnect({
                     pass: { $first: "$emp.pass" },
                   },
                 },
-                {
-                  $sort: { name: 1 },
-                },
                 { $unset: "emp" },
               ],
+              ...(!query.date && {
+                allEmps: [
+                  {
+                    $limit: 1,
+                  },
+                  {
+                    $lookup: {
+                      from: "employees",
+                      localField: "string",
+                      foreignField: "string",
+                      as: "emps",
+                    },
+                  },
+                  {
+                    $unwind: {
+                      path: "$emps",
+                    },
+                  },
+                  { $match: { "emps.work.0": { $exists: false } } },
+                  {
+                    $project: {
+                      _id: "$emps._id",
+                      name: "$emps.name",
+                      pass: "$emps.pass",
+                      work: "$emps.work",
+                      paid: { $size: "$emps.work" },
+                      qnt: { $size: "$emps.work" },
+                      production: { $size: "$emps.work" },
+                    },
+                  },
+                ],
+              }),
               lastDate: [
                 { $sort: { date: -1 } },
                 { $limit: 1 },
@@ -142,12 +171,17 @@ export default nextConnect({
             $project: {
               lastDate: { $first: "$lastDate.date" },
               months: "$months",
-              emps: "$emps",
+              emps: query.date
+                ? "$emps"
+                : { $concatArrays: ["$emps", "$allEmps"] },
             },
           },
         ])
           .then((data_arr) => {
             const { months, emps, lastDate } = data_arr[0];
+            emps.sort((a, b) =>
+              a.name?.toLowerCase() > b.name?.toLowerCase() ? 1 : -1
+            );
             return [emps, months, lastDate];
           })
           .then(([emps, months, lastDate]) => {
@@ -191,6 +225,7 @@ export default nextConnect({
                 code: "same exists",
                 fields: Object.keys(err.keyValue),
               });
+              return;
             }
             console.log(err);
             res.status(500).json("something went wrong");
@@ -228,13 +263,15 @@ export default nextConnect({
     auth(req, true)
       .then((user) => {
         Employee.findByIdAndDelete(req.body._id)
-          .then((response) => {
+          .then(() => EmpWork.deleteMany({ employee: req.body._id }))
+          .then(() => {
             res.json({ code: "ok" });
-            EmpWork.deleteMany({ employee: req.body._id });
           })
           .catch((err) => {
             console.log(err);
-            res.status(500).json("something went wrong");
+            res
+              .status(500)
+              .json({ code: 500, messaage: "something went wrong" });
           });
       })
       .catch((err) => {

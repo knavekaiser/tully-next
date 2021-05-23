@@ -294,6 +294,7 @@ export function AddEmpWork({ employee, fy, workToEdit, onSuccess }) {
   });
   const submit = (e) => {
     e.preventDefault();
+    setLoading(true);
     fetch(`/api/${employee ? "empWork" : "lots"}`, {
       method: preFill ? "PATCH" : "POST",
       headers: { "Content-type": "application/json" },
@@ -311,11 +312,13 @@ export function AddEmpWork({ employee, fy, workToEdit, onSuccess }) {
         if (data.code === "ok") {
           onSuccess?.(data.content);
         } else {
+          setLoading(false);
           alert("something went wrong");
         }
       })
       .catch((err) => {
         console.log(err);
+        setLoading(false);
         alert("something wont wrong");
       });
   };

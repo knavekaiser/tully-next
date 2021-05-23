@@ -206,7 +206,7 @@ export default function EmpList() {
                 {
                   label: "Delete",
                   fun: () => {
-                    if (confirm("you sure want to delete this employee?")) {
+                    if (confirm(`Do you want to delete ${emp.name}?`)) {
                       dltEmp(emp._id);
                     }
                   },
@@ -224,7 +224,7 @@ export default function EmpList() {
               </td>
               <td>
                 <span className={s.production}>
-                  {emp.production.toLocaleString("en-IN")}
+                  {emp.production?.toLocaleString("en-IN")}
                 </span>
                 <span className={s.qnt}>{emp.qnt.toLocaleString("en-IN")}</span>
               </td>
