@@ -154,7 +154,7 @@ export default function Home() {
   const [summery, setSummery] = useState(null);
   useEffect(() => {
     if (data) {
-      // console.log(data.summery);
+      console.log(data.summery);
       setSummery(data.summery);
     }
   }, [data]);
@@ -197,7 +197,7 @@ export default function Home() {
         <Link href={`employees?fy=${fy}`}>
           <a>
             Employees{" "}
-            {(summery.emp.production - summery.emp.paid).toLocaleString(
+            {(summery.emp?.production - summery.emp?.paid).toLocaleString(
               "en-IN"
             )}
           </a>
