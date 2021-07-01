@@ -6,7 +6,7 @@ export const Provider = ({ children }) => {
   const router = useRouter();
   const [user, setUser] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [fy, setFy] = useState("2020-21");
+  const [fy, setFy] = useState("2021-22");
   const [empRate, setEmpRate] = useState({
     1: 20,
     S: 24,
@@ -17,8 +17,39 @@ export const Provider = ({ children }) => {
   });
   const [dateFilter, setDateFilter] = useState(null);
   const [months, setMonths] = useState([]);
+  const [season, setSeason] = useState("");
+  const [seasons, setSeasons] = useState([]);
+  const [groups, setGroups] = useState([]);
   const [nameTag, setNameTag] = useState(null);
   const firstRender = useRef(true);
+  useEffect(() => {
+    fetch("/api/groups")
+      .then((res) => res.json())
+      .then(({ code, groups }) => {
+        if (code === "ok") {
+          setGroups(groups);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+        alert("could not get groups");
+      });
+    fetch("/api/season")
+      .then((res) => res.json())
+      .then(({ code, seasons }) => {
+        if (code === "ok") {
+          setSeasons(seasons);
+          const runningSeason = seasons.filter((sea) => sea.running)[0];
+          if (runningSeason) {
+            setSeason(runningSeason.season);
+          }
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+        alert("could not get seasons");
+      });
+  }, []);
   useEffect(() => {
     if (firstRender.current) {
       firstRender.current = false;
@@ -48,6 +79,12 @@ export const Provider = ({ children }) => {
         setMonths,
         nameTag,
         setNameTag,
+        seasons,
+        setSeasons,
+        season,
+        setSeason,
+        groups,
+        setGroups,
       }}
     >
       {children}

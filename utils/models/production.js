@@ -1,12 +1,12 @@
 const empWork = new Schema({
   employee: { type: Schema.Types.ObjectId, ref: "Employee", required: true },
   date: { type: Date, required: true },
-  fy: { type: String, required: true },
   paid: { type: Number, default: 0 },
+  season: { type: String },
   products: [
     {
       dress: { type: String, required: true, trim: true },
-      group: { type: String, required: true },
+      group: { type: Number, required: true },
       qnt: { type: Number, required: true },
     },
   ],
@@ -14,10 +14,16 @@ const empWork = new Schema({
 global.EmpWork =
   mongoose.models["EmpWork"] || mongoose.model("EmpWork", empWork);
 
+const season = new Schema({
+  season: { type: String, required: true, unique: true },
+  running: { type: Boolean },
+});
+global.Season = mongoose.models["Season"] || mongoose.model("Season", season);
+
 const lot = new Schema({
   date: { type: Date, required: true },
-  fy: { type: String, required: true },
   no: { type: Number },
+  season: { type: String },
   products: [
     {
       dress: { type: String, required: true, trim: true },
@@ -26,12 +32,16 @@ const lot = new Schema({
     },
   ],
 });
-
 global.Lot = mongoose.models["Lot"] || mongoose.model("Lot", lot);
+
+const group = new Schema({
+  label: { type: String, required: true, unique: true },
+  value: { type: Number, required: true },
+});
+global.Group = mongoose.models["Group"] || mongoose.model("Group", group);
 
 const bill = new Schema({
   date: { type: Date, required: true },
-  fy: { type: String, required: true },
   ref: { type: Number, required: true, unique: true },
   img: { type: String },
   products: [
@@ -43,12 +53,10 @@ const bill = new Schema({
     },
   ],
 });
-
 global.Bill = mongoose.models["Bill"] || mongoose.model("Bill", bill);
 
 const payment = new Schema({
   date: { type: Date, required: true },
-  fy: { type: String, required: true },
 });
 
 const Payment =
@@ -77,7 +85,6 @@ const MaterialPayment =
 const costing = new Schema({
   lot: { type: Number, required: true, unique: true },
   date: { type: Date, required: true },
-  fy: { type: String, required: true },
   dress: { type: String, required: true, trim: true },
   lotSize: { type: Number, required: true },
   img: { type: String },
@@ -94,7 +101,6 @@ const costing = new Schema({
 const fabric = new Schema({
   dealer: { type: String, required: true },
   date: { type: Date, required: true },
-  fy: { type: String, required: true },
   name: { type: String, required: true },
   qnt: {
     unit: { type: String, required: true },

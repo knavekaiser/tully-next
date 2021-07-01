@@ -23,7 +23,11 @@ export default nextConnect({
   },
 }).post((req, res) => {
   dbConnect();
-  Employee.findOne({ name: req.body.id, pass: req.body.pass })
+  Employee.findOne({
+    name: req.body.id,
+    pass: req.body.pass,
+    season: req.body.season,
+  })
     .then((user) => {
       if (!user) {
         res.status(401).json({ message: "invalid credentials" });

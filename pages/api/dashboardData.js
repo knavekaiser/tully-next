@@ -13,9 +13,8 @@ export default nextConnect({
 }).get((req, res) => {
   auth(req, true)
     .then((user) => {
-      const { fy, from, to } = req.query;
+      const { from, to } = req.query;
       const filters = {
-        ...(fy !== "all" && { fy }),
         ...(from &&
           to && { date: { $gte: new Date(from), $lte: new Date(to) } }),
       };

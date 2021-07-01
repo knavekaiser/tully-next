@@ -26,6 +26,10 @@ body {
     width: 100%;
   }
 }
+button {
+  font-family: "roboto", "SolaimanLipi", sans-serif;
+  letter-spacing: 0.1em;
+}
 
 ::selection {
   background: rgb(96, 255, 121);

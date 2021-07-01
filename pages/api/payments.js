@@ -14,9 +14,8 @@ export default nextConnect({
   .get((req, res) => {
     auth(req, true)
       .then((user) => {
-        const { fy, from, to, payment } = req.query;
+        const { from, to, payment } = req.query;
         const filters = {
-          ...(fy !== "all" && { fy }),
           ...(from &&
             to && { date: { $gte: new Date(from), $lte: new Date(to) } }),
         };
@@ -49,9 +48,7 @@ export default nextConnect({
             ]),
             Bill.aggregate([
               {
-                $match: from
-                  ? { date: { $lt: new Date(from) } }
-                  : { fy: { $lt: fy.substr(0, 4) } },
+                $match: from ? { date: { $lt: new Date(from) } } : {},
               },
               { $unwind: "$products" },
               {
@@ -77,9 +74,7 @@ export default nextConnect({
             WagePayment.find(filters).sort({ date: 1 }),
             WagePayment.aggregate([
               {
-                $match: from
-                  ? { date: { $lt: new Date(from) } }
-                  : { fy: { $lt: fy.substr(0, 4) } },
+                $match: from ? { date: { $lt: new Date(from) } } : {},
               },
               {
                 $group: {
@@ -90,7 +85,7 @@ export default nextConnect({
                 },
               },
             ]).then((data) => data[0]?.wage || 0),
-            getMonths(WagePayment, fy),
+            getMonths(WagePayment),
           ]).then(
             ([bills, previousWage, payments, previousWagePayments, months]) => {
               res.json({
@@ -140,9 +135,7 @@ export default nextConnect({
             ]),
             Bill.aggregate([
               {
-                $match: from
-                  ? { date: { $lt: new Date(from) } }
-                  : { fy: { $lt: fy.substr(0, 4) } },
+                $match: from ? { date: { $lt: new Date(from) } } : {},
               },
               { $unwind: "$products" },
               {
@@ -171,9 +164,7 @@ export default nextConnect({
             MaterialPayment.find(filters).sort({ date: 1 }),
             MaterialPayment.aggregate([
               {
-                $match: from
-                  ? { date: { $lt: new Date(from) } }
-                  : { fy: { $lt: fy.substr(0, 4) } },
+                $match: from ? { date: { $lt: new Date(from) } } : {},
               },
               {
                 $group: {
@@ -182,7 +173,7 @@ export default nextConnect({
                 },
               },
             ]).then((data) => data[0]?.total || 0),
-            getMonths(MaterialPayment, fy),
+            getMonths(MaterialPayment),
           ]).then(
             ([
               bills,
@@ -231,15 +222,13 @@ export default nextConnect({
   .post((req, res) => {
     auth(req, true)
       .then((user) => {
-        const { date, fy, payments, amount } = req.body;
+        const { date, payments, amount } = req.body;
         const pay = amount
           ? new WagePayment({
-              fy,
               date,
               amount,
             })
           : new MaterialPayment({
-              fy,
               date,
               payments,
             });
@@ -261,12 +250,11 @@ export default nextConnect({
   .patch((req, res) => {
     auth(req, true)
       .then((user) => {
-        const { _id, date, fy, payments, amount } = req.body;
+        const { _id, date, payments, amount } = req.body;
         const pay = amount ? WagePayment : MaterialPayment;
         pay
           .findByIdAndUpdate(_id, {
             date,
-            fy,
             payments,
             amount,
           })

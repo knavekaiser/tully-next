@@ -8,7 +8,7 @@ import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function Nav({ sidebarOpen, setSidebarOpen }) {
-  const { months, setDateFilter, dateFilter, nameTag } = useContext(
+  const { user, months, setDateFilter, dateFilter, nameTag } = useContext(
     SiteContext
   );
   const [showForm, setShowForm] = useState(false);
@@ -25,7 +25,8 @@ export default function Nav({ sidebarOpen, setSidebarOpen }) {
       router.pathname === "/workers" ||
       router.pathname === "/lots" ||
       router.pathname === "/fabrics" ||
-      router.pathname === "/employees"
+      router.pathname === "/employees" ||
+      router.pathname === "/config"
     ) {
       setBackBtn(false);
       setShowMonthFilter(true);
@@ -37,7 +38,7 @@ export default function Nav({ sidebarOpen, setSidebarOpen }) {
   return (
     <header className={s.header}>
       <span className={s.gred + ` gred`} />
-      <Link href="/">
+      <Link href={user?.role === "admin" ? "/" : "/employees"}>
         <a>
           <div>
             <AnimatePresence>

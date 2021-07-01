@@ -14,9 +14,8 @@ export default nextConnect({
   .get((req, res) => {
     auth(req, true)
       .then((user) => {
-        const { fy, from, to } = req.query;
+        const { from, to } = req.query;
         const filters = {
-          ...(fy !== "all" && { fy }),
           ...(from &&
             to && { date: { $gte: new Date(from), $lte: new Date(to) } }),
         };
@@ -24,7 +23,7 @@ export default nextConnect({
           {
             $facet: {
               lots: [{ $match: filters }, { $sort: { ref: 1 } }],
-              months: monthAggregate(fy),
+              months: monthAggregate(),
             },
           },
         ]).then((data) => {
@@ -40,9 +39,9 @@ export default nextConnect({
   .post((req, res) => {
     auth(req, true)
       .then((user) => {
-        const { date, fy, products } = req.body;
+        const { date, products } = req.body;
         try {
-          const newWork = new Lot({ date, fy, products });
+          const newWork = new Lot({ date, products });
           newWork
             .save()
             .then((newWork) => {
@@ -63,8 +62,8 @@ export default nextConnect({
   .patch((req, res) => {
     auth(req, true)
       .then((user) => {
-        const { _id, date, fy, products, paid } = req.body;
-        Lot.findByIdAndUpdate(_id, { date, fy, products })
+        const { _id, date, products, paid } = req.body;
+        Lot.findByIdAndUpdate(_id, { date, products })
           .then(() => Lot.findById(_id))
           .then((update) => {
             console.log(date, update.date);

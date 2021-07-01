@@ -14,7 +14,7 @@ export default nextConnect({
   .get((req, res) => {
     auth(req, true)
       .then(async (user) => {
-        const { fy, from, to, ref } = req.query;
+        const { from, to, ref } = req.query;
         if (ref) {
           Bill.findOne({ ref }).then((bill) => {
             if (bill) {
@@ -26,7 +26,6 @@ export default nextConnect({
           return;
         }
         const filters = {
-          ...(fy !== "all" && { fy }),
           ...(from &&
             to && { date: { $gte: new Date(from), $lte: new Date(to) } }),
         };
@@ -34,7 +33,7 @@ export default nextConnect({
           {
             $facet: {
               bills: [{ $match: filters }, { $sort: { ref: 1 } }],
-              months: monthAggregate(fy),
+              months: monthAggregate(),
             },
           },
         ]).then((data) => {
@@ -50,8 +49,8 @@ export default nextConnect({
   .post((req, res) => {
     auth(req, true)
       .then((user) => {
-        const { date, fy, ref, products } = req.body;
-        new Bill({ date, fy, ref, products })
+        const { date, ref, products } = req.body;
+        new Bill({ date, ref, products })
           .save()
           .then((newBill) => {
             res.json({ code: "ok", content: newBill });
@@ -73,8 +72,8 @@ export default nextConnect({
   .patch((req, res) => {
     auth(req, true)
       .then((user) => {
-        const { _id, date, fy, ref, products } = req.body;
-        Bill.findByIdAndUpdate(_id, { date, fy, ref, products })
+        const { _id, date, ref, products } = req.body;
+        Bill.findByIdAndUpdate(_id, { date, ref, products })
           .then(() => Bill.findById(_id))
           .then((updated) => {
             res.json({ code: "ok", content: updated });

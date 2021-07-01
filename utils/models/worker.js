@@ -1,11 +1,8 @@
 const employee = new Schema({
-  name: { type: String, required: true, unique: true, trim: true },
+  name: { type: String, required: true, trim: true },
   pass: { type: String, required: true },
-  work: [
-    {
-      work: { type: Schema.Types.ObjectId, ref: "EmpWork", required: true },
-    },
-  ],
+  work: [{ type: Schema.Types.ObjectId, ref: "EmpWork", required: true }],
+  season: { type: String },
 });
 
 employee.statics.updateWork = (_id) => {

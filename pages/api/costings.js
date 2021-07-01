@@ -15,7 +15,7 @@ export default nextConnect({
   .get((req, res) => {
     auth(req, true)
       .then((user) => {
-        const { fy, from, to, lot } = req.query;
+        const { from, to, lot } = req.query;
         if (lot) {
           Costing.findOne({ lot }).then((costing) => {
             if (costing) {
@@ -27,7 +27,6 @@ export default nextConnect({
           return;
         }
         const filters = {
-          ...(fy !== "all" && { fy }),
           ...(from &&
             to && { date: { $gte: new Date(from), $lte: new Date(to) } }),
         };
@@ -35,7 +34,7 @@ export default nextConnect({
           {
             $facet: {
               costings: [{ $match: filters }, { $sort: { lot: 1 } }],
-              months: monthAggregate(fy),
+              months: monthAggregate(),
             },
           },
         ]).then((data) => {
@@ -51,14 +50,13 @@ export default nextConnect({
   .post((req, res) => {
     auth(req, true)
       .then(async (user) => {
-        const { lot, date, dress, lotSize, fy, materials, img } = req.body;
+        const { lot, date, dress, lotSize, materials, img } = req.body;
         new Costing({
           lot,
           date,
           dress,
           lotSize,
           img,
-          fy,
           materials,
         })
           .save()
@@ -82,7 +80,7 @@ export default nextConnect({
   .patch((req, res) => {
     auth(req, true)
       .then(async (user) => {
-        const { _id, lot, date, dress, img, lotSize, fy, materials } = req.body;
+        const { _id, lot, date, dress, img, lotSize, materials } = req.body;
         await DeleteImg(img.old);
         Costing.findByIdAndUpdate(_id, {
           lot,
@@ -90,7 +88,6 @@ export default nextConnect({
           dress,
           lotSize,
           img: img.new,
-          fy,
           materials,
         })
           .then(() => Costing.findById(_id))

@@ -45,11 +45,8 @@ const months = [
   "Dec",
 ];
 
-export const getMonths = (Element, fy) => {
+export const getMonths = (Element) => {
   return Element.aggregate([
-    {
-      $match: { fy },
-    },
     {
       $group: {
         _id: {
@@ -81,8 +78,7 @@ export const getMonths = (Element, fy) => {
   });
 };
 
-export const monthAggregate = (fy) => [
-  { $match: { fy } },
+export const monthAggregate = () => [
   {
     $group: {
       _id: {

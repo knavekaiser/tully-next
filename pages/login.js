@@ -36,7 +36,7 @@ export async function getServerSideProps(ctx) {
 }
 
 export default function Login({ ssrData }) {
-  const { setUser, fy } = useContext(SiteContext);
+  const { setUser, season } = useContext(SiteContext);
   const router = useRouter();
   useEffect(() => {
     const { user, originalUrl } = ssrData;
@@ -55,7 +55,7 @@ export default function Login({ ssrData }) {
   }, [ssrData]);
   const [loading, setLoading] = useState(false);
   const [adminForm, setAdminForm] = useState(false);
-  const [viwer, setViwer] = useState({ id: "", pass: "" });
+  const [viwer, setViwer] = useState({ season, id: "", pass: "" });
   const [admin, setAdmin] = useState({ id: "", pass: "" });
   const [wrongInfo, setWrongInfo] = useState({ admin: false, viwer: false });
   const viwerFormSubmit = (e) => {

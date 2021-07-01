@@ -4,29 +4,25 @@ import s from "./SCSS/Sidebar.module.scss";
 import { useRouter } from "next/router";
 import Link from "next/link";
 
-export default function Sidebar({ sections, sidebarOpen, setSidebarOpen }) {
+export default function Sidebar({ sidebarOpen, setSidebarOpen }) {
   const {
     user,
-    fy,
     dateFilter,
-    setFy,
     setUser,
     setIsAuthenticated,
+    season,
+    setSeason,
+    seasons,
   } = useContext(SiteContext);
   const router = useRouter();
-  const [sectionOpen, setSectionOpen] = useState(false);
-  const [fiscalYearOpen, setFiscalYearOpen] = useState(false);
+  const [seasonOpen, setSeasonOpen] = useState(false);
   const [backupOpen, setBackupOpen] = useState(false);
   const [aboutOpen, setAboutOpen] = useState(false);
   useEffect(() => {
-    setSidebarOpen(false);
-  }, [fy]);
-  useEffect(() => {
     if (sidebarOpen) {
-      setFiscalYearOpen(false);
+      setSeasonOpen(false);
       setBackupOpen(false);
       setAboutOpen(false);
-      setSectionOpen(false);
     }
   }, [sidebarOpen]);
   return (
@@ -40,50 +36,10 @@ export default function Sidebar({ sections, sidebarOpen, setSidebarOpen }) {
                 <p>Home</p>
               </li>
             </Link>
-            <li onClick={() => setSectionOpen(!sectionOpen)}>
-              <ion-icon name="albums-outline"></ion-icon>
-              <p>Section</p>
-            </li>
-            {sectionOpen && (
-              <ul className={s.fold}>
-                {sections.map((section) =>
-                  section.link ? (
-                    <Link href={section.link} key={section.label}>
-                      <li onClick={() => setSidebarOpen(false)}>
-                        <p>{section.label}</p>
-                      </li>
-                    </Link>
-                  ) : (
-                    <li
-                      key={section.label}
-                      onClick={() => setSidebarOpen(false)}
-                    >
-                      <p>{section.label}</p>
-                    </li>
-                  )
-                )}
-              </ul>
-            )}
-          </>
-        )}
-        <li onClick={() => setFiscalYearOpen(!fiscalYearOpen)}>
-          <p>৳</p>
-          <p>{fy}</p>
-        </li>
-        {fiscalYearOpen && (
-          <ul className={s.fold} onClick={() => setSidebarOpen(false)}>
-            <li onClick={() => setFy("all")}>All time</li>
-            <li onClick={() => setFy("2019-20")}>2019-20</li>
-            <li onClick={() => setFy("2020-21")}>2020-21</li>
-          </ul>
-        )}
-        {!user?.work && (
-          <>
             <Link
               href={{
                 pathname: `/lots`,
                 query: {
-                  fy,
                   ...(dateFilter && {
                     from: dateFilter.from,
                     to: dateFilter.to,
@@ -94,6 +50,26 @@ export default function Sidebar({ sections, sidebarOpen, setSidebarOpen }) {
               <li>
                 <ion-icon name="layers-outline"></ion-icon>
                 <p>Lots</p>
+              </li>
+            </Link>
+            <li onClick={() => setSeasonOpen(!seasonOpen)}>
+              <p>{season}</p>
+            </li>
+            {seasonOpen && (
+              <ul className={s.fold} onClick={() => setSidebarOpen(false)}>
+                {seasons
+                  .filter((sea) => sea.season !== season)
+                  .map((sea) => (
+                    <li key={sea.season} onClick={() => setSeason(sea.season)}>
+                      {sea.season}
+                    </li>
+                  ))}
+              </ul>
+            )}
+            <Link href="/config">
+              <li onClick={() => setSidebarOpen(false)}>
+                <ion-icon name="settings-outline"></ion-icon>
+                <p>Config</p>
               </li>
             </Link>
             {

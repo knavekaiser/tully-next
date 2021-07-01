@@ -13,11 +13,11 @@ const fetcher = (url) => fetch(url).then((res) => res.json());
 
 export default function EmpList() {
   const router = useRouter();
-  const { user, empRate, fy, dateFilter, setMonths, setNameTag } = useContext(
+  const { user, season, dateFilter, setMonths, setNameTag } = useContext(
     SiteContext
   );
   const { error, data } = useSWR(
-    `/api/employee?fy=${fy}${
+    `/api/employee?season=${season}${
       user?.role === "viwer" ? `&emp=${user?._id}` : ""
     }${dateFilter ? `&from=${dateFilter.from}&to=${dateFilter.to}` : ""}`,
     fetcher
@@ -182,13 +182,16 @@ export default function EmpList() {
             <Tr
               onClick={() => {
                 SS.set("empWork", JSON.stringify(emp));
-                router.push(
-                  `/employees/${emp.name}?fy=${fy}${
-                    dateFilter
-                      ? `&from=${dateFilter.from}&to=${dateFilter.to}`
-                      : ""
-                  }`
-                );
+                router.push({
+                  pathname: `/employees/${emp.name}`,
+                  query: {
+                    season,
+                    ...(dateFilter && {
+                      from: dateFilter.from,
+                      to: dateFilter.to,
+                    }),
+                  },
+                });
               }}
               key={i}
               options={[
@@ -216,10 +219,10 @@ export default function EmpList() {
               <td className={s.name}>{emp.name}</td>
               <td>
                 <span className={s.lastPaid}>
-                  {emp.lastDay.paid.toLocaleString()}
+                  {emp.lastDay?.paid?.toLocaleString()}
                 </span>
                 <span className={s.lastQnt}>
-                  {emp.lastDay.qnt.toLocaleString()}
+                  {emp.lastDay?.qnt?.toLocaleString()}
                 </span>
               </td>
               <td>

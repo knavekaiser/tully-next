@@ -17,14 +17,9 @@ export function getServerSideProps() {
 export default function EmpWorkList() {
   const router = useRouter();
   const [emp, setEmp] = useState(null);
-  const {
-    user,
-    fy,
-    empRate,
-    dateFilter,
-    setDateFilter,
-    setNameTag,
-  } = useContext(SiteContext);
+  const { user, dateFilter, setDateFilter, setNameTag, season } = useContext(
+    SiteContext
+  );
   const [showForm, setShowForm] = useState(false);
   const [workToEdit, setWorkToEdit] = useState(null);
   const [addBtnStyle, setAddBtnStyle] = useState(false);
@@ -63,23 +58,25 @@ export default function EmpWorkList() {
     router.push({
       pathname: router.asPath.split("?")[0],
       query: {
-        fy,
         ...(dateFilter && {
           from: dateFilter.from,
           to: dateFilter.to,
         }),
       },
     });
-  }, [fy, dateFilter]);
-  const fetchData = (lotNo) => {
-    fetch(`/api/empWork?emp=${router.query.name}&fy=${fy}`)
+  }, [dateFilter]);
+  const fetchData = () => {
+    fetch(`/api/empWork?emp=${router.query.name}&season=${season}`)
       .then((res) => res.json())
       .then((data) => {
         if (data.code === "ok") {
           setEmp(data.content);
           SS.set("empWork", JSON.stringify(data.content));
         } else if (data.code === 400) {
-          router.push(`/employees?fy=${fy}`);
+          router.push({
+            pathname: `/employees`,
+            query: { season },
+          });
         } else {
           alert("something went");
         }
@@ -174,7 +171,7 @@ export default function EmpWorkList() {
             ]}
           >
             <td
-              className={`${s.date} ${work.products.length <= 1 && s.single}`}
+              className={`${s.date} ${work.products?.length <= 1 && s.single}`}
             >
               {displayDate(work.date)}
             </td>
@@ -186,9 +183,7 @@ export default function EmpWorkList() {
                   <sup>{product.group}</sup>
                 </td>
                 <td className={s.total}>
-                  {(product.qnt * empRate[product.group]).toLocaleString(
-                    "en-IN"
-                  )}
+                  {(product.qnt * product.group).toLocaleString("en-IN")}
                 </td>
               </Fragment>
             ))}
@@ -210,7 +205,6 @@ export default function EmpWorkList() {
       <Modal open={showForm} setOpen={setShowForm}>
         <AddEmpWork
           employee={emp?._id}
-          fy={fy}
           onSuccess={(newWork) => {
             setEmp((prev) => {
               const newEmp = { ...prev };
@@ -225,7 +219,7 @@ export default function EmpWorkList() {
           workToEdit={workToEdit}
         />
       </Modal>
-      {fy !== "all" && !user?.work && (
+      {user.role === "admin" && (
         <AddBtn translate={addBtnStyle || showForm} onClick={setShowForm} />
       )}
     </App>

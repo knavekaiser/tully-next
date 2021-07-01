@@ -2,15 +2,7 @@ import nextConnect from "next-connect";
 import { auth } from "./auth";
 import { monthAggregate } from "../../utils/db";
 
-const rate = {
-  1: 20,
-  S: 24,
-  L: 36,
-  F: 43,
-  iS: 2.5,
-  iL: 4,
-};
-function getProduction(work, rate, lastDay) {
+function getProduction(work, lastDay) {
   const lastWork = work.filter(
     (item) => item?.date.toString() === lastDay.toString()
   )[0];
@@ -33,10 +25,12 @@ export default nextConnect({
   .get((req, res) => {
     auth(req)
       .then((user) => {
-        const { fy, from, to, emp } = req.query;
+        const { from, to, emp, season } = req.query;
         const query = {
-          ...(emp && { employee: ObjectID(emp) }),
-          ...(fy !== "all" && { fy }),
+          ...(season && { season }),
+          ...(emp && { _id: ObjectID(emp) }),
+        };
+        const dateFilter = {
           ...(from &&
             to && {
               date: {
@@ -45,157 +39,149 @@ export default nextConnect({
               },
             }),
         };
-        EmpWork.aggregate([
+        Employee.aggregate([
+          { $match: query },
           {
-            $facet: {
-              emps: [
-                { $match: query },
-                {
-                  $set: {
+            $lookup: {
+              from: "empworks",
+              as: "work",
+              pipeline: [{ $match: dateFilter }],
+            },
+          },
+          {
+            $set: {
+              work: {
+                $filter: {
+                  input: "$work",
+                  as: "work",
+                  cond: {
+                    $eq: ["$_id", "$$work.employee"],
+                  },
+                },
+              },
+            },
+          },
+          {
+            $set: {
+              work: {
+                $map: {
+                  input: "$work",
+                  as: "work",
+                  in: {
+                    _id: "$$work._id",
+                    employee: "$$work.employee",
+                    paid: "$$work.paid",
+                    date: "$$work.date",
                     products: {
                       $map: {
-                        input: "$products",
+                        input: "$$work.products",
+                        as: "product",
                         in: {
-                          _id: "$$this._id",
-                          qnt: "$$this.qnt",
-                          dress: "$$this.dress",
-                          group: "$$this.group",
-                          cost: {
-                            $multiply: [
-                              "$$this.qnt",
-                              {
-                                $switch: {
-                                  branches: [
-                                    {
-                                      case: { $eq: ["$$this.group", "L"] },
-                                      then: 36,
-                                    },
-                                    {
-                                      case: { $eq: ["$$this.group", "S"] },
-                                      then: 24,
-                                    },
-                                    {
-                                      case: { $eq: ["$$this.group", "1"] },
-                                      then: 20,
-                                    },
-                                    {
-                                      case: { $eq: ["$$this.group", "F"] },
-                                      then: 43,
-                                    },
-                                  ],
-                                  default: 0,
-                                },
-                              },
-                            ],
+                          _id: "$$product._id",
+                          dress: "$$product.dress",
+                          qnt: "$$product.qnt",
+                          group: "$$product.group",
+                          production: {
+                            $multiply: ["$$product.qnt", "$$product.group"],
                           },
+                        },
+                      },
+                    },
+                    production: {
+                      $reduce: {
+                        input: "$$work.products",
+                        initialValue: 0,
+                        in: {
+                          $add: [
+                            "$$value",
+                            {
+                              $multiply: ["$$this.group", "$$this.qnt"],
+                            },
+                          ],
+                        },
+                      },
+                    },
+                    qnt: {
+                      $reduce: {
+                        input: "$$work.products",
+                        initialValue: 0,
+                        in: {
+                          $add: ["$$value", "$$this.qnt"],
                         },
                       },
                     },
                   },
                 },
-                {
-                  $group: {
-                    _id: "$employee",
-                    paid: { $sum: "$paid" },
-                    qnt: { $sum: { $sum: "$products.qnt" } },
-                    production: { $sum: { $sum: "$products.cost" } },
-                    work: {
-                      $push: {
-                        _id: "$_id",
-                        paid: "$paid",
-                        date: "$date",
-                        cost: "$cost",
-                        fy: "$fy",
-                        products: "$products",
-                      },
-                    },
-                  },
-                },
-                {
-                  $lookup: {
-                    from: "employees",
-                    localField: "_id",
-                    foreignField: "_id",
-                    as: "emp",
-                  },
-                },
-                {
-                  $set: {
-                    name: { $first: "$emp.name" },
-                    pass: { $first: "$emp.pass" },
-                  },
-                },
-                { $unset: "emp" },
-              ],
-              ...(!query.date && {
-                allEmps: [
-                  {
-                    $limit: 1,
-                  },
-                  {
-                    $lookup: {
-                      from: "employees",
-                      localField: "string",
-                      foreignField: "string",
-                      as: "emps",
-                    },
-                  },
-                  {
-                    $unwind: {
-                      path: "$emps",
-                    },
-                  },
-                  { $match: { "emps.work.0": { $exists: false } } },
-                  {
-                    $project: {
-                      _id: "$emps._id",
-                      name: "$emps.name",
-                      pass: "$emps.pass",
-                      work: "$emps.work",
-                      paid: { $size: "$emps.work" },
-                      qnt: { $size: "$emps.work" },
-                      production: { $size: "$emps.work" },
-                    },
-                  },
-                ],
-              }),
-              lastDate: [
-                { $sort: { date: -1 } },
-                { $limit: 1 },
-                { $project: { date: "$date" } },
-              ],
-              months: [...monthAggregate(fy)],
+              },
             },
           },
           {
-            $project: {
-              lastDate: { $first: "$lastDate.date" },
-              months: "$months",
-              emps: query.date
-                ? "$emps"
-                : { $concatArrays: ["$emps", "$allEmps"] },
+            $set: {
+              paid: { $sum: "$work.paid" },
+              production: { $sum: "$work.production" },
+              qnt: { $sum: "$work.qnt" },
+              deu: {
+                $subtract: [
+                  { $sum: "$work.production" },
+                  { $sum: "$work.paid" },
+                ],
+              },
             },
+          },
+          {
+            $unwind: {
+              path: "$work",
+              preserveNullAndEmptyArrays: true,
+            },
+          },
+          { $set: { date: "$work.date" } },
+          { $sort: { "work.date": -1 } },
+          {
+            $facet: {
+              emps: [
+                {
+                  $group: {
+                    _id: "$_id",
+                    work: { $push: "$work" },
+                    lastDay: {
+                      $first: {
+                        paid: "$work.paid",
+                        qnt: {
+                          $sum: {
+                            $reduce: {
+                              input: "$work.products",
+                              initialValue: 0,
+                              in: {
+                                $add: ["$$value", "$$this.qnt"],
+                              },
+                            },
+                          },
+                        },
+                      },
+                    },
+                    name: { $first: "$name" },
+                    season: { $first: "$season" },
+                    pass: { $first: "$pass" },
+                    deu: { $first: "$deu" },
+                    paid: { $first: "$paid" },
+                    production: { $first: "$production" },
+                    qnt: { $first: "$qnt" },
+                  },
+                },
+                { $sort: { name: 1 } },
+              ],
+              months: monthAggregate(),
+            },
+          },
+          {
+            $set: { lastDate: { $first: "$lastDate.date" } },
           },
         ])
           .then((data_arr) => {
             const { months, emps, lastDate } = data_arr[0];
-            emps.sort((a, b) =>
-              a.name?.toLowerCase() > b.name?.toLowerCase() ? 1 : -1
-            );
-            return [emps, months, lastDate];
-          })
-          .then(([emps, months, lastDate]) => {
-            const allEmps = emps.map((emp) => {
-              const { lastDay } = getProduction(emp.work, rate, lastDate);
-              return {
-                ...emp,
-                deu: emp.production - emp.paid,
-                lastDay,
-              };
-            });
             res.json({
               code: "ok",
-              content: { allEmps, months, lastDate },
+              content: { allEmps: emps, months, lastDate },
             });
           })
           .catch((err) => {
@@ -210,10 +196,11 @@ export default nextConnect({
   .post((req, res) => {
     auth(req, true)
       .then((user) => {
-        const { name, pass } = req.body;
+        const { name, pass, season } = req.body;
         const newEmp = new Employee({
           name,
           pass,
+          season,
         })
           .save()
           .then((newEmp) => {

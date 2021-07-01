@@ -15,7 +15,7 @@ export default nextConnect({
   .get((req, res) => {
     auth(req, true)
       .then((user) => {
-        const { fy, from, to, _id } = req.query;
+        const { from, to, _id } = req.query;
         if (_id) {
           Fabric.findOne({ _id }).then((fabric) =>
             res.json({ code: "ok", fabric })
@@ -23,7 +23,6 @@ export default nextConnect({
           return;
         }
         const filters = {
-          ...(fy !== "all" && { fy }),
           ...(from &&
             to && { date: { $gte: new Date(from), $lte: new Date(to) } }),
         };
@@ -65,7 +64,6 @@ export default nextConnect({
                   $group: {
                     _id: "$_id",
                     date: { $first: "$date" },
-                    fy: { $first: "$fy" },
                     name: { $first: "$name" },
                     dealer: { $first: "$dealer" },
                     qnt: { $first: "$qnt" },
@@ -98,7 +96,7 @@ export default nextConnect({
                 },
                 { $sort: { date: 1 } },
               ],
-              months: monthAggregate(fy),
+              months: monthAggregate(),
             },
           },
         ]).then((data) => {
@@ -114,11 +112,10 @@ export default nextConnect({
   .post((req, res) => {
     auth(req, true)
       .then(async (user) => {
-        const { dealer, date, fy, name, qnt, price, img, usage } = req.body;
+        const { dealer, date, name, qnt, price, img, usage } = req.body;
         const newFabric = new Fabric({
           dealer,
           date,
-          fy,
           name,
           qnt,
           price,
@@ -142,22 +139,11 @@ export default nextConnect({
   .patch((req, res) => {
     auth(req, true)
       .then(async (user) => {
-        const {
-          _id,
-          dealer,
-          date,
-          fy,
-          name,
-          qnt,
-          price,
-          img,
-          usage,
-        } = req.body;
+        const { _id, dealer, date, name, qnt, price, img, usage } = req.body;
         await DeleteImg(img.old);
         Fabric.findByIdAndUpdate(_id, {
           dealer,
           date,
-          fy,
           name,
           qnt,
           price,

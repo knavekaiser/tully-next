@@ -14,9 +14,8 @@ export default nextConnect({
   .get((req, res) => {
     auth(req)
       .then((user) => {
-        const { fy, from, to, emp } = req.query;
+        const { from, to, emp } = req.query;
         const query = {
-          ...(fy !== "all" && { fy }),
           ...(from &&
             to && {
               date: {
@@ -31,15 +30,17 @@ export default nextConnect({
             match: { ...query },
           })
           .then((emp) => {
+            console.log(emp);
             if (emp) {
               res.json({
                 code: "ok",
                 content: {
-                  ...json(emp),
-                  work: emp.work
-                    .map((item) => item.work)
-                    .filter((item) => !!item)
-                    .sort((a, b) => a.date - b.date),
+                  emp,
+                  // ...json(emp),
+                  // work: emp.work
+                  //   .map((item) => item.work)
+                  //   .filter((item) => !!item)
+                  //   .sort((a, b) => a.date - b.date),
                 },
               });
             } else {
@@ -58,22 +59,23 @@ export default nextConnect({
   .post((req, res) => {
     auth(req, true)
       .then((user) => {
-        const { employee, date, fy, products, paid } = req.body;
-        try {
-          const newWork = new EmpWork({ employee, date, fy, paid, products });
-          newWork
-            .save()
-            .then((newWork) => {
-              res.json({ code: "ok", content: newWork });
-              Employee.updateWork(employee);
-            })
-            .catch((err) => {
-              console.log(err);
-              res.status(500).json("something went wrong");
+        const { employee, date, products, paid } = req.body;
+        new EmpWork({ employee, date, paid, products })
+          .save()
+          .then((newWork) => {
+            res.json({ code: "ok", content: newWork });
+            Employee.findOneAndUpdate(
+              { _id: employee },
+              { $addToSet: { work: newWork._id } },
+              { new: true }
+            ).then((dbRes) => {
+              console.log(dbRes, newWork._id);
             });
-        } catch (err) {
-          res.status(400).json("provide correct data");
-        }
+          })
+          .catch((err) => {
+            console.log(err);
+            res.status(500).json("something went wrong");
+          });
       })
       .catch((err) => {
         res.status(403).json({ message: "forbidden" });
@@ -82,8 +84,8 @@ export default nextConnect({
   .patch((req, res) => {
     auth(req, true)
       .then((user) => {
-        const { _id, date, fy, products, paid } = req.body;
-        EmpWork.findByIdAndUpdate(_id, { date, fy, products, paid })
+        const { _id, date, products, paid } = req.body;
+        EmpWork.findByIdAndUpdate(_id, { date, products, paid })
           .then(() => EmpWork.findById(_id))
           .then((update) => {
             res.json({ code: "ok", content: update });
@@ -101,9 +103,12 @@ export default nextConnect({
     auth(req, true)
       .then((user) => {
         EmpWork.findOneAndDelete({ _id: req.body._id })
-          .then(() => {
+          .then((deleted) => {
             res.json({ code: "ok" });
-            Employee.updateWork(req.body._id);
+            Employee.findOneAndUpdate(
+              { _id: deleted.employee },
+              { $pull: { work: req.body._id } }
+            );
           })
           .catch((err) => {
             res.status(500).json("something went wrong");

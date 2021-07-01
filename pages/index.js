@@ -54,7 +54,6 @@ export const App = ({ children }) => {
                 link: {
                   pathname: "/employees",
                   query: {
-                    fy,
                     ...(dateFilter && {
                       from: dateFilter.from,
                       to: dateFilter.to,
@@ -68,7 +67,6 @@ export const App = ({ children }) => {
                 link: {
                   pathname: `/bills`,
                   query: {
-                    fy,
                     ...(dateFilter && {
                       from: dateFilter.from,
                       to: dateFilter.to,
@@ -81,7 +79,6 @@ export const App = ({ children }) => {
                 link: {
                   pathname: `/fabrics`,
                   query: {
-                    fy,
                     ...(dateFilter && {
                       from: dateFilter.from,
                       to: dateFilter.to,
@@ -94,7 +91,6 @@ export const App = ({ children }) => {
                 link: {
                   pathname: `/costings`,
                   query: {
-                    fy,
                     ...(dateFilter && {
                       from: dateFilter.from,
                       to: dateFilter.to,
@@ -107,7 +103,6 @@ export const App = ({ children }) => {
                 link: {
                   pathname: `/productions`,
                   query: {
-                    fy,
                     ...(dateFilter && {
                       from: dateFilter.from,
                       to: dateFilter.to,
@@ -120,7 +115,6 @@ export const App = ({ children }) => {
                 link: {
                   pathname: `/wages`,
                   query: {
-                    fy,
                     ...(dateFilter && {
                       from: dateFilter.from,
                       to: dateFilter.to,
@@ -146,7 +140,7 @@ export default function Home() {
   const router = useRouter();
   const { user, fy, dateFilter, setNameTag } = useContext(SiteContext);
   const { error, data } = useSWR(
-    `/api/dashboardData?fy=${fy}${
+    `/api/dashboardData?${
       dateFilter ? `&from=${dateFilter.from}&to=${dateFilter.to}` : ""
     }`,
     fetcher
@@ -161,6 +155,8 @@ export default function Home() {
   useEffect(() => {
     if (!user) {
       router.push("/login");
+    } else if (user?.role === "viwer") {
+      router.push("/employees");
     } else {
       setNameTag(null);
     }
@@ -181,12 +177,12 @@ export default function Home() {
     return (
       <App>
         <div className={s.container}>
-          <Link href={`employees?fy=${fy}`}>Employees</Link>
-          <Link href={`bills?fy=${fy}`}>Bills</Link>
-          <Link href={`fabrics?fy=${fy}`}>Fabrics</Link>
-          <Link href={`costings?fy=${fy}`}>Costings</Link>
-          <Link href={`wages?fy=${fy}`}>Wages</Link>
-          <Link href={`productions?fy=${fy}`}>Productions</Link>
+          <Link href={`employees`}>Employees</Link>
+          <Link href={`bills`}>Bills</Link>
+          <Link href={`fabrics`}>Fabrics</Link>
+          <Link href={`costings`}>Costings</Link>
+          <Link href={`wages`}>Wages</Link>
+          <Link href={`productions`}>Productions</Link>
         </div>
       </App>
     );
@@ -194,7 +190,7 @@ export default function Home() {
   return (
     <App>
       <div className={s.container}>
-        <Link href={`employees?fy=${fy}`}>
+        <Link href={`employees`}>
           <a>
             Employees{" "}
             {(summery.emp?.production - summery.emp?.paid).toLocaleString(
@@ -202,15 +198,15 @@ export default function Home() {
             )}
           </a>
         </Link>
-        <Link href={`bills?fy=${fy}`}>
+        <Link href={`bills`}>
           <a>Bills {summery.bill.toLocaleString("en-IN")}</a>
         </Link>
-        <Link href={`fabrics?fy=${fy}`}>Fabrics</Link>
-        <Link href={`costings?fy=${fy}`}>Costings</Link>
-        <Link href={`wages?fy=${fy}`}>
+        <Link href={`fabrics`}>Fabrics</Link>
+        <Link href={`costings`}>Costings</Link>
+        <Link href={`wages`}>
           <a>Wages {summery.wage.toLocaleString("en-IN")}</a>
         </Link>
-        <Link href={`productions?fy=${fy}`}>
+        <Link href={`productions`}>
           <a>Productions {summery.production.toLocaleString("en-IN")}</a>
         </Link>
       </div>

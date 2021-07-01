@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext, useRef } from "react";
+import { SiteContext } from "../SiteContext";
 import {
   Input,
   ImgUpload,
@@ -40,6 +41,7 @@ const empWorkProduction = [
     },
   ],
 ];
+
 const billProduction = [
   [
     {
@@ -127,6 +129,7 @@ const fabricUsage = [
 ];
 
 export function AddEmp({ onSuccess }) {
+  const { season } = useContext(SiteContext);
   const [loading, setLoading] = useState(false);
   const [name, setName] = useState("");
   const [pass, setPass] = useState("");
@@ -137,7 +140,7 @@ export function AddEmp({ onSuccess }) {
     fetch("/api/employee", {
       method: "POST",
       headers: { "Content-type": "application/json" },
-      body: JSON.stringify({ name, pass }),
+      body: JSON.stringify({ name, pass, season }),
     })
       .then((res) => res.json())
       .then((data) => {
@@ -254,10 +257,32 @@ export function UpdateEmp({ data, onSuccess }) {
     </form>
   );
 }
-export function AddEmpWork({ employee, fy, workToEdit, onSuccess }) {
+export function AddEmpWork({ employee, workToEdit, onSuccess }) {
+  const { groups, season } = useContext(SiteContext);
   const [loading, setLoading] = useState(false);
   const [date, setDate] = useState("");
   const [paid, setPaid] = useState(0);
+  const empWork = useRef([
+    [
+      {
+        id: "dress",
+        type: "text",
+        label: "Dress",
+        clone: true,
+      },
+      {
+        id: "qnt",
+        type: "number",
+        label: "Pcs",
+      },
+      {
+        id: "group",
+        type: "combobox",
+        label: "Group",
+        options: groups,
+      },
+    ],
+  ]);
   const [preFill, setPreFill] = useState(() => {
     if (workToEdit) {
       setDate(formatDate(workToEdit.date));
@@ -267,23 +292,23 @@ export function AddEmpWork({ employee, fy, workToEdit, onSuccess }) {
         workToEdit.products.forEach((item) => {
           inputProduction.push([
             {
-              ...empWorkProduction[0][0],
+              ...empWork.current[0][0],
               value: item.dress,
             },
             {
-              ...empWorkProduction[0][1],
+              ...empWork.current[0][1],
               value: item.qnt,
             },
             {
-              ...empWorkProduction[0][2],
-              value: empWorkProduction[0][2].options.find(
+              ...empWork.current[0][2],
+              value: empWork.current[0][2].options.find(
                 (option) => option.value === item.group
               ),
             },
           ]);
         });
       }
-      inputProduction.push(...empWorkProduction);
+      inputProduction.push(...empWork.current);
       return {
         ...workToEdit,
         products: [...inputProduction],
@@ -302,7 +327,7 @@ export function AddEmpWork({ employee, fy, workToEdit, onSuccess }) {
         ...(preFill && { _id: workToEdit._id }),
         ...(employee && !preFill && { employee }),
         date,
-        fy,
+        season,
         ...(employee && { paid }),
         products: GetGroupData($(".modal div#dress")),
       }),
@@ -336,8 +361,8 @@ export function AddEmpWork({ employee, fy, workToEdit, onSuccess }) {
       <div className={s.products}>
         <MultipleInput
           id="dress"
-          inputs={preFill?.products || empWorkProduction}
-          refInput={empWorkProduction}
+          inputs={preFill?.products || empWork.current}
+          refInput={empWork.current}
         />
       </div>
       {employee && (
@@ -1123,6 +1148,125 @@ export function AddFabric({ fy, edit, onSuccess }) {
         label={<ion-icon name="add-outline"></ion-icon>}
       />
       <div className={s.pBtm} />
+    </form>
+  );
+}
+
+export function AddSeason({ onSuccess }) {
+  const [name, setName] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [seasonExists, setSeasonExists] = useState(false);
+  const submit = (e) => {
+    e.preventDefault();
+    if (!name) return;
+    setLoading(true);
+    fetch("/api/season", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ season: name }),
+    })
+      .then((res) => res.json())
+      .then(({ code, season }) => {
+        setLoading(false);
+        if (code === "ok") {
+          onSuccess?.(season);
+        } else if (code === 11000) {
+          setSeasonExists(true);
+        }
+      })
+      .catch((err) => {
+        setLoading(false);
+        console.log(err);
+        alert("something went wrong");
+      });
+  };
+  return (
+    <form className={`${s.form} ${s.addSeason}`} onSubmit={submit}>
+      <h2>Add Season</h2>
+      <Input
+        required={true}
+        label="Date"
+        label="Season name"
+        onChange={(t) => {
+          setName(t.value);
+          setSeasonExists(false);
+        }}
+      >
+        {seasonExists && <p className={s.fieldWarning}>Season exists</p>}
+      </Input>
+      <Submit
+        disabled={seasonExists}
+        loading={loading}
+        label={<ion-icon name="add-outline"></ion-icon>}
+      />
+    </form>
+  );
+}
+
+export function AddGroup({ edit, onSuccess }) {
+  const [label, setLabel] = useState(edit?.label || "");
+  const [value, setValue] = useState(edit?.value || "");
+  const [loading, setLoading] = useState(false);
+  const [groupExists, setGroupExists] = useState(false);
+  const submit = (e) => {
+    e.preventDefault();
+    if (label && value) {
+      setLoading(true);
+      fetch("/api/groups", {
+        method: edit ? "PATCH" : "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          label,
+          value,
+          ...(edit && { _id: edit._id }),
+        }),
+      })
+        .then((res) => res.json())
+        .then(({ code, group }) => {
+          setLoading(false);
+          if (code === "ok") {
+            onSuccess?.({ newGroup: group, edit: !!edit });
+          } else if (code === 11000) {
+            setGroupExists(true);
+          }
+        })
+        .catch((err) => {
+          setLoading(false);
+          console.log(err);
+          alert("something went wrong");
+        });
+    }
+  };
+  return (
+    <form className={`${s.form} ${s.addGroup}`} onSubmit={submit}>
+      <h2>Add group</h2>
+      <Input
+        defaultValue={edit?.label}
+        required={true}
+        label="Date"
+        label="Group label"
+        onChange={(t) => {
+          setLabel(t.value);
+          setGroupExists(false);
+        }}
+      >
+        {groupExists && <p className={s.fieldWarning}>Group exists</p>}
+      </Input>
+      <Input
+        defaultValue={edit?.value}
+        required={true}
+        label="Date"
+        label="Taka"
+        type="number"
+        onChange={(t) => {
+          setValue(t.value);
+        }}
+      />
+      <Submit
+        disabled={groupExists}
+        loading={loading}
+        label={<ion-icon name="add-outline"></ion-icon>}
+      />
     </form>
   );
 }
