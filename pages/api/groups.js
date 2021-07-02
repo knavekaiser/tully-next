@@ -1,5 +1,6 @@
 import nextConnect from "next-connect";
 import { auth } from "./auth";
+import { dbConnect } from "../../utils/db";
 
 export default nextConnect({
   onError(err, req, res) {
@@ -11,6 +12,7 @@ export default nextConnect({
   },
 })
   .get((req, res) => {
+    dbConnect();
     Group.find()
       .then((dbRes) => {
         res.json({ code: "ok", groups: dbRes });
