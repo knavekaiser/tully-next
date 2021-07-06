@@ -157,6 +157,7 @@ export default nextConnect({
                             },
                           },
                         },
+                        date: "$work.date",
                       },
                     },
                     name: { $first: "$name" },
@@ -171,14 +172,16 @@ export default nextConnect({
                 { $sort: { name: 1 } },
               ],
               months: monthAggregate(),
+              lastDate: [{ $limit: 1 }],
             },
           },
           {
             $set: { lastDate: { $first: "$lastDate.date" } },
           },
         ])
-          .then((data_arr) => {
-            const { months, emps, lastDate } = data_arr[0];
+          .then(([data_arr]) => {
+            console.log(data_arr.lastDate);
+            const { months, emps, lastDate } = data_arr;
             res.json({
               code: "ok",
               content: { allEmps: emps, months, lastDate },

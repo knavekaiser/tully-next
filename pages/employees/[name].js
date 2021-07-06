@@ -142,58 +142,62 @@ export default function EmpWorkList() {
           }
         }}
       >
-        {emp?.work.map((work, i) => (
-          <Tr
-            key={i}
-            options={[
-              {
-                label: "Edit",
-                fun: () => {
-                  setWorkToEdit(work);
-                  setShowForm(true);
+        {emp?.work
+          .sort((a, b) => (a.date > b.date ? 1 : -1))
+          .map((work, i) => (
+            <Tr
+              key={i}
+              options={[
+                {
+                  label: "Edit",
+                  fun: () => {
+                    setWorkToEdit(work);
+                    setShowForm(true);
+                  },
                 },
-              },
-              {
-                label: "Delete",
-                fun: () => {
-                  if (
-                    confirm(
-                      `Do you want to delete the date ${work.date.replace(
-                        /T.*$/,
-                        ""
-                      )}?`
-                    )
-                  ) {
-                    dltWork(work._id);
-                  }
+                {
+                  label: "Delete",
+                  fun: () => {
+                    if (
+                      confirm(
+                        `Do you want to delete the date ${work.date.replace(
+                          /T.*$/,
+                          ""
+                        )}?`
+                      )
+                    ) {
+                      dltWork(work._id);
+                    }
+                  },
                 },
-              },
-            ]}
-          >
-            <td
-              className={`${s.date} ${work.products?.length <= 1 && s.single}`}
+              ]}
             >
-              {displayDate(work.date)}
-            </td>
-            {work.products.map((product, j) => (
-              <Fragment key={j}>
-                <td className={s.dress}>{product.dress}</td>
-                <td className={s.qnt}>
-                  {product.qnt.toLocaleString("en-IN")}{" "}
-                  <sup>{product.group}</sup>
-                </td>
-                <td className={s.total}>
-                  {(product.qnt * product.group).toLocaleString("en-IN")}
-                </td>
-              </Fragment>
-            ))}
-            <td
-              className={`${s.paid} ${work.products.length <= 1 && s.single}`}
-            >
-              {work.paid.toLocaleString("en-IN")}
-            </td>
-          </Tr>
-        ))}
+              <td
+                className={`${s.date} ${
+                  work.products?.length <= 1 && s.single
+                }`}
+              >
+                {displayDate(work.date)}
+              </td>
+              {work.products.map((product, j) => (
+                <Fragment key={j}>
+                  <td className={s.dress}>{product.dress}</td>
+                  <td className={s.qnt}>
+                    {product.qnt.toLocaleString("en-IN")}{" "}
+                    <sup>{product.group}</sup>
+                  </td>
+                  <td className={s.total}>
+                    {(product.qnt * product.group).toLocaleString("en-IN")}
+                  </td>
+                </Fragment>
+              ))}
+              <td
+                className={`${s.paid} ${work.products.length <= 1 && s.single}`}
+              >
+                {work.paid.toLocaleString("en-IN")}
+              </td>
+            </Tr>
+          ))}
         {emp?.work.length === 0 && (
           <tr className={s.empty}>
             <td>
