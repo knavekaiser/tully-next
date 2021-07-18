@@ -77,6 +77,11 @@ export default function Productions() {
       setBills(data.bills);
       setSummery(data.summery);
     }
+    setTimeout(() => {
+      Array.from(document.querySelectorAll("tbody")).forEach((el) => {
+        el.scrollBy(0, 100000);
+      });
+    }, 50);
   }, [data]);
   useEffect(() => {
     if (!user) {
@@ -186,47 +191,60 @@ export default function Productions() {
               </tr>
             </Link>
           ))}
-          <tr className={`${s.totalRecieved} ${s.total}`}>
-            <td>Total Production</td>
-            <td className={s.amount}>
-              {summery.totalWage.toLocaleString("en-IN")}
-            </td>
-          </tr>
-          <tr className={s.total}>
-            <td>Previous</td>
-            <td className={s.amount}>
-              + {summery.previousWage.toLocaleString("en-IN")}
-            </td>
-          </tr>
-          <tr className={s.hr} />
-          <tr className={s.total}>
-            <td>Total</td>
-            <td className={s.amount}>
-              {(summery.totalWage + summery.previousWage).toLocaleString(
-                "en-IN"
-              )}
-            </td>
-          </tr>
-          <tr className={s.total}>
-            <td>This month</td>
-            <td className={s.amount}>
-              -{" "}
-              {payments
-                .reduce((p, c) => p + c.amount, 0)
-                .toLocaleString("en-IN")}
-            </td>
-          </tr>
-          <tr className={s.hr} />
-          <tr className={`${s.totalRecieved} ${s.total}`}>
-            <td>Current</td>
-            <td className={s.amount}>
-              {(
-                summery.totalWage +
-                summery.previousWage -
-                payments.reduce((p, c) => p + c.amount, 0)
-              ).toLocaleString("en-IN")}
-            </td>
-          </tr>
+          {router.query.from && router.query.to ? (
+            <>
+              <tr className={`${s.totalRecieved} ${s.total}`}>
+                <td>Total Production</td>
+                <td className={s.amount}>
+                  {summery.totalWage.toLocaleString("en-IN")}
+                </td>
+              </tr>
+              <tr className={s.total}>
+                <td>Previous</td>
+                <td className={s.amount}>
+                  + {summery.previousWage.toLocaleString("en-IN")}
+                </td>
+              </tr>
+              <tr className={s.hr} />
+              <tr className={s.total}>
+                <td>Total</td>
+                <td className={s.amount}>
+                  {(summery.totalWage + summery.previousWage).toLocaleString(
+                    "en-IN"
+                  )}
+                </td>
+              </tr>
+              <tr className={s.total}>
+                <td>This month</td>
+                <td className={s.amount}>
+                  -{" "}
+                  {payments
+                    .reduce((p, c) => p + c.amount, 0)
+                    .toLocaleString("en-IN")}
+                </td>
+              </tr>
+              <tr className={s.hr} />
+              <tr className={`${s.totalRecieved} ${s.total}`}>
+                <td>Current</td>
+                <td className={s.amount}>
+                  {(
+                    summery.totalWage +
+                    summery.previousWage -
+                    payments.reduce((p, c) => p + c.amount, 0)
+                  ).toLocaleString("en-IN")}
+                </td>
+              </tr>
+            </>
+          ) : (
+            <>
+              <tr className={s.total}>
+                <td>Current</td>
+                <td className={s.amount}>
+                  + {summery.previousWage.toLocaleString("en-IN")}
+                </td>
+              </tr>
+            </>
+          )}
         </Table>
         <Table
           className={s.wages}

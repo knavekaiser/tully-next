@@ -1,8 +1,8 @@
-import { useState, useRef, useContext } from "react";
+import { useState, useRef, useContext, forwardRef } from "react";
 import { SiteContext } from "../SiteContext";
 import s from "./SCSS/Table.module.scss";
 
-export default function Table({ className, columns, children, onScroll }) {
+const Table = forwardRef(({ className, columns, children, onScroll }, ref) => {
   const scrollPos = useRef(0);
   return (
     <table
@@ -31,6 +31,7 @@ export default function Table({ className, columns, children, onScroll }) {
         </tr>
       </thead>
       <tbody
+        ref={ref}
         {...(onScroll && {
           onScroll: (e) => {
             if (scrollPos.current < e.target.scrollTop) {
@@ -46,7 +47,9 @@ export default function Table({ className, columns, children, onScroll }) {
       </tbody>
     </table>
   );
-}
+});
+
+export default Table;
 
 export const Tr = ({ children, options, onClick, className }) => {
   const { user } = useContext(SiteContext);

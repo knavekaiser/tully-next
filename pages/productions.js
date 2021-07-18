@@ -77,6 +77,11 @@ export default function Productions() {
       setSummery(data.summery);
       setMonths(data.months);
     }
+    setTimeout(() => {
+      Array.from(document.querySelectorAll("tbody")).forEach((el) => {
+        el.scrollBy(0, 100000);
+      });
+    }, 50);
   }, [data]);
   useEffect(() => {
     if (!user) {
@@ -249,54 +254,67 @@ export default function Productions() {
               })}
             </Tr>
           ))}
-          <tr className={s.grandTotalReceived}>
-            <td>Recieved</td>
-            <td className={s.amount}>
-              {summery.totalPaymentReceived.toLocaleString("en-IN")}
-            </td>
-          </tr>
-          <tr className={s.grandTotalDeu}>
-            <td>Deu</td>
-            <td className={s.amount}>
-              {summery.totalPaymentDeu.toLocaleString("en-IN")}
-            </td>
-          </tr>
-          <tr className={s.hr} /> <tr className={s.hr} />
-          <tr className={s.hr} />
-          <tr className={s.past}>
-            <td>Previous</td>
-            <td className={s.amount}>
-              {summery.previous.toLocaleString("en-IN")}
-            </td>
-          </tr>
-          <tr>
-            <td>Recieved</td>
-            <td className={s.amount}>
-              + {summery.totalPaymentReceived.toLocaleString("en-IN")}
-            </td>
-          </tr>
-          <tr className={s.hr} />
-          <tr>
-            <td>Total</td>
-            <td className={s.amount}>
-              {(summery.previous + summery.totalPaymentReceived).toLocaleString(
-                "en-IN"
-              )}
-            </td>
-          </tr>
-          <tr>
-            <td>Production</td>
-            <td className={s.amount}>
-              - {summery.totalProduction.toLocaleString("en-IN")}
-            </td>
-          </tr>
-          <tr className={s.hr} />
-          <tr>
-            <td>Todate</td>
-            <td className={s.amount}>
-              {summery.todate.toLocaleString("en-IN")}
-            </td>
-          </tr>
+          {router.query.from && router.query.to ? (
+            <>
+              <tr className={s.grandTotalReceived}>
+                <td>Recieved</td>
+                <td className={s.amount}>
+                  {summery.totalPaymentReceived.toLocaleString("en-IN")}
+                </td>
+              </tr>
+              <tr className={s.grandTotalDeu}>
+                <td>Deu</td>
+                <td className={s.amount}>
+                  {summery.totalPaymentDeu.toLocaleString("en-IN")}
+                </td>
+              </tr>
+              <tr className={s.hr} /> <tr className={s.hr} />
+              <tr className={s.hr} />
+              <tr className={s.past}>
+                <td>Previous</td>
+                <td className={s.amount}>
+                  {summery.previous.toLocaleString("en-IN")}
+                </td>
+              </tr>
+              <tr>
+                <td>Recieved</td>
+                <td className={s.amount}>
+                  + {summery.totalPaymentReceived.toLocaleString("en-IN")}
+                </td>
+              </tr>
+              <tr className={s.hr} />
+              <tr>
+                <td>Total</td>
+                <td className={s.amount}>
+                  {(
+                    summery.previous + summery.totalPaymentReceived
+                  ).toLocaleString("en-IN")}
+                </td>
+              </tr>
+              <tr>
+                <td>Production</td>
+                <td className={s.amount}>
+                  - {summery.totalProduction.toLocaleString("en-IN")}
+                </td>
+              </tr>
+              <tr className={s.hr} />
+              <tr>
+                <td>Todate</td>
+                <td className={s.amount}>
+                  {summery.todate.toLocaleString("en-IN")}
+                </td>
+              </tr>
+            </>
+          ) : (
+            <>
+              <tr className={s.past}>
+                <td>Current</td>
+                <td className={s.amount}>
+                  {summery.previous.toLocaleString("en-IN")}
+                </td>
+              </tr>
+            </>
+          )}
         </Table>
         {fy !== "all" && (
           <AddBtn translate={addBtnStyle || showForm} onClick={setShowForm} />
