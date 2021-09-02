@@ -7,6 +7,7 @@ import Router, { useRouter } from "next/router";
 import Link from "next/link";
 import s from "../styles/Dashboard.module.scss";
 import s2 from "../components/SCSS/Table.module.scss";
+import { IoLockClosedOutline } from "react-icons/io5";
 import useSWR from "swr";
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
@@ -33,10 +34,6 @@ export const App = ({ children }) => {
         <Head>
           <title>Tully</title>
           <link rel="icon" href="/favicon.ico" />
-          <script
-            type="module"
-            src="https://unpkg.com/ionicons@5.4.0/dist/ionicons/ionicons.esm.js"
-          ></script>
           <link
             href="https://fonts.maateen.me/solaiman-lipi/font.css"
             rel="stylesheet"
@@ -166,7 +163,7 @@ export default function Home() {
       <App>
         <div className={s2.unauthorized}>
           <div>
-            <ion-icon name="lock-closed-outline"></ion-icon>
+            <IoLockClosedOutline />
             <p>Please log in</p>
           </div>
         </div>

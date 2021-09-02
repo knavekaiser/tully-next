@@ -8,6 +8,7 @@ import s from "../components/SCSS/Table.module.scss";
 import { displayDate, AddBtn } from "../components/FormElements";
 import { useRouter } from "next/router";
 import Link from "next/link";
+import { IoLockClosedOutline } from "react-icons/io5";
 import useSWR from "swr";
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
@@ -95,7 +96,7 @@ export default function Productions() {
       <App>
         <div className={s.unauthorized}>
           <div>
-            <ion-icon name="lock-closed-outline"></ion-icon>
+            <IoLockClosedOutline />
             <p>Please log in</p>
           </div>
         </div>

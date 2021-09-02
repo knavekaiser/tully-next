@@ -5,6 +5,7 @@ import Table, { LoadingTr } from "../../components/Table";
 import { useRouter } from "next/router";
 import { displayDate, convertUnit, SS } from "../../components/FormElements";
 import { Modal } from "../../components/Modals";
+import { IoLockClosedOutline } from "react-icons/io5";
 import s from "../../components/SCSS/Table.module.scss";
 import Img from "next/image";
 
@@ -60,7 +61,7 @@ export default function SingleCosting() {
       <App>
         <div className={s.unauthorized}>
           <div>
-            <ion-icon name="lock-closed-outline"></ion-icon>
+            <IoLockClosedOutline />
             <p>Please log in</p>
           </div>
         </div>

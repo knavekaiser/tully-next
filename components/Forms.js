@@ -14,6 +14,7 @@ import {
   convertUnit,
 } from "./FormElements";
 import s from "./SCSS/FormElements.module.scss";
+import { IoAddOutline } from "react-icons/io5";
 
 const empWorkProduction = [
   [
@@ -181,11 +182,7 @@ export function AddEmp({ onSuccess }) {
         onChange={(target) => setPass(target.value)}
         validationMessage="More than 8 character"
       />
-      <Submit
-        disabled={sameName}
-        loading={loading}
-        label={<ion-icon name="add-outline"></ion-icon>}
-      />
+      <Submit disabled={sameName} loading={loading} label={<IoAddOutline />} />
     </form>
   );
 }
@@ -373,10 +370,7 @@ export function AddEmpWork({ employee, workToEdit, onSuccess }) {
           onChange={(t) => setPaid(t.value)}
         />
       )}
-      <Submit
-        loading={loading}
-        label={<ion-icon name="add-outline"></ion-icon>}
-      />
+      <Submit loading={loading} label={<IoAddOutline />} />
       <div className={s.pBtm} />
     </form>
   );
@@ -448,11 +442,7 @@ export function AddWorker({ edit, onSuccess }) {
         type="number"
         onChange={(t) => setSalary(t.value)}
       />
-      <Submit
-        disabled={sameName}
-        loading={loading}
-        label={<ion-icon name="add-outline"></ion-icon>}
-      />
+      <Submit disabled={sameName} loading={loading} label={<IoAddOutline />} />
     </form>
   );
 }
@@ -513,10 +503,7 @@ export function WorkerForm({ edit, onSuccess }) {
           />
         </>
       )}
-      <Submit
-        loading={loading}
-        label={<ion-icon name="add-outline"></ion-icon>}
-      />
+      <Submit loading={loading} label={<IoAddOutline />} />
     </form>
   );
 }
@@ -649,11 +636,7 @@ export function BillForm({ fy, billToEdit, onSuccess }) {
           refInput={billProduction}
         />
       </div>
-      <Submit
-        disabled={refExists}
-        loading={loading}
-        label={<ion-icon name="add-outline"></ion-icon>}
-      />
+      <Submit disabled={refExists} loading={loading} label={<IoAddOutline />} />
     </form>
   );
 }
@@ -822,10 +805,7 @@ export function CostingForm({ fy, edit, onSuccess }) {
         label="Note"
         onChange={(t) => setNote(t.value)}
       />
-      <Submit
-        loading={loading}
-        label={<ion-icon name="add-outline"></ion-icon>}
-      />
+      <Submit loading={loading} label={<IoAddOutline />} />
       <div className={s.pBtm} />
     </form>
   );
@@ -912,10 +892,7 @@ export function AddMaterialPayment({ fy, paymentToEdit, onSuccess }) {
           refInput={matPayments}
         />
       </div>
-      <Submit
-        loading={loading}
-        label={<ion-icon name="add-outline"></ion-icon>}
-      />
+      <Submit loading={loading} label={<IoAddOutline />} />
     </form>
   );
 }
@@ -974,10 +951,7 @@ export function AddWagePayment({ fy, paymentToEdit, onSuccess }) {
         type="number"
         onChange={(t) => setAmount(t.value)}
       />
-      <Submit
-        loading={loading}
-        label={<ion-icon name="add-outline"></ion-icon>}
-      />
+      <Submit loading={loading} label={<IoAddOutline />} />
     </form>
   );
 }
@@ -1143,10 +1117,7 @@ export function AddFabric({ fy, edit, onSuccess }) {
           refInput={fabricUsage}
         />
       </div>
-      <Submit
-        loading={loading}
-        label={<ion-icon name="add-outline"></ion-icon>}
-      />
+      <Submit loading={loading} label={<IoAddOutline />} />
       <div className={s.pBtm} />
     </form>
   );
@@ -1197,7 +1168,7 @@ export function AddSeason({ onSuccess }) {
       <Submit
         disabled={seasonExists}
         loading={loading}
-        label={<ion-icon name="add-outline"></ion-icon>}
+        label={<IoAddOutline />}
       />
     </form>
   );
@@ -1265,7 +1236,7 @@ export function AddGroup({ edit, onSuccess }) {
       <Submit
         disabled={groupExists}
         loading={loading}
-        label={<ion-icon name="add-outline"></ion-icon>}
+        label={<IoAddOutline />}
       />
     </form>
   );

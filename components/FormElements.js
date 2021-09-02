@@ -1,6 +1,13 @@
 import { useEffect, useState, useRef, useLayoutEffect } from "react";
 import Img from "next/image";
 import s from "./SCSS/FormElements.module.scss";
+import {
+  IoEyeOffOutline,
+  IoEyeOutline,
+  IoCloseOutline,
+  IoAddOutline,
+  IoReload,
+} from "react-icons/io5";
 
 export function convertUnit(value, curr, target) {
   const con = {
@@ -189,11 +196,11 @@ export const PasswordInput = ({
     >
       {showPass ? (
         <span onClick={handleIconClick}>
-          <ion-icon name="eye-outline"></ion-icon>
+          <IoEyeOutline />
         </span>
       ) : (
         <span onClick={handleIconClick}>
-          <ion-icon name="eye-off-outline"></ion-icon>
+          <IoEyeOffOutline />
         </span>
       )}
       {children}
@@ -216,7 +223,7 @@ export const Submit = ({ disabled, className, label, loading, onClick }) => {
           <div></div>
         </div>
       )}
-      {loading ? <ion-icon name="reload-outline"></ion-icon> : label}
+      {loading ? <IoReload /> : label}
     </button>
   );
 };
@@ -265,7 +272,7 @@ export const ImgUpload = ({
               setFile("");
             }}
           >
-            <ion-icon name="close-outline"></ion-icon>
+            <IoCloseOutline />
           </span>
           <Img src={file} alt="chosen" layout="fill" />
         </div>
@@ -520,7 +527,7 @@ export const Combobox = ({
         {label}
       </label>
       {invalidInput && <p className={s.fieldWarning}>{validationMessage}</p>}
-      {icon && <ion-icon name={icon}></ion-icon>}
+      {icon || null}
       <ul
         ref={ul}
         style={{
@@ -560,7 +567,7 @@ export const AddBtn = ({ translate, onClick }) => {
       onClick={onClick}
       className={`${s.addBtn} ${translate && s.hidden}`}
     >
-      <ion-icon name="add-outline"></ion-icon>
+      <IoAddOutline />
     </button>
   );
 };

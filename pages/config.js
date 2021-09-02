@@ -6,6 +6,12 @@ import s from "../styles/Config.module.scss";
 import s2 from "../components/SCSS/Table.module.scss";
 import { useRouter } from "next/router";
 import { AddSeason, AddGroup } from "../components/Forms";
+import {
+  IoLockClosedOutline,
+  IoCheckmarkDoneOutline,
+  IoCloseOutline,
+  IoPencilOutline,
+} from "react-icons/io5";
 
 export default function Productions() {
   const router = useRouter();
@@ -39,7 +45,7 @@ export default function Productions() {
       <App>
         <div className={s.unauthorized}>
           <div>
-            <ion-icon name="lock-closed-outline"></ion-icon>
+            <IoLockClosedOutline />
             <p>Please log in</p>
           </div>
         </div>
@@ -94,7 +100,7 @@ export default function Productions() {
                         }
                       }}
                     >
-                      <ion-icon name="checkmark-done-outline"></ion-icon>
+                      <IoCheckmarkDoneOutline />
                     </button>
                   )}
                   <button
@@ -124,7 +130,7 @@ export default function Productions() {
                       }
                     }}
                   >
-                    <ion-icon name="close-outline"></ion-icon>
+                    <IoCloseOutline />
                   </button>
                 </div>
               </li>
@@ -147,7 +153,7 @@ export default function Productions() {
                       setGroupForm(true);
                     }}
                   >
-                    <ion-icon name="pencil-outline"></ion-icon>
+                    <IoPencilOutline />
                   </button>
                   <button
                     onClick={() => {
@@ -174,7 +180,7 @@ export default function Productions() {
                       }
                     }}
                   >
-                    <ion-icon name="close-outline"></ion-icon>
+                    <IoCloseOutline />
                   </button>
                 </div>
               </li>

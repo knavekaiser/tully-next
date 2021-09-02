@@ -12,6 +12,7 @@ import { useRouter } from "next/router";
 import { Modal } from "../../components/Modals";
 import { AddFabric } from "../../components/Forms";
 import s from "../../components/SCSS/Table.module.scss";
+import { IoLockClosedOutline } from "react-icons/io5";
 import useSWR from "swr";
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
@@ -88,7 +89,7 @@ export default function Fabrics() {
       <App>
         <div className={s.unauthorized}>
           <div>
-            <ion-icon name="lock-closed-outline"></ion-icon>
+            <IoLockClosedOutline />
             <p>Please log in</p>
           </div>
         </div>

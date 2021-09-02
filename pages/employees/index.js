@@ -7,6 +7,7 @@ import { Modal } from "../../components/Modals";
 import Table, { Tr, LoadingTr } from "../../components/Table";
 import { useRouter } from "next/router";
 import s from "../../components/SCSS/Table.module.scss";
+import { IoLockClosedOutline } from "react-icons/io5";
 import useSWR from "swr";
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
@@ -89,7 +90,7 @@ export default function EmpList() {
       <App>
         <div className={s.unauthorized}>
           <div>
-            <ion-icon name="lock-closed-outline"></ion-icon>
+            <IoLockClosedOutline />
             <p>Please log in</p>
           </div>
         </div>

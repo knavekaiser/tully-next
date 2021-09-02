@@ -7,6 +7,7 @@ import { AddEmpWork } from "../../components/Forms";
 import { displayDate, AddBtn, SS } from "../../components/FormElements";
 import s from "../../components/SCSS/Table.module.scss";
 import { useRouter } from "next/router";
+import { IoLockClosedOutline, IoFileTrayOutline } from "react-icons/io5";
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
@@ -110,7 +111,7 @@ export default function EmpWorkList() {
       <App>
         <div className={s.unauthorized}>
           <div>
-            <ion-icon name="lock-closed-outline"></ion-icon>
+            <IoLockClosedOutline />
             <p>Please log in</p>
           </div>
         </div>
@@ -201,7 +202,7 @@ export default function EmpWorkList() {
         {emp?.work.length === 0 && (
           <tr className={s.empty}>
             <td>
-              <ion-icon name="file-tray-outline"></ion-icon> Nothing yet!
+              <IoFileTrayOutline /> Nothing yet!
             </td>
           </tr>
         )}

@@ -3,6 +3,15 @@ import { SiteContext } from "../SiteContext";
 import s from "./SCSS/Sidebar.module.scss";
 import { useRouter } from "next/router";
 import Link from "next/link";
+import {
+  IoHomeOutline,
+  IoDownloadOutline,
+  IoRefresh,
+  IoTrashOutline,
+  IoLogOutOutline,
+  IoLayersOutline,
+  IoSettingsOutline,
+} from "react-icons/io5";
 
 export default function Sidebar({ sidebarOpen, setSidebarOpen }) {
   const {
@@ -32,7 +41,7 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen }) {
           <>
             <Link href="/">
               <li onClick={() => setSidebarOpen(false)}>
-                <ion-icon name="home-outline"></ion-icon>
+                <IoHomeOutline />
                 <p>Home</p>
               </li>
             </Link>
@@ -48,7 +57,7 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen }) {
               }}
             >
               <li>
-                <ion-icon name="layers-outline"></ion-icon>
+                <IoLayersOutline />
                 <p>Lots</p>
               </li>
             </Link>
@@ -68,13 +77,13 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen }) {
             )}
             <Link href="/config">
               <li onClick={() => setSidebarOpen(false)}>
-                <ion-icon name="settings-outline"></ion-icon>
+                <IoSettingsOutline />
                 <p>Config</p>
               </li>
             </Link>
             {
               // <li onClick={() => setBackupOpen(!backupOpen)}>
-              //   <ion-icon name="download-outline"></ion-icon>
+              //   <IoDownloadOutline/>
               //   <p>Backup</p>
               // </li>
               // {backupOpen && (
@@ -90,11 +99,11 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen }) {
               //     accept=".txt, .json"
               //     name="restore"
               //   />
-              //   <ion-icon name="refresh-outline"></ion-icon>
+              //   <IoRefresh/>
               //   <p>Restore</p>
               // </li>
               // <li className={s.clear}>
-              //   <ion-icon name="trash-outline"></ion-icon>
+              //   <IoTrashOutline/>
               //   <p>Clear All</p>
               //   <span></span>
               // </li>
@@ -113,7 +122,7 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen }) {
               });
             }}
           >
-            <ion-icon name="log-out-outline"></ion-icon>
+            <IoLogOutOutline />
             <p>Logout</p>
           </li>
         )}
