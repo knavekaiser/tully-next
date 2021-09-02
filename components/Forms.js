@@ -173,7 +173,9 @@ export function AddEmp({ onSuccess }) {
           setSameName(false);
         }}
       >
-        {sameName && <p className={s.fieldWarning}>Name already exists</p>}
+        {sameName && (
+          <p className={s.fieldWarning}>Name already exists in this season</p>
+        )}
       </Input>
       <PasswordInput
         autoComplete="new-password"

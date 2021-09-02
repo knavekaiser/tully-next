@@ -4,7 +4,7 @@ const employee = new Schema({
   work: [{ type: Schema.Types.ObjectId, ref: "EmpWork", required: true }],
   season: { type: String },
 });
-
+employee.index({ name: 1, season: 1 }, { unique: true });
 employee.statics.updateWork = (_id) => {
   // if (!ObjectID.isValid(_id)) return;
   return EmpWork.find({ employee: _id }, "_id")
