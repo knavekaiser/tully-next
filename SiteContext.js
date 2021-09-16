@@ -32,11 +32,11 @@ export const Provider = ({ children }) => {
       })
       .catch((err) => {
         console.log(err);
-        alert("could not get groups");
       });
     fetch("/api/season")
       .then((res) => res.json())
       .then(({ code, seasons }) => {
+        console.log(seasons);
         if (code === "ok") {
           setSeasons(seasons);
           const runningSeason = seasons.filter((sea) => sea.running)[0];
@@ -47,9 +47,8 @@ export const Provider = ({ children }) => {
       })
       .catch((err) => {
         console.log(err);
-        alert("could not get seasons");
       });
-  }, []);
+  }, [user]);
   useEffect(() => {
     if (firstRender.current) {
       firstRender.current = false;

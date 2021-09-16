@@ -64,7 +64,10 @@ export default function Login({ ssrData }) {
     fetch("./api/viwerLogin", {
       method: "POST",
       headers: { "Content-type": "application/json" },
-      body: JSON.stringify(viwer),
+      body: JSON.stringify({
+        ...viwer,
+        season,
+      }),
     })
       .then((res) => res.json())
       .then((data) => {

@@ -18,6 +18,21 @@ export default nextConnect({
         ...(from &&
           to && { date: { $gte: new Date(from), $lte: new Date(to) } }),
       };
+      const week = {
+        start: `${moment({
+          time: new Date().setDate(
+            new Date().getDate() - new Date().getDay() - 1
+          ),
+          format: "YYYY-MM-DD",
+        })} 00:00`,
+        end: `${moment({
+          time: new Date().setDate(
+            new Date().getDate() - (new Date().getDay() + 1) + 6
+          ),
+          format: "YYYY-MM-DD",
+        })} 00:00`,
+      };
+      console.log(week);
       Promise.all([
         Bill.aggregate([
           { $unwind: "$products" },
