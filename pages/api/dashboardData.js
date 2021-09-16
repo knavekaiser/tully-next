@@ -13,26 +13,25 @@ export default nextConnect({
 }).get((req, res) => {
   auth(req, true)
     .then((user) => {
-      const { from, to } = req.query;
+      const { from, to, season } = req.query;
       const filters = {
         ...(from &&
           to && { date: { $gte: new Date(from), $lte: new Date(to) } }),
       };
       const week = {
-        start: `${moment({
+        start: moment({
           time: new Date().setDate(
             new Date().getDate() - new Date().getDay() - 1
           ),
           format: "YYYY-MM-DD",
-        })} 00:00`,
-        end: `${moment({
+        }),
+        end: moment({
           time: new Date().setDate(
-            new Date().getDate() - (new Date().getDay() + 1) + 6
+            new Date().getDate() - (new Date().getDay() + 1) + 7
           ),
           format: "YYYY-MM-DD",
-        })} 00:00`,
+        }),
       };
-      console.log(week);
       Promise.all([
         Bill.aggregate([
           { $unwind: "$products" },
@@ -62,45 +61,114 @@ export default nextConnect({
             },
           },
         ]).then((data) => data[0]),
-        EmpWork.aggregate([
+        Employee.aggregate([
+          { $match: { season } },
+          {
+            $lookup: {
+              from: "empworks",
+              localField: "work",
+              foreignField: "_id",
+              as: "work",
+            },
+          },
+          { $unwind: { path: "$work" } },
+          {
+            $set: {
+              _id: "$work._id",
+              paid: "$work.paid",
+              date: "$work.date",
+              products: "$work.products",
+            },
+          },
+          { $unset: ["name", "pass", "__v", "season"] },
           {
             $group: {
               _id: null,
               paid: { $sum: "$paid" },
-              products: {
-                $push: "$products",
-              },
+              products: { $push: "$products" },
             },
           },
-          { $unwind: "$products" },
-          { $unwind: "$products" },
+          { $unwind: { path: "$products" } },
+          { $unwind: { path: "$products" } },
           {
             $group: {
               _id: null,
               paid: { $first: "$paid" },
               production: {
-                $sum: {
-                  $multiply: [
-                    "$products.qnt",
-                    {
-                      $switch: {
-                        branches: [
-                          { case: { $eq: ["$products.group", "L"] }, then: 36 },
-                          { case: { $eq: ["$products.group", "S"] }, then: 24 },
-                          { case: { $eq: ["$products.group", 1] }, then: 20 },
-                          { case: { $eq: ["$products.group", "F"] }, then: 43 },
-                        ],
-                        default: 0,
-                      },
-                    },
-                  ],
-                },
+                $sum: { $multiply: ["$products.qnt", "$products.group"] },
               },
             },
           },
         ]).then((data) => data[0]),
-      ]).then(([bills, payments, emp]) => {
-        // console.log(emp);
+        EmpWork.aggregate([
+          {
+            $match: {
+              date: {
+                $gte: new Date(week.start),
+                $lt: new Date(week.end),
+              },
+            },
+          },
+          { $unwind: { path: "$products" } },
+          { $unwind: { path: "$products" } },
+          {
+            $facet: {
+              total: [
+                {
+                  $group: {
+                    _id: null,
+                    paid: { $first: "$paid" },
+                    production: { $sum: "$products.qnt" },
+                  },
+                },
+              ],
+              groups: [
+                {
+                  $group: {
+                    _id: "$products.group",
+                    total: { $sum: "$products.qnt" },
+                  },
+                },
+              ],
+            },
+          },
+          { $set: { total: { $first: "$total" } } },
+        ]).then((data) => data[0]),
+        Lot.aggregate([
+          {
+            $match: {
+              date: {
+                $gte: new Date(week.start),
+                $lt: new Date(week.end),
+              },
+            },
+          },
+          { $unwind: { path: "$products" } },
+          { $unwind: { path: "$products" } },
+          {
+            $facet: {
+              total: [
+                {
+                  $group: {
+                    _id: null,
+                    paid: { $first: "$paid" },
+                    production: { $sum: "$products.qnt" },
+                  },
+                },
+              ],
+              groups: [
+                {
+                  $group: {
+                    _id: "$products.group",
+                    total: { $sum: "$products.qnt" },
+                  },
+                },
+              ],
+            },
+          },
+          { $set: { total: { $first: "$total" } } },
+        ]).then((data) => data[0]),
+      ]).then(([bills, payments, emp, pastWeek, lot]) => {
         res.json({
           code: "ok",
           summery: {
@@ -109,6 +177,8 @@ export default nextConnect({
             wage: bills.wage + +process.env.PREVIOUS_WAGE - payments.wage,
             production:
               payments.production + +process.env.PREVIOUS - bills.production,
+            pastWeek,
+            lot,
           },
         });
       });

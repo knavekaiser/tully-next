@@ -1,4 +1,4 @@
-import { useContext, useState, useEffect } from "react";
+import { useContext, useState, useEffect, Fragment } from "react";
 import { SiteContext } from "../SiteContext";
 import Head from "next/head";
 import Sidebar from "../components/Sidebar";
@@ -135,11 +135,15 @@ export const App = ({ children }) => {
 
 export default function Home() {
   const router = useRouter();
-  const { user, fy, dateFilter, setNameTag } = useContext(SiteContext);
+  const { user, fy, dateFilter, setNameTag, season } = useContext(SiteContext);
   const { error, data } = useSWR(
-    `/api/dashboardData?${
-      dateFilter ? `&from=${dateFilter.from}&to=${dateFilter.to}` : ""
-    }`,
+    `/api/dashboardData?${new URLSearchParams({
+      ...(dateFilter && {
+        from: dateFilter.from,
+        to: dateFilter.to,
+      }),
+      season,
+    })}`,
     fetcher
   );
   const [summery, setSummery] = useState(null);
@@ -206,6 +210,28 @@ export default function Home() {
         <Link href={`productions`}>
           <a>Productions {summery.production.toLocaleString("en-IN")}</a>
         </Link>
+        <a className={s.pastWeek}>
+          Past week: <br />
+          {summery?.pastWeek?.groups?.map((item, i) => (
+            <Fragment key={i}>
+              {item._id}: {item.total}
+              <br />
+            </Fragment>
+          ))}
+          total: {summery?.pastWeek?.total?.production}
+          <br />
+          <br />
+          {summery?.lot?.groups?.map((item, i) => (
+            <Fragment key={i}>
+              {item._id}: {item.total}
+              <br />
+            </Fragment>
+          ))}
+          total: {summery?.lot?.total?.production} (
+          {summery?.lot?.total?.production -
+            summery?.pastWeek?.total?.production}
+          )
+        </a>
       </div>
     </App>
   );
