@@ -27,7 +27,7 @@ const lot = new Schema({
   products: [
     {
       dress: { type: String, required: true, trim: true },
-      group: { type: String, required: true },
+      group: { type: Number, required: true },
       qnt: { type: Number, required: true },
     },
   ],
