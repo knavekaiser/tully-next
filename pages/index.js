@@ -143,7 +143,7 @@ export default function Home() {
         to: dateFilter.to,
       }),
       season,
-    })}`,
+    }).toString()}`,
     fetcher
   );
   const [summery, setSummery] = useState(null);
@@ -210,28 +210,74 @@ export default function Home() {
         <Link href={`productions`}>
           <a>Productions {summery.production.toLocaleString("en-IN")}</a>
         </Link>
-        <a className={s.pastWeek}>
-          Past week: <br />
-          {summery?.pastWeek?.groups?.map((item, i) => (
-            <Fragment key={i}>
-              {item._id}: {item.total}
-              <br />
-            </Fragment>
-          ))}
-          total: {summery?.pastWeek?.total?.production}
-          <br />
-          <br />
-          {summery?.lot?.groups?.map((item, i) => (
-            <Fragment key={i}>
-              {item._id}: {item.total}
-              <br />
-            </Fragment>
-          ))}
-          total: {summery?.lot?.total?.production} (
-          {summery?.lot?.total?.production -
-            summery?.pastWeek?.total?.production}
-          )
-        </a>
+        <div className={s.pastWeek}>
+          <label>Past Week</label>
+          <div className={s.qty}>
+            <h3>{summery.pastWeek.total.production.toLocaleString("en-IN")}</h3>
+            <p>
+              {summery?.pastWeek?.groups?.map((item, i) => (
+                <Fragment key={i}>
+                  {item._id}:&nbsp;{item.total.toLocaleString("en-IN")};{" "}
+                </Fragment>
+              ))}
+            </p>
+          </div>
+          <div className={s.lot}>
+            <h3>
+              {summery?.lot?.total?.production.toLocaleString("en-IN")}
+              {summery?.lot?.total?.production -
+                summery?.pastWeek?.total?.production !==
+                0 && (
+                <sup>
+                  {(
+                    summery?.lot?.total?.production -
+                    summery?.pastWeek?.total?.production
+                  ).toLocaleString("en-IN")}
+                </sup>
+              )}
+            </h3>
+            <p>
+              {summery?.lot?.groups?.map((item, i) => (
+                <Fragment key={i}>
+                  {item._id}:&nbsp;
+                  {item.total.toLocaleString("en-IN")};{" "}
+                </Fragment>
+              ))}
+            </p>
+          </div>
+          <div className={s.paid}>
+            <h3>
+              <sup>৳</sup>
+              {summery?.pastWeek?.total?.paid.toLocaleString("en-IN")}
+            </h3>
+            <p>Paid</p>
+          </div>
+        </div>
+        <div className={s.pastYear}>
+          <label>Past Year</label>
+          <div className={s.qty}>
+            <h3>{summery.pastYear.total.qty.toLocaleString("en-IN")}</h3>
+            <p>Pcs.</p>
+          </div>
+          <div className={s.paid}>
+            <h3>
+              <sup>৳</sup>
+              {summery?.pastYear?.total?.paid.toLocaleString("en-IN")}
+            </h3>
+            <p>Paid</p>
+          </div>
+          <div className={s.qty}>
+            <h3>
+              <sup>৳</sup>
+              {(
+                summery?.pastYear?.total?.production -
+                summery?.pastYear?.total?.paid
+              ).toLocaleString("en-IN")}
+            </h3>
+            <p>Deu</p>
+          </div>
+        </div>
+        <div style={{ height: 1 }} />
       </div>
     </App>
   );

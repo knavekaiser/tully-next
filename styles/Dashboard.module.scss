@@ -4,6 +4,8 @@
   flex-wrap: wrap;
   grid-gap: 1rem;
   height: min-content;
+  overflow-y: auto;
+  max-height: calc((var(--vh) * 100) - (1rem + 54px));
   a {
     border-radius: 0.25rem;
     height: min-content;
@@ -12,6 +14,57 @@
     padding: 1rem;
     border: 1px solid #aaa;
   }
-  .pastWeek {
+  .pastWeek,
+  .pastYear {
+    border-radius: 0.25rem;
+    padding: 1rem;
+    border: 1px solid #aaa;
+    flex-basis: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-gap: 1rem;
+    grid-row-gap: 0.3rem;
+    label {
+      grid-column: 1/4;
+      text-align: center;
+      display: block;
+    }
+    div {
+      text-align: center;
+      h3 {
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
+      }
+      p {
+        font-size: 0.8rem;
+      }
+    }
+    sup {
+      font-weight: 400;
+      padding: 0 0.2rem;
+    }
+  }
+}
+
+@media only screen and (max-width: 480px) {
+  .container {
+    .pastWeek,
+    .pastYear {
+      grid-template-columns: 1fr;
+      grid-row-gap: 1rem;
+      label {
+        grid-column: 1/2;
+      }
+      div {
+        display: flex;
+        align-items: center;
+        grid-gap: 1rem;
+        text-align: left;
+        h3 {
+          margin: 0;
+          flex-basis: 35%;
+        }
+      }
+    }
   }
 }

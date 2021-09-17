@@ -14,10 +14,11 @@ export default nextConnect({
   .get((req, res) => {
     auth(req, true)
       .then((user) => {
-        const { from, to } = req.query;
+        const { from, to, season } = req.query;
         const filters = {
           ...(from &&
             to && { date: { $gte: new Date(from), $lte: new Date(to) } }),
+          ...(season && { season }),
         };
         Lot.aggregate([
           {
@@ -39,9 +40,9 @@ export default nextConnect({
   .post((req, res) => {
     auth(req, true)
       .then((user) => {
-        const { date, products } = req.body;
+        const { date, products, season } = req.body;
         try {
-          const newWork = new Lot({ date, products });
+          const newWork = new Lot({ date, products, season });
           newWork
             .save()
             .then((newWork) => {
@@ -62,9 +63,8 @@ export default nextConnect({
   .patch((req, res) => {
     auth(req, true)
       .then((user) => {
-        const { _id, date, products, paid } = req.body;
-        Lot.findByIdAndUpdate(_id, { date, products })
-          .then(() => Lot.findById(_id))
+        const { _id, date } = req.body;
+        Lot.findByIdAndUpdate(_id, { ...req.body }, { new: true })
           .then((update) => {
             console.log(date, update.date);
             res.json({ code: "ok", content: update });

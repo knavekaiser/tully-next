@@ -36,7 +36,6 @@ export const Provider = ({ children }) => {
     fetch("/api/season")
       .then((res) => res.json())
       .then(({ code, seasons }) => {
-        console.log(seasons);
         if (code === "ok") {
           setSeasons(seasons);
           const runningSeason = seasons.filter((sea) => sea.running)[0];
