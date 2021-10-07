@@ -12,7 +12,7 @@ export default nextConnect({
   },
 }).get((req, res) => {
   auth(req, true)
-    .then((user) => {
+    .then(async (user) => {
       const { from, to, season } = req.query;
       const filters = {
         ...(from &&
@@ -32,6 +32,21 @@ export default nextConnect({
           format: "YYYY-MM-DD",
         }),
       };
+      const lastDate = await EmpWork.aggregate([
+        {
+          $group: {
+            _id: "$date",
+          },
+        },
+        {
+          $sort: {
+            _id: -1,
+          },
+        },
+        {
+          $limit: 1,
+        },
+      ]).then((data) => data[0]?._id);
       Promise.all([
         Bill.aggregate([
           { $unwind: "$products" },
@@ -103,10 +118,11 @@ export default nextConnect({
         EmpWork.aggregate([
           {
             $match: {
-              date: {
-                $gte: new Date(week.start),
-                $lt: new Date(week.end),
-              },
+              date: lastDate,
+              // {
+              //   $gte: new Date(week.start),
+              //   $lt: new Date(week.end),
+              // },
             },
           },
           { $unwind: { path: "$products" } },
@@ -137,10 +153,11 @@ export default nextConnect({
         Lot.aggregate([
           {
             $match: {
-              date: {
-                $gte: new Date(week.start),
-                $lt: new Date(week.end),
-              },
+              date: lastDate,
+              // {
+              //   $gte: new Date(week.start),
+              //   $lt: new Date(week.end),
+              // },
             },
           },
           { $unwind: { path: "$products" } },

@@ -281,6 +281,66 @@ export function AddEmpWork({ employee, workToEdit, onSuccess }) {
         options: groups,
       },
     ],
+    [
+      {
+        id: "dress",
+        type: "text",
+        label: "Dress",
+        clone: true,
+        value: "Linen",
+      },
+      {
+        id: "qnt",
+        type: "number",
+        label: "Pcs",
+      },
+      {
+        id: "group",
+        type: "combobox",
+        label: "Group",
+        options: groups,
+      },
+    ],
+    [
+      {
+        id: "dress",
+        type: "text",
+        label: "Dress",
+        clone: true,
+        value: "Cotton",
+      },
+      {
+        id: "qnt",
+        type: "number",
+        label: "Pcs",
+      },
+      {
+        id: "group",
+        type: "combobox",
+        label: "Group",
+        options: groups,
+      },
+    ],
+    [
+      {
+        id: "dress",
+        type: "text",
+        label: "Dress",
+        clone: true,
+        value: "Gorjet",
+      },
+      {
+        id: "qnt",
+        type: "number",
+        label: "Pcs",
+      },
+      {
+        id: "group",
+        type: "combobox",
+        label: "Group",
+        options: groups,
+      },
+    ],
   ]);
   const [preFill, setPreFill] = useState(() => {
     if (workToEdit) {
@@ -346,6 +406,7 @@ export function AddEmpWork({ employee, workToEdit, onSuccess }) {
         alert("something wont wrong");
       });
   };
+  console.log(preFill?.products);
   return (
     <form className={`${s.form} ${s.empWork}`} onSubmit={submit}>
       <h2>{workToEdit ? "Edit work" : "Add work"}</h2>
