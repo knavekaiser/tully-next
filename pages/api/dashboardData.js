@@ -133,7 +133,7 @@ export default nextConnect({
                 {
                   $group: {
                     _id: null,
-                    paid: { $first: "$paid" },
+                    paid: { $sum: "$paid" },
                     production: { $sum: "$products.qnt" },
                   },
                 },
