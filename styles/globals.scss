@@ -71,6 +71,11 @@ button {
   }
 }
 
+input,
+textarea {
+  font-family: "roboto", "SolaimanLipi", sans-serif;
+}
+
 @media only screen and (max-width: 480px) {
   .container {
     height: calc((var(--vh) * 100) - 1rem);

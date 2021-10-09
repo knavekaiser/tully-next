@@ -88,7 +88,7 @@ const costMaterials = [
     },
   ],
 ];
-const defaultCostMaterials = ["zipper", "cotton"];
+const defaultCostMaterials = ["লিনেন", "কটন", "নেট", "মশারী", "জিপার"];
 const matPayments = [
   [
     {
@@ -838,7 +838,7 @@ export function CostingForm({ fy, edit, onSuccess }) {
           id="materials"
           inputs={
             preFill?.materials ||
-            costMaterials ||
+            // costMaterials ||
             defaultCostMaterials.map((item) => [
               {
                 id: "material",

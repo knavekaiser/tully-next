@@ -214,13 +214,15 @@ export default function Home() {
           <label>Past Week</label>
           <div className={s.qty}>
             <h3>{summery.pastWeek.total.production.toLocaleString("en-IN")}</h3>
-            <p>
-              {summery?.pastWeek?.groups?.map((item, i) => (
-                <Fragment key={i}>
-                  {item._id}:&nbsp;{item.total.toLocaleString("en-IN")};{" "}
-                </Fragment>
-              ))}
-            </p>
+            {summery.pastWeek.total.production > 0 && (
+              <p>
+                {summery?.pastWeek?.groups?.map((item, i) => (
+                  <Fragment key={i}>
+                    {item._id}:&nbsp;{item.total.toLocaleString("en-IN")};{" "}
+                  </Fragment>
+                ))}
+              </p>
+            )}
           </div>
           <div className={s.lot}>
             <h3>

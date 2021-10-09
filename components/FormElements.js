@@ -296,7 +296,7 @@ export const GetGroupData = (multipleInput) => {
         data[section.id] = isNaN(num)
           ? input.getAttribute("data")
             ? JSON.parse(input.getAttribute("data"))
-            : input.value
+            : input.value?.trim()
           : num;
       }
     }

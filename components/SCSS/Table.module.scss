@@ -663,17 +663,51 @@
     display: none;
   }
 }
-
+.paper {
+  display: grid;
+  grid-template-columns: 1fr 1px 1fr;
+  height: 210mm;
+  // width: 297mm;
+  .cut {
+    border: 1px dashed rgb(170, 170, 170);
+    display: none;
+  }
+  .bill_two {
+    display: none;
+  }
+  position: relative;
+  // background: white;
+  // border: 1px dashed blue;
+  .circle_1,
+  .circle_2,
+  .circle_3,
+  .circle_4 {
+    display: none;
+    height: 1rem;
+    width: 1rem;
+    border: 2px dashed red;
+    position: absolute;
+  }
+  .circle_2 {
+    right: 0;
+  }
+  .circle_3 {
+    bottom: 0;
+  }
+  .circle_4 {
+    bottom: 0;
+    right: 0;
+  }
+}
 .billPrint {
   color: black;
   background: white;
   overflow: hidden;
   z-index: 1;
   position: relative;
-  width: 100%;
-  height: 50rem;
+  height: 210mm;
+  width: 148mm;
   max-height: 100%;
-  box-shadow: 0 0 1rem rgba(#000, 0.7);
   padding: 1rem;
   display: flex;
   grid-gap: 1rem;
@@ -690,8 +724,9 @@
     }
     .memo {
       font-size: 0.9rem;
-    }
-    .ref {
+      display: flex;
+      align-items: center;
+      grid-gap: 0.5rem;
     }
     h1 {
       font-weight: lighter;
@@ -699,13 +734,23 @@
       font-family: "shahidRafiq";
       margin: -1.5rem 0;
       transform: translateY(-0.1rem);
+      color: white;
+      // -webkit-text-stroke: 1px ;
+      filter: drop-shadow(0 0 1px rgb(7, 17, 59));
+      text-shadow: 0 0 1px rgb(150, 75, 14);
     }
+
     .add {
       font-size: 0.8rem;
     }
     h1,
+    h2,
     .add {
       text-align: center;
+    }
+    h2 {
+      margin-top: 1rem;
+      font-weight: 400;
     }
   }
   .detail {
@@ -780,14 +825,29 @@
       tr {
         padding: 0.3rem;
         display: grid;
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: 1fr 0.5fr;
       }
       .taka {
         grid-column: 2/3;
       }
-      .hr {
-        margin: 0.5rem auto;
+    }
+    .hr {
+      margin: 0.5rem auto;
+    }
+    .wagesBreakdown {
+      margin-top: 3rem;
+      tr {
+        padding: 0.3rem;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        &:first-child {
+          td {
+            text-align: left;
+          }
+        }
       }
+      display: block;
+      width: 17rem;
     }
     .hr {
       background: #777;
@@ -969,9 +1029,20 @@ tbody .ref,
 }
 
 @media print {
-  .billPrint {
-    height: 210mm;
-    width: 148mm;
+  .paper {
+    height: 209.75mm;
+    width: 297mm;
+    grid-gap: 1rem;
+    .bill_two {
+      display: flex;
+    }
+    .cut {
+      display: block;
+    }
+    .billPrint {
+      height: 100%;
+      width: 100%;
+    }
   }
 }
 

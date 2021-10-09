@@ -47,6 +47,7 @@ export default nextConnect({
           $limit: 1,
         },
       ]).then((data) => data[0]?._id);
+      console.log(lastDate);
       Promise.all([
         Bill.aggregate([
           { $unwind: "$products" },
@@ -118,15 +119,15 @@ export default nextConnect({
         EmpWork.aggregate([
           {
             $match: {
-              date: lastDate,
+              date: new Date(lastDate),
               // {
               //   $gte: new Date(week.start),
               //   $lt: new Date(week.end),
               // },
             },
           },
-          { $unwind: { path: "$products" } },
-          { $unwind: { path: "$products" } },
+          { $unwind: { path: "$products", preserveNullAndEmptyArrays: true } },
+          { $unwind: { path: "$products", preserveNullAndEmptyArrays: true } },
           {
             $facet: {
               total: [
@@ -153,7 +154,7 @@ export default nextConnect({
         Lot.aggregate([
           {
             $match: {
-              date: lastDate,
+              date: new Date(lastDate),
               // {
               //   $gte: new Date(week.start),
               //   $lt: new Date(week.end),
@@ -241,6 +242,7 @@ export default nextConnect({
           { $set: { total: { $first: "$total" } } },
         ]).then((data) => data[0]),
       ]).then(([bills, payments, emp, pastWeek, lot, pastYear]) => {
+        console.log(pastWeek);
         res.json({
           code: "ok",
           summery: {
