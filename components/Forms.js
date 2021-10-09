@@ -406,7 +406,6 @@ export function AddEmpWork({ employee, workToEdit, onSuccess }) {
         alert("something wont wrong");
       });
   };
-  console.log(preFill?.products);
   return (
     <form className={`${s.form} ${s.empWork}`} onSubmit={submit}>
       <h2>{workToEdit ? "Edit work" : "Add work"}</h2>
@@ -742,6 +741,28 @@ export function CostingForm({ fy, edit, onSuccess }) {
       return null;
     }
   });
+  const defaultMaterials = useRef([
+    ...costMaterials,
+    ...defaultCostMaterials.map((item) => [
+      {
+        id: "material",
+        type: "text",
+        label: "Material",
+        clone: true,
+        value: item,
+      },
+      {
+        id: "qnt",
+        type: "number",
+        label: "Qnt",
+      },
+      {
+        id: "price",
+        type: "number",
+        label: "Price",
+      },
+    ]),
+  ]);
   const submit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -838,26 +859,8 @@ export function CostingForm({ fy, edit, onSuccess }) {
           id="materials"
           inputs={
             preFill?.materials ||
-            // costMaterials ||
-            defaultCostMaterials.map((item) => [
-              {
-                id: "material",
-                type: "text",
-                label: "Material",
-                clone: true,
-                value: item,
-              },
-              {
-                id: "qnt",
-                type: "number",
-                label: "Qnt",
-              },
-              {
-                id: "price",
-                type: "number",
-                label: "Price",
-              },
-            ])
+            // costMaterials
+            defaultMaterials.current
           }
           refInput={costMaterials}
         />

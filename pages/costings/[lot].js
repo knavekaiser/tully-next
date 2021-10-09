@@ -10,7 +10,7 @@ import { IoLockClosedOutline } from "react-icons/io5";
 import { useReactToPrint } from "react-to-print";
 import s from "../../components/SCSS/Table.module.scss";
 
-class Bill_Class extends Component {
+class Costing_print extends Component {
   render() {
     const costing = this.props.costing;
     return (
@@ -67,13 +67,13 @@ class Bill_Class extends Component {
                 </td>
               </tr>
               <tr>
-                <td>পর্তা</td>
+                <td>প্রতি পিছ</td>
                 <td className={s.taka}>
                   ৳{" "}
-                  {(+(
+                  {Math.ceil(
                     costing.materials.reduce((p, c) => p + c.qnt * c.price, 0) /
-                    costing.lotSize
-                  ).toFixed(2)).toLocaleString("bn-BD")}
+                      costing.lotSize
+                  ).toLocaleString("bn-BD")}
                 </td>
               </tr>
             </tbody>
@@ -208,7 +208,6 @@ export default function SingleCosting() {
       </App>
     );
   }
-  console.log(data);
   return (
     <App>
       <Table
@@ -285,7 +284,7 @@ export default function SingleCosting() {
         open={showPrint}
         setOpen={setShowPrint}
       >
-        <Bill_Class costing={data} ref={componentRef} />
+        <Costing_print costing={data} ref={componentRef} />
         <button onClick={handlePrint}>Print this out!</button>
         <button onClick={() => setShowPrint(false)}>Close</button>
         <div className={s.pBtm} />

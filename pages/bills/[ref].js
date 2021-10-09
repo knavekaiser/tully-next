@@ -134,7 +134,7 @@ class Bill_Class extends Component {
                 <td className={s.taka}>
                   ৳{" "}
                   {bill.products
-                    .reduce((p, c) => p + (c.qnt * c.cost - c.qnt * c.wage), 0)
+                    .reduce((p, c) => p + c.qnt * c.wage, 0)
                     .toLocaleString("bn-BD")}
                 </td>
               </tr>
