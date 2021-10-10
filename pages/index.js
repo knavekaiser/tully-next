@@ -7,6 +7,7 @@ import Router, { useRouter } from "next/router";
 import Link from "next/link";
 import s from "../styles/Dashboard.module.scss";
 import s2 from "../components/SCSS/Table.module.scss";
+import { displayDate } from "../components/FormElements";
 import { IoLockClosedOutline } from "react-icons/io5";
 import useSWR from "swr";
 
@@ -135,7 +136,12 @@ export const App = ({ children }) => {
 
 export default function Home() {
   const router = useRouter();
+  const [loadingWeekData, setLoadingWeekData] = useState(true);
   const { user, fy, dateFilter, setNameTag, season } = useContext(SiteContext);
+  const [summery, setSummery] = useState(null);
+  const [pastWeek, setPastWeek] = useState(null);
+  const [weeks, setWeeks] = useState([]);
+  const [selectedWeek, setSelectedWeek] = useState(null);
   const { error, data } = useSWR(
     `/api/dashboardData?${new URLSearchParams({
       ...(dateFilter && {
@@ -146,13 +152,36 @@ export default function Home() {
     }).toString()}`,
     fetcher
   );
-  const [summery, setSummery] = useState(null);
+  const { error: error_pastWeek, data: data_pastWeek } = useSWR(
+    `/api/dashboardData?${new URLSearchParams({
+      ...(dateFilter && {
+        from: dateFilter.from,
+        to: dateFilter.to,
+      }),
+      pastWeek: "true",
+      ...(selectedWeek && { week: selectedWeek }),
+      season,
+    }).toString()}`,
+    fetcher,
+    [selectedWeek]
+  );
   useEffect(() => {
     if (data) {
-      console.log(data.summery);
+      // console.log(data.summery);
       setSummery(data.summery);
     }
   }, [data]);
+  useEffect(() => {
+    if (data_pastWeek) {
+      setLoadingWeekData(false);
+      setPastWeek({
+        production: data_pastWeek.pastWeek,
+        lot: data_pastWeek.lot,
+      });
+      !selectedWeek && setSelectedWeek(data_pastWeek.date);
+      setWeeks(data_pastWeek.dates);
+    }
+  }, [data_pastWeek]);
   useEffect(() => {
     if (!user) {
       router.push("/login");
@@ -210,53 +239,88 @@ export default function Home() {
         <Link href={`productions`}>
           <a>Productions {summery.production.toLocaleString("en-IN")}</a>
         </Link>
-        <div className={s.pastWeek}>
-          <label>Past Week</label>
-          <div className={s.qty}>
-            <h3>{summery.pastWeek.total.production.toLocaleString("en-IN")}</h3>
-            {summery.pastWeek.total.production > 0 && (
+        {loadingWeekData ? (
+          <div className={`${s.pastWeek} ${s.loading}`}>
+            <div className={s.label} />
+            <div className={s.qty}>
+              <h3>🔴</h3>
+              <p />
+            </div>
+            <div className={s.lot}>
+              <h3>🔴</h3>
+              <p />
+            </div>
+            <div className={s.paid}>
+              <h3>🔴</h3>
+              <p />
+            </div>
+          </div>
+        ) : (
+          <div className={s.pastWeek}>
+            <div className={s.label}>
+              <label>Past Week</label>
+              <select
+                defaultValue={selectedWeek}
+                onChange={(e) => {
+                  setLoadingWeekData(true);
+                  setSelectedWeek(e.target.value);
+                }}
+              >
+                {weeks.map((item) => (
+                  <option key={item} value={item}>
+                    {displayDate(item)}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className={s.qty}>
+              <h3>
+                {pastWeek.production.total.production.toLocaleString("en-IN")}
+              </h3>
+              {pastWeek.production.total.production > 0 && (
+                <p>
+                  {pastWeek?.production?.groups?.map((item, i) => (
+                    <Fragment key={i}>
+                      {item._id}:&nbsp;{item.total.toLocaleString("en-IN")};{" "}
+                    </Fragment>
+                  ))}
+                </p>
+              )}
+            </div>
+            <div className={s.lot}>
+              <h3>
+                {pastWeek?.lot?.total?.production.toLocaleString("en-IN")}
+                {pastWeek?.lot?.total?.production -
+                  pastWeek?.production?.total?.production !==
+                  0 && (
+                  <sup>
+                    {(
+                      pastWeek?.lot?.total?.production -
+                      pastWeek?.production?.total?.production
+                    ).toLocaleString("en-IN")}
+                  </sup>
+                )}
+              </h3>
               <p>
-                {summery?.pastWeek?.groups?.map((item, i) => (
+                {pastWeek?.lot?.groups?.map((item, i) => (
                   <Fragment key={i}>
-                    {item._id}:&nbsp;{item.total.toLocaleString("en-IN")};{" "}
+                    {item._id}:&nbsp;
+                    {item.total.toLocaleString("en-IN")};{" "}
                   </Fragment>
                 ))}
               </p>
-            )}
+            </div>
+            <div className={s.paid}>
+              <h3>
+                <sup>৳</sup>
+                {pastWeek?.production?.total?.paid.toLocaleString("en-IN")}
+              </h3>
+              <p>Paid</p>
+            </div>
           </div>
-          <div className={s.lot}>
-            <h3>
-              {summery?.lot?.total?.production.toLocaleString("en-IN")}
-              {summery?.lot?.total?.production -
-                summery?.pastWeek?.total?.production !==
-                0 && (
-                <sup>
-                  {(
-                    summery?.lot?.total?.production -
-                    summery?.pastWeek?.total?.production
-                  ).toLocaleString("en-IN")}
-                </sup>
-              )}
-            </h3>
-            <p>
-              {summery?.lot?.groups?.map((item, i) => (
-                <Fragment key={i}>
-                  {item._id}:&nbsp;
-                  {item.total.toLocaleString("en-IN")};{" "}
-                </Fragment>
-              ))}
-            </p>
-          </div>
-          <div className={s.paid}>
-            <h3>
-              <sup>৳</sup>
-              {summery?.pastWeek?.total?.paid.toLocaleString("en-IN")}
-            </h3>
-            <p>Paid</p>
-          </div>
-        </div>
+        )}
         <div className={s.pastYear}>
-          <label>Past Year</label>
+          <label>This Year</label>
           <div className={s.qty}>
             <h3>{summery.pastYear.total.qty.toLocaleString("en-IN")}</h3>
             <p>Pcs.</p>

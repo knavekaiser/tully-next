@@ -24,10 +24,13 @@
     grid-template-columns: 1fr 1fr 1fr;
     grid-gap: 1rem;
     grid-row-gap: 0.3rem;
-    label {
+    label,
+    .label {
       grid-column: 1/4;
       text-align: center;
-      display: block;
+      display: flex;
+      justify-content: center;
+      grid-gap: 1rem;
     }
     div {
       text-align: center;
@@ -39,9 +42,58 @@
         font-size: 0.8rem;
       }
     }
+    .lot {
+      sup {
+        color: red;
+      }
+    }
     sup {
       font-weight: 400;
       padding: 0 0.2rem;
+    }
+    &.loading {
+      .label,
+      label {
+        text-align: center;
+        height: 1.2rem;
+        width: 7rem;
+        margin: auto;
+        background-image: linear-gradient(
+          90deg,
+          rgba(0, 0, 0, 0.05) 20%,
+          rgba(#f6f6f6, 0.5) 50%,
+          rgba(0, 0, 0, 0.05) 80%
+        );
+        animation: shine-lines 3s infinite linear;
+      }
+      .qty,
+      .lot,
+      .paid {
+        h3 {
+          font-size: 2rem;
+          background-image: linear-gradient(
+            90deg,
+            rgba(0, 0, 0, 0.05) 20%,
+            rgba(#f6f6f6, 0.5) 50%,
+            rgba(0, 0, 0, 0.05) 80%
+          );
+          animation: shine-lines 3s infinite linear;
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+        }
+        p {
+          margin: auto;
+          height: 0.8rem;
+          width: 5rem;
+          background-image: linear-gradient(
+            90deg,
+            rgba(0, 0, 0, 0.05) 20%,
+            rgba(#f6f6f6, 0.5) 50%,
+            rgba(0, 0, 0, 0.05) 80%
+          );
+          animation: shine-lines 3s infinite linear;
+        }
+      }
     }
   }
 }
@@ -52,19 +104,32 @@
     .pastYear {
       grid-template-columns: 1fr;
       grid-row-gap: 1rem;
-      label {
+      label,
+      .label {
         grid-column: 1/2;
       }
       div {
-        display: flex;
+        margin: auto;
+        text-align: center;
+        // display: flex;
+        justify-content: center;
         align-items: center;
-        grid-gap: 1rem;
-        text-align: left;
+        grid-gap: 2rem;
+        // text-align: left;
         h3 {
           margin: 0;
           flex-basis: 35%;
         }
       }
     }
+  }
+}
+
+@keyframes shine-lines {
+  0% {
+    background-position: -100px;
+  }
+  100% {
+    background-position: 100px;
   }
 }

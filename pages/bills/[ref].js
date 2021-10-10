@@ -37,6 +37,7 @@ class Bill_Class extends Component {
             বিল <span className={s.ref}>{bill.ref}</span>
           </p>
           <h1>মোঃ হোসেন</h1>
+          <h1 className={s.fill}>মোঃ হোসেন</h1>
           <p className={s.add}>
             ৭২ টেকের হাটি মেইন রোড, কামরাঙ্গীরচর, ঢাকা ১২১১ • ০১৭১৭-১৪১০৭৭
           </p>

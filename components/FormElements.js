@@ -408,9 +408,10 @@ const Group = ({ id, inputs, clone, setGroupCount }) => {
               key={input.id}
               defaultValue={input.value}
               options={input.options}
-              required={!input.clone}
+              // required={!input.clone}
               disabled={
-                input.clone ? false : input.value ? false : value === ""
+                false
+                // input.clone ? false : input.value ? false : value === ""
               }
               onChange={(target) => {
                 clone(target);
@@ -426,7 +427,7 @@ const Group = ({ id, inputs, clone, setGroupCount }) => {
             dataId={input.id}
             key={input.id}
             defaultValue={input.value}
-            required={!input.clone}
+            // required={!input.clone}
             max={input.clone ? 100 : 12}
             label={input.label}
             id={input.clone ? id : id + i}
@@ -434,12 +435,21 @@ const Group = ({ id, inputs, clone, setGroupCount }) => {
               clone(target);
               input.clone && setValue(target.value);
             }}
-            disabled={input.clone ? false : input.value ? false : value === ""}
+            disabled={
+              false
+              // input.clone ? false : input.value ? false : value === ""
+            }
           />
         );
       })}
     </div>
   );
+};
+
+export const MultipleInput2 = ({ inputs, refInput, id }) => {
+  <div id={id} className={s.multipleInput}>
+    {inputs.map((item) => {})}
+  </div>;
 };
 export const OutsideClick = ({
   id,

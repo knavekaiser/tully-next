@@ -79,6 +79,13 @@ export default function Costings() {
       setNameTag("Costings");
     }
   }, []);
+  useEffect(() => {
+    setTimeout(() => {
+      Array.from(document.querySelectorAll("tbody")).forEach((el) => {
+        el.scrollBy(0, 100000);
+      });
+    }, 50);
+  }, [data]);
   if (!user) {
     return (
       <App>
@@ -178,6 +185,7 @@ export default function Costings() {
       <Modal open={showForm} setOpen={setShowForm}>
         <CostingForm
           fy={fy}
+          defaultLot={costings && costings[costings.length - 1].lot}
           edit={costToEdit}
           onSuccess={(newCosting) => {
             setCostings((prev) => {

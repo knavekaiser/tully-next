@@ -47,7 +47,105 @@ export default nextConnect({
           $limit: 1,
         },
       ]).then((data) => data[0]?._id);
-      console.log(lastDate);
+      if (req.query.pastWeek === "true") {
+        Promise.all([
+          EmpWork.aggregate([
+            {
+              $match: {
+                date: req.query.week
+                  ? new Date(req.query.week)
+                  : new Date(lastDate),
+              },
+            },
+            {
+              $unwind: { path: "$products", preserveNullAndEmptyArrays: true },
+            },
+            {
+              $unwind: { path: "$products", preserveNullAndEmptyArrays: true },
+            },
+            {
+              $facet: {
+                total: [
+                  {
+                    $group: {
+                      _id: null,
+                      paid: { $sum: "$paid" },
+                      production: { $sum: "$products.qnt" },
+                    },
+                  },
+                ],
+                groups: [
+                  {
+                    $group: {
+                      _id: "$products.group",
+                      total: { $sum: "$products.qnt" },
+                    },
+                  },
+                ],
+              },
+            },
+            { $set: { total: { $first: "$total" } } },
+          ]).then((data) => data[0]),
+          Lot.aggregate([
+            {
+              $match: {
+                date: req.query.week
+                  ? new Date(req.query.week)
+                  : new Date(lastDate),
+              },
+            },
+            { $unwind: { path: "$products" } },
+            { $unwind: { path: "$products" } },
+            {
+              $facet: {
+                total: [
+                  {
+                    $group: {
+                      _id: null,
+                      paid: { $first: "$paid" },
+                      production: { $sum: "$products.qnt" },
+                    },
+                  },
+                ],
+                groups: [
+                  {
+                    $group: {
+                      _id: "$products.group",
+                      total: { $sum: "$products.qnt" },
+                    },
+                  },
+                ],
+              },
+            },
+            { $set: { total: { $first: "$total" } } },
+          ]).then((data) => data[0]),
+          EmpWork.aggregate([
+            { $group: { _id: "$date" } },
+            { $sort: { _id: 1 } },
+          ]).then((data) => data.map((item) => item?._id)),
+        ]).then(([pastWeek, lot, dates]) => {
+          res.json({
+            code: "ok",
+            pastWeek: {
+              total: {
+                paid: pastWeek.total?.paid || 0,
+                production: pastWeek.total?.production || 0,
+              },
+              groups: pastWeek.groups,
+            },
+            lot: {
+              total: {
+                paid: lot.total?.paid || 0,
+                production: lot.total?.production || 0,
+              },
+              groups: lot.groups,
+            },
+            date: lastDate,
+            dates,
+          });
+        });
+        return;
+      }
       Promise.all([
         Bill.aggregate([
           { $unwind: "$products" },
@@ -116,76 +214,6 @@ export default nextConnect({
             },
           },
         ]).then((data) => data[0]),
-        EmpWork.aggregate([
-          {
-            $match: {
-              date: new Date(lastDate),
-              // {
-              //   $gte: new Date(week.start),
-              //   $lt: new Date(week.end),
-              // },
-            },
-          },
-          { $unwind: { path: "$products", preserveNullAndEmptyArrays: true } },
-          { $unwind: { path: "$products", preserveNullAndEmptyArrays: true } },
-          {
-            $facet: {
-              total: [
-                {
-                  $group: {
-                    _id: null,
-                    paid: { $sum: "$paid" },
-                    production: { $sum: "$products.qnt" },
-                  },
-                },
-              ],
-              groups: [
-                {
-                  $group: {
-                    _id: "$products.group",
-                    total: { $sum: "$products.qnt" },
-                  },
-                },
-              ],
-            },
-          },
-          { $set: { total: { $first: "$total" } } },
-        ]).then((data) => data[0]),
-        Lot.aggregate([
-          {
-            $match: {
-              date: new Date(lastDate),
-              // {
-              //   $gte: new Date(week.start),
-              //   $lt: new Date(week.end),
-              // },
-            },
-          },
-          { $unwind: { path: "$products" } },
-          { $unwind: { path: "$products" } },
-          {
-            $facet: {
-              total: [
-                {
-                  $group: {
-                    _id: null,
-                    paid: { $first: "$paid" },
-                    production: { $sum: "$products.qnt" },
-                  },
-                },
-              ],
-              groups: [
-                {
-                  $group: {
-                    _id: "$products.group",
-                    total: { $sum: "$products.qnt" },
-                  },
-                },
-              ],
-            },
-          },
-          { $set: { total: { $first: "$total" } } },
-        ]).then((data) => data[0]),
         Employee.aggregate([
           { $match: { season } },
           {
@@ -241,8 +269,7 @@ export default nextConnect({
           },
           { $set: { total: { $first: "$total" } } },
         ]).then((data) => data[0]),
-      ]).then(([bills, payments, emp, pastWeek, lot, pastYear]) => {
-        console.log(pastWeek);
+      ]).then(([bills, payments, emp, pastYear]) => {
         res.json({
           code: "ok",
           summery: {
@@ -251,20 +278,6 @@ export default nextConnect({
             wage: bills.wage + +process.env.PREVIOUS_WAGE - payments.wage,
             production:
               payments.production + +process.env.PREVIOUS - bills.production,
-            pastWeek: {
-              total: {
-                paid: pastWeek.total?.paid || 0,
-                production: pastWeek.total?.production || 0,
-              },
-              groups: pastWeek.groups,
-            },
-            lot: {
-              total: {
-                paid: lot.total?.paid || 0,
-                production: lot.total?.production || 0,
-              },
-              groups: lot.groups,
-            },
             pastYear: {
               total: {
                 paid: pastYear.total?.paid || 0,

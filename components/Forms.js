@@ -597,10 +597,14 @@ export function DateFilter({ onSubmit }) {
   );
 }
 
-export function BillForm({ fy, billToEdit, onSuccess }) {
+export function BillForm({ fy, defaultRef, billToEdit, onSuccess }) {
   const [loading, setLoading] = useState(false);
-  const [date, setDate] = useState(billToEdit && formatDate(billToEdit.date));
-  const [ref, setRef] = useState(billToEdit?.ref);
+  const [date, setDate] = useState(
+    billToEdit
+      ? formatDate(billToEdit.date)
+      : formatDate(new Date().toISOString())
+  );
+  const [ref, setRef] = useState(billToEdit?.ref || +defaultRef + 1 || "");
   const [refExists, setRefExists] = useState(false);
   const [preFill, setPreFill] = useState(() => {
     if (billToEdit) {
@@ -674,14 +678,14 @@ export function BillForm({ fy, billToEdit, onSuccess }) {
       <h2>Add Bill</h2>
       <Input
         required={true}
-        defaultValue={billToEdit && formatDate(billToEdit.date)}
+        defaultValue={date}
         type="date"
         label="Date"
         onChange={(t) => setDate(t.value)}
       />
       <Input
         required={true}
-        defaultValue={billToEdit?.ref}
+        defaultValue={ref}
         label="Ref"
         type="number"
         onChange={(t) => {
@@ -703,12 +707,14 @@ export function BillForm({ fy, billToEdit, onSuccess }) {
   );
 }
 
-export function CostingForm({ fy, edit, onSuccess }) {
+export function CostingForm({ fy, defaultLot, edit, onSuccess }) {
   const [loading, setLoading] = useState(false);
-  const [lot, setLot] = useState(edit?.lot);
+  const [lot, setLot] = useState(edit?.lot || +defaultLot + 1 || "");
   const [lotSize, setLotSize] = useState(edit?.lotSize);
   const [dress, setDress] = useState(edit?.dress);
-  const [date, setDate] = useState(edit && formatDate(edit.date));
+  const [date, setDate] = useState(
+    edit ? formatDate(edit.date) : formatDate(new Date())
+  );
   const [note, setNote] = useState(edit?.note);
   const [img, setImg] = useState(edit?.img || "");
   const [preFill, setPreFill] = useState(() => {
@@ -820,14 +826,14 @@ export function CostingForm({ fy, edit, onSuccess }) {
       <Input
         type="number"
         required={true}
-        defaultValue={edit?.lot}
+        defaultValue={lot}
         label="Lot no"
         onChange={(t) => setLot(t.value)}
       />
       <Input
         className={s.date}
         required={true}
-        defaultValue={edit && formatDate(edit.date)}
+        defaultValue={date}
         type="date"
         label="Date"
         onChange={(t) => setDate(t.value)}

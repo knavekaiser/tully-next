@@ -79,6 +79,13 @@ export default function Bills() {
       setNameTag("Bills");
     }
   }, []);
+  useEffect(() => {
+    setTimeout(() => {
+      Array.from(document.querySelectorAll("tbody")).forEach((el) => {
+        el.scrollBy(0, 100000);
+      });
+    }, 50);
+  }, [data]);
   if (!user) {
     return (
       <App>
@@ -158,6 +165,7 @@ export default function Bills() {
       <Modal open={showForm} setOpen={setShowForm}>
         <BillForm
           fy={fy}
+          defaultRef={bills && bills[bills.length - 1].ref}
           billToEdit={billToEdit}
           onSuccess={(newBill) => {
             setBills((prev) => {
