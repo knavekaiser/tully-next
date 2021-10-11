@@ -14,8 +14,11 @@ class Costing_print extends Component {
   render() {
     const costing = this.props.costing;
     return (
-      <div className={s.paper}>
-        <div className={`${s.billPrint} ${s.bill_one}`}>
+      <div className={`${s.paper} ${s.costing}`}>
+        {
+          // <div />
+        }
+        <div className={`${s.billPrint}`}>
           {
             <header>
               <h2 contentEditable={true}>{costing.dress}</h2>
@@ -125,7 +128,7 @@ class Costing_print extends Component {
           }
         </div>
         <div className={s.cut} />
-        <div className={`${s.billPrint} ${s.bill_two}`}></div>
+        <div className={`${s.billPrint}`}></div>
       </div>
     );
   }

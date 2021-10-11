@@ -676,7 +676,8 @@
     display: none;
   }
   position: relative;
-  // background: white;
+  background: white;
+  overflow: hidden;
   // border: 1px dashed blue;
   .circle_1,
   .circle_2,
@@ -687,6 +688,26 @@
     width: 1rem;
     border: 2px dashed red;
     position: absolute;
+    z-index: 1;
+    &::after,
+    &::before {
+      z-index: -1;
+      content: "";
+      position: absolute;
+      // background: white;
+      display: block;
+      border: 2px solid blue;
+      height: 4rem;
+      width: 4rem;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+    &::before {
+      height: 8rem;
+      width: 8rem;
+      border: 2px dashed blue;
+    }
   }
   .circle_2 {
     right: 0;
@@ -697,6 +718,9 @@
   .circle_4 {
     bottom: 0;
     right: 0;
+  }
+  &.costing {
+    // grid-template-columns: 2rem 1fr 1px 1fr;
   }
 }
 .billPrint {
@@ -1039,6 +1063,7 @@ tbody .ref,
     height: 209.75mm;
     width: 297mm;
     grid-gap: 1rem;
+    padding: 0.8rem 2rem;
     .bill_two {
       display: flex;
     }
@@ -1048,6 +1073,10 @@ tbody .ref,
     .billPrint {
       height: 100%;
       width: 100%;
+    }
+    &.costing {
+      padding: 0.8rem 0;
+      padding-left: 4.7rem;
     }
   }
 }
