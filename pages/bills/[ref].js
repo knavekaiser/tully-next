@@ -80,7 +80,6 @@ class Bill_Class extends Component {
               <tr>
                 <td>মোট</td>
                 <td className={s.taka}>
-                  ৳{" "}
                   {bill.products
                     .reduce((p, c) => p + c.qnt * c.cost, 0)
                     .toLocaleString("bn-BD")}
@@ -108,7 +107,6 @@ class Bill_Class extends Component {
             <tr>
               <td>সর্বমোট</td>
               <td className={s.taka}>
-                ৳{" "}
                 {bill.products
                   .reduce((p, c) => p + (c.qnt * c.cost - c.qnt * c.wage), 0)
                   .toLocaleString("bn-BD")}
@@ -133,7 +131,6 @@ class Bill_Class extends Component {
               <tr>
                 <td>সর্বমোট</td>
                 <td className={s.taka}>
-                  ৳{" "}
                   {bill.products
                     .reduce((p, c) => p + c.qnt * c.wage, 0)
                     .toLocaleString("bn-BD")}

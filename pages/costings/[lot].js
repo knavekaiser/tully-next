@@ -63,7 +63,6 @@ class Costing_print extends Component {
               <tr>
                 <td>মোট</td>
                 <td className={s.taka}>
-                  ৳{" "}
                   {costing.materials
                     .reduce((p, c) => p + c.qnt * c.price, 0)
                     .toLocaleString("bn-BD")}
@@ -72,7 +71,6 @@ class Costing_print extends Component {
               <tr>
                 <td>প্রতি পিছ</td>
                 <td className={s.taka}>
-                  ৳{" "}
                   {Math.ceil(
                     costing.materials.reduce((p, c) => p + c.qnt * c.price, 0) /
                       costing.lotSize
