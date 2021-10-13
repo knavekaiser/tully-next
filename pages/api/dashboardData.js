@@ -269,13 +269,50 @@ export default nextConnect({
           },
           { $set: { total: { $first: "$total" } } },
         ]).then((data) => data[0]),
-      ]).then(([bills, payments, emp, pastYear]) => {
+        Fabric.aggregate([
+          {
+            $set: {
+              usage: {
+                $reduce: {
+                  input: "$usage",
+                  initialValue: 0,
+                  in: {
+                    $sum: ["$$value", "$$this.qnt.amount"],
+                  },
+                },
+              },
+            },
+          },
+          {
+            $set: {
+              remaining: {
+                $multiply: [
+                  "$price",
+                  {
+                    $subtract: ["$qnt.amount", "$usage"],
+                  },
+                ],
+              },
+            },
+          },
+          {
+            $group: {
+              _id: null,
+              total: {
+                $sum: "$remaining",
+              },
+            },
+          },
+        ]).then((data) => data[0]),
+      ]).then(([bills, payments, emp, pastYear, fabric]) => {
+        console.log(fabric);
         res.json({
           code: "ok",
           summery: {
             emp,
             bill: bills.production,
             wage: bills.wage + +process.env.PREVIOUS_WAGE - payments.wage,
+            fabric: fabric.total,
             production:
               payments.production + +process.env.PREVIOUS - bills.production,
             pastYear: {

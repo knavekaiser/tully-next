@@ -231,7 +231,9 @@ export default function Home() {
         <Link href={`bills`}>
           <a>Bills {summery.bill.toLocaleString("en-IN")}</a>
         </Link>
-        <Link href={`fabrics`}>Fabrics</Link>
+        <Link href={`fabrics`}>
+          <a>Fabrics {summery.fabric.toLocaleString("en-IN")}</a>
+        </Link>
         <Link href={`costings`}>Costings</Link>
         <Link href={`wages`}>
           <a>Wages {summery.wage.toLocaleString("en-IN")}</a>
