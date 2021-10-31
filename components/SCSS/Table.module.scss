@@ -666,7 +666,7 @@
 .paper {
   display: grid;
   grid-template-columns: 1fr 1px 1fr;
-  height: 210mm;
+  height: 100vh;
   // width: 297mm;
   .cut {
     border: 1px dashed rgb(170, 170, 170);
@@ -677,7 +677,7 @@
   }
   position: relative;
   background: white;
-  overflow: hidden;
+  overflow: auto;
   // border: 1px dashed blue;
   .circle_1,
   .circle_2,
@@ -721,6 +721,10 @@
   }
   &.costing {
     // grid-template-columns: 2rem 1fr 1px 1fr;
+  }
+  &.portrait {
+    grid-template-columns: 1fr;
+    width: 210mm;
   }
 }
 .billPrint {
@@ -940,6 +944,37 @@
   }
 }
 
+.monthlyReportPaper {
+  background: white;
+  padding: 1rem;
+}
+.monthlyReport {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  // height: 297mm;
+  width: 100%;
+  // width: 210mm;
+  table {
+    &:first-child {
+      border-right: 1px solid black;
+    }
+    padding: 0.5rem 1.5rem;
+    tr {
+      padding: 0.5rem 0.3rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      td:nth-child(2) {
+        text-align: right;
+      }
+      &.hr {
+        padding: 0;
+        height: 1px;
+        background: black;
+      }
+    }
+  }
+}
+
 tbody .ref,
 .singleBill .ref span,
 .billPrint .ref {
@@ -1077,6 +1112,10 @@ tbody .ref,
     &.costing {
       padding: 0.8rem 0;
       padding-left: 4rem;
+    }
+    &.portrait {
+      height: 297mm;
+      width: 210mm;
     }
   }
 }

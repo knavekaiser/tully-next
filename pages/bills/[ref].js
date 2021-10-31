@@ -8,19 +8,6 @@ import s from "../../components/SCSS/Table.module.scss";
 import { Modal } from "../../components/Modals";
 import { useReactToPrint } from "react-to-print";
 
-String.prototype.bn = function () {
-  return this.replace(/1/g, "১")
-    .replace(/2/g, "২")
-    .replace(/3/g, "৩")
-    .replace(/4/g, "৪")
-    .replace(/5/g, "৫")
-    .replace(/6/g, "৬")
-    .replace(/7/g, "৭")
-    .replace(/8/g, "৮")
-    .replace(/9/g, "৯")
-    .replace(/0/g, "০");
-};
-
 class Bill_Class extends Component {
   render() {
     const bill = this.props.bill;

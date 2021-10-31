@@ -1,4 +1,4 @@
-import { useState, useContext, useEffect, useRef } from "react";
+import { useState, useContext, useEffect, useRef, Component } from "react";
 import { SiteContext } from "../SiteContext";
 import { App } from "./index";
 import Table, { Tr, LoadingTr } from "../components/Table";
@@ -9,9 +9,94 @@ import { displayDate, AddBtn } from "../components/FormElements";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import { IoLockClosedOutline } from "react-icons/io5";
+import { useReactToPrint } from "react-to-print";
 import useSWR from "swr";
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
+
+class Production_Print extends Component {
+  render() {
+    const { bills, payments, summery } = this.props;
+    const wages = {};
+    const _bill = (
+      <>
+        <table className={s.content} cellSpacing={0} cellPadding={0}>
+          <thead>
+            <tr>
+              <th>তারিখ</th>
+              <th>পরিমাণ</th>
+            </tr>
+          </thead>
+          <tbody className={s.products}>
+            {bills.map((bill, i) => (
+              <tr key={i}>
+                <td className={s.date}>{displayDate(bill.date).bn()}</td>
+                <td className={s.total}>
+                  {bill.total.toLocaleString("en-IN").bn()}
+                </td>
+              </tr>
+            ))}
+            <tr className={s.hr} />
+            <tr>
+              <td>মোট</td>
+              <td>{summery.totalProduction.toLocaleString().bn()}</td>
+            </tr>
+          </tbody>
+        </table>
+        <table className={s.content} cellSpacing={0} cellPadding={0}>
+          <thead>
+            <tr>
+              <th>তারিখ</th>
+              <th>পরিমাণ</th>
+            </tr>
+          </thead>
+          <tbody className={s.summery}>
+            {payments.map((payment, i) => (
+              <Tr
+                options={[
+                  {
+                    label: "Edit",
+                    fun: () => {
+                      setPaymentToEdit(payment);
+                      setShowForm(true);
+                    },
+                  },
+                  {
+                    label: "Delete",
+                    fun: () => dltPayment(payment._id),
+                  },
+                ]}
+                key={i}
+              >
+                <td className={s.date}>{displayDate(payment.date).bn()}</td>
+                <td>
+                  {payment.payments
+                    .reduce((a, c) => a + c.amount, 0)
+                    .toLocaleString()
+                    .bn()}
+                </td>
+              </Tr>
+            ))}
+            <tr className={s.hr} />
+            <tr>
+              <td>সাবেক</td>
+              <td>{summery.previous.toLocaleString().bn()}</td>
+            </tr>
+            <tr>
+              <td>বর্তমান</td>
+              <td>{summery.todate.toLocaleString().bn()}</td>
+            </tr>
+          </tbody>
+        </table>
+      </>
+    );
+    return (
+      <div className={`${s.monthlyReportPaper} ${s.portrait}`}>
+        <div className={`${s.monthlyReport}`}>{_bill}</div>
+      </div>
+    );
+  }
+}
 
 export default function Productions() {
   const router = useRouter();
@@ -23,6 +108,7 @@ export default function Productions() {
   const [payments, setPayments] = useState(null);
   const [bills, setBills] = useState(null);
   const [summery, setSummery] = useState(null);
+  const [showPrint, setShowPrint] = useState(false);
   const { error, data } = useSWR(
     `/api/payments?payment=production&fy=${fy}${
       dateFilter ? `&from=${dateFilter.from}&to=${dateFilter.to}` : ""
@@ -30,6 +116,8 @@ export default function Productions() {
     fetcher
   );
   const [addBtnStyle, setAddBtnStyle] = useState(false);
+  const handlePrint = useReactToPrint({ content: () => componentRef.current });
+  const componentRef = useRef();
   const dltPayment = (_id) => {
     if (confirm("you want to delete this payments?")) {
       fetch("/api/payments", {
@@ -203,6 +291,11 @@ export default function Productions() {
               {summery.totalProduction.toLocaleString("en-IN")}
             </td>
           </tr>
+          <tr>
+            <td>
+              <button onClick={() => setShowPrint(true)}>Print</button>
+            </td>
+          </tr>
         </Table>
         <Table
           className={s.payment}
@@ -321,6 +414,17 @@ export default function Productions() {
           <AddBtn translate={addBtnStyle || showForm} onClick={setShowForm} />
         )}
       </div>
+      <Modal open={showPrint} setOpen={setShowPrint} className={s.container}>
+        <Production_Print
+          bills={bills}
+          payments={payments}
+          summery={summery}
+          ref={componentRef}
+        />
+        <button onClick={handlePrint}>Print this out!</button>
+        <button onClick={() => setShowPrint(false)}>Close</button>
+        <div className={s.pBtm} />
+      </Modal>
       <Modal open={showForm} setOpen={setShowForm}>
         <AddMaterialPayment
           paymentToEdit={paymentToEdit}
