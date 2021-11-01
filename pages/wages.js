@@ -140,7 +140,8 @@ class Production_Print extends Component {
             <td className={s.amount}>
               {payments
                 .reduce((p, c) => p + c.amount, 0)
-                .toLocaleString("en-IN")}
+                .toLocaleString("en-IN")
+                .bn()}
             </td>
           </tr>
         </table>
