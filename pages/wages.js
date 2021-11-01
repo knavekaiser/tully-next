@@ -134,6 +134,15 @@ class Production_Print extends Component {
               </Tr>
             ))}
           </tbody>
+          <tr className={s.hr} />
+          <tr>
+            <td>মোট</td>
+            <td className={s.amount}>
+              {payments
+                .reduce((p, c) => p + c.amount, 0)
+                .toLocaleString("en-IN")}
+            </td>
+          </tr>
         </table>
       </>
     );
