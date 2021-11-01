@@ -14,12 +14,32 @@ import useSWR from "swr";
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
+const months = [
+  "জানুয়ারী",
+  "ফেব্রুয়ারী",
+  "মার্চ",
+  "এপ্রিল",
+  "মে",
+  "জুন",
+  "জুলাই",
+  "আগস্ট",
+  "সেপ্টেম্বর",
+  "অক্টোবর",
+  "নভেম্বর",
+  "ডিসেম্বর",
+];
 class Production_Print extends Component {
   render() {
     const { bills, payments, summery } = this.props;
     const wages = {};
     const _bill = (
       <>
+        <div className={s.head}>
+          <h3>
+            কাজের হিসাব | {months[new Date(bills[0].date).getMonth()]}{" "}
+            {new Date(bills[0].date).getFullYear().toString().bn()}
+          </h3>
+        </div>
         <table className={s.content} cellSpacing={0} cellPadding={0}>
           <thead>
             <tr>
@@ -30,7 +50,10 @@ class Production_Print extends Component {
           <tbody className={s.products}>
             {bills.map((bill, i) => (
               <tr key={i}>
-                <td className={s.date}>{displayDate(bill.date).bn()}</td>
+                <td className={s.date}>
+                  {displayDate(bill.date).bn()}{" "}
+                  <small>({bill.ref.toString().bn()})</small>
+                </td>
                 <td className={s.total}>
                   {bill.total.toLocaleString("en-IN").bn()}
                 </td>
@@ -39,7 +62,7 @@ class Production_Print extends Component {
             <tr className={s.hr} />
             <tr>
               <td>মোট</td>
-              <td>{summery.totalProduction.toLocaleString().bn()}</td>
+              <td>{summery.totalProduction.toLocaleString("en-IN").bn()}</td>
             </tr>
           </tbody>
         </table>
@@ -72,19 +95,41 @@ class Production_Print extends Component {
                 <td>
                   {payment.payments
                     .reduce((a, c) => a + c.amount, 0)
-                    .toLocaleString()
+                    .toLocaleString("en-IN")
                     .bn()}
                 </td>
               </Tr>
             ))}
             <tr className={s.hr} />
-            <tr>
-              <td>সাবেক</td>
-              <td>{summery.previous.toLocaleString().bn()}</td>
+            <tr className={s.grandTotalReceived}>
+              <td>জমা</td>
+              <td className={s.amount}>
+                {summery.totalPaymentReceived.toLocaleString("en-IN").bn()}
+              </td>
             </tr>
             <tr>
+              <td>সাবেক</td>
+              <td>{summery.previous.toLocaleString("en-IN").bn()}</td>
+            </tr>
+            <tr className={s.hr} />
+            <tr>
+              <td>মোট</td>
+              <td className={s.amount}>
+                {(summery.previous + summery.totalPaymentReceived)
+                  .toLocaleString("en-IN")
+                  .bn()}
+              </td>
+            </tr>
+            <tr>
+              <td>মাল</td>
+              <td className={s.amount}>
+                - {summery.totalProduction.toLocaleString("en-IN").bn()}
+              </td>
+            </tr>
+            <tr className={s.hr} />
+            <tr>
               <td>বর্তমান</td>
-              <td>{summery.todate.toLocaleString().bn()}</td>
+              <td>{summery.todate.toLocaleString("en-IN").bn()}</td>
             </tr>
           </tbody>
         </table>
@@ -350,18 +395,6 @@ export default function Productions() {
           ))}
           {router.query.from && router.query.to ? (
             <>
-              <tr className={s.grandTotalReceived}>
-                <td>Recieved</td>
-                <td className={s.amount}>
-                  {summery.totalPaymentReceived.toLocaleString("en-IN")}
-                </td>
-              </tr>
-              <tr className={s.grandTotalDeu}>
-                <td>Deu</td>
-                <td className={s.amount}>
-                  {summery.totalPaymentDeu.toLocaleString("en-IN")}
-                </td>
-              </tr>
               <tr className={s.hr} /> <tr className={s.hr} />
               <tr className={s.hr} />
               <tr className={s.past}>

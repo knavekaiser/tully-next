@@ -1,4 +1,4 @@
-import { useState, useContext, useEffect, useRef } from "react";
+import { useState, useContext, useEffect, useRef, Component } from "react";
 import { SiteContext } from "../SiteContext";
 import { App } from "./index";
 import Table, { Tr, LoadingTr } from "../components/Table";
@@ -9,9 +9,141 @@ import { displayDate, AddBtn } from "../components/FormElements";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import { IoLockClosedOutline } from "react-icons/io5";
+import { useReactToPrint } from "react-to-print";
 import useSWR from "swr";
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
+
+const months = [
+  "জানুয়ারী",
+  "ফেব্রুয়ারী",
+  "মার্চ",
+  "এপ্রিল",
+  "মে",
+  "জুন",
+  "জুলাই",
+  "আগস্ট",
+  "সেপ্টেম্বর",
+  "অক্টোবর",
+  "নভেম্বর",
+  "ডিসেম্বর",
+];
+class Production_Print extends Component {
+  render() {
+    const { bills, payments, summery } = this.props;
+    const wages = {};
+    // bills.length = 10;
+    const _bill = (
+      <>
+        <div className={s.head}>
+          <h3>
+            কাজের হিসাব | {months[new Date(bills[0].date).getMonth()]}{" "}
+            {new Date(bills[0].date).getFullYear().toString().bn()}
+          </h3>
+        </div>
+        <table className={s.content} cellSpacing={0} cellPadding={0}>
+          <thead>
+            <tr>
+              <th>তারিখ</th>
+              <th>পরিমাণ</th>
+            </tr>
+          </thead>
+          <tbody className={s.products}>
+            {bills.map((bill, i) => (
+              <tr key={i}>
+                <td className={s.date}>
+                  {displayDate(bill.date).bn()}{" "}
+                  <small>({bill.ref.toString().bn()})</small>
+                </td>
+                <td className={s.total}>
+                  {bill.wage.toLocaleString("en-IN").bn()}
+                </td>
+              </tr>
+            ))}
+            <tr className={s.hr} />
+            <tr>
+              <td>মোট</td>
+              <td>{summery.totalWage.toLocaleString("en-IN").bn()}</td>
+            </tr>
+            <tr className={s.grandTotalReceived}>
+              <td>সাবেক</td>
+              <td className={s.amount}>
+                + {summery.previousWage.toLocaleString("en-IN").bn()}
+              </td>
+            </tr>
+            <tr className={s.hr} />
+            <tr>
+              <td>মোট</td>
+              <td className={s.amount}>
+                {(summery.totalWage + summery.previousWage)
+                  .toLocaleString("en-IN")
+                  .bn()}
+              </td>
+            </tr>
+            <tr>
+              <td>এই মাস</td>
+              <td className={s.amount}>
+                {payments
+                  .reduce((p, c) => p + c.amount, 0)
+                  .toLocaleString("en-IN")
+                  .bn()}
+              </td>
+            </tr>
+            <tr className={s.hr} />
+            <tr>
+              <td>বর্তমান</td>
+              <td>
+                {(
+                  summery.totalWage +
+                  summery.previousWage -
+                  payments.reduce((p, c) => p + c.amount, 0)
+                )
+                  .toLocaleString("en-IN")
+                  .bn()}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <table className={s.content} cellSpacing={0} cellPadding={0}>
+          <thead>
+            <tr>
+              <th>তারিখ</th>
+              <th>পরিমাণ</th>
+            </tr>
+          </thead>
+          <tbody className={s.summery}>
+            {payments.map((payment, i) => (
+              <Tr
+                options={[
+                  {
+                    label: "Edit",
+                    fun: () => {
+                      setPaymentToEdit(payment);
+                      setShowForm(true);
+                    },
+                  },
+                  {
+                    label: "Delete",
+                    fun: () => dltPayment(payment._id),
+                  },
+                ]}
+                key={i}
+              >
+                <td className={s.date}>{displayDate(payment.date).bn()}</td>
+                <td>{payment.amount.toLocaleString("en-IN").bn()}</td>
+              </Tr>
+            ))}
+          </tbody>
+        </table>
+      </>
+    );
+    return (
+      <div className={`${s.monthlyReportPaper} ${s.portrait}`}>
+        <div className={`${s.monthlyReport}`}>{_bill}</div>
+      </div>
+    );
+  }
+}
 
 export default function Productions() {
   const router = useRouter();
@@ -30,6 +162,9 @@ export default function Productions() {
   const [showForm, setShowForm] = useState(false);
   const [paymentToEdit, setPaymentToEdit] = useState(false);
   const [addBtnStyle, setAddBtnStyle] = useState(false);
+  const [showPrint, setShowPrint] = useState(false);
+  const handlePrint = useReactToPrint({ content: () => componentRef.current });
+  const componentRef = useRef();
   const firstRedner = useRef(true);
   const dltPayment = (_id) => {
     if (confirm("you want to delete this payments?")) {
@@ -246,6 +381,11 @@ export default function Productions() {
               </tr>
             </>
           )}
+          <tr>
+            <td>
+              <button onClick={() => setShowPrint(true)}>Print</button>
+            </td>
+          </tr>
         </Table>
         <Table
           className={s.wages}
@@ -309,6 +449,17 @@ export default function Productions() {
           <AddBtn translate={addBtnStyle || showForm} onClick={setShowForm} />
         )}
       </div>
+      <Modal open={showPrint} setOpen={setShowPrint} className={s.container}>
+        <Production_Print
+          bills={bills}
+          payments={payments}
+          summery={summery}
+          ref={componentRef}
+        />
+        <button onClick={handlePrint}>Print this out!</button>
+        <button onClick={() => setShowPrint(false)}>Close</button>
+        <div className={s.pBtm} />
+      </Modal>
       <Modal open={showForm} setOpen={setShowForm}>
         <AddWagePayment
           paymentToEdit={paymentToEdit}

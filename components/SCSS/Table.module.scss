@@ -951,9 +951,11 @@
 .monthlyReport {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  // height: 297mm;
   width: 100%;
-  // width: 210mm;
+  .head {
+    grid-column: 1/3;
+    text-align: center;
+  }
   table {
     &:first-child {
       border-right: 1px solid black;
@@ -970,6 +972,10 @@
         padding: 0;
         height: 1px;
         background: black;
+      }
+
+      &:not(:last-child) {
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
       }
     }
   }
