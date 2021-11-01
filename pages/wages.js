@@ -32,7 +32,6 @@ class Production_Print extends Component {
   render() {
     const { bills, payments, summery } = this.props;
     const wages = {};
-    // bills.length = 10;
     const _bill = (
       <>
         <div className={s.head}>
@@ -81,7 +80,7 @@ class Production_Print extends Component {
               </td>
             </tr>
             <tr>
-              <td>এই মাস</td>
+              <td>জমা</td>
               <td className={s.amount}>
                 {payments
                   .reduce((p, c) => p + c.amount, 0)
@@ -133,17 +132,17 @@ class Production_Print extends Component {
                 <td>{payment.amount.toLocaleString("en-IN").bn()}</td>
               </Tr>
             ))}
+            <tr className={s.hr} />
+            <tr>
+              <td>মোট</td>
+              <td className={s.amount}>
+                {payments
+                  .reduce((p, c) => p + c.amount, 0)
+                  .toLocaleString("en-IN")
+                  .bn()}
+              </td>
+            </tr>
           </tbody>
-          <tr className={s.hr} />
-          <tr>
-            <td>মোট</td>
-            <td className={s.amount}>
-              {payments
-                .reduce((p, c) => p + c.amount, 0)
-                .toLocaleString("en-IN")
-                .bn()}
-            </td>
-          </tr>
         </table>
       </>
     );
@@ -444,14 +443,6 @@ export default function Productions() {
               {payments
                 .reduce((p, c) => p + c.amount, 0)
                 .toLocaleString("en-IN")}
-            </td>
-          </tr>
-          <tr className={s.totalDeu}>
-            <td>Deu</td>
-            <td className={s.amount}>
-              {(
-                summery.totalWage - payments.reduce((p, c) => p + c.amount, 0)
-              ).toLocaleString("en-IN")}
             </td>
           </tr>
         </Table>
