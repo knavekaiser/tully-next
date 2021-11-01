@@ -37,7 +37,7 @@ class Production_Print extends Component {
       <>
         <div className={s.head}>
           <h3>
-            কাজের হিসাব | {months[new Date(bills[0].date).getMonth()]}{" "}
+            মজুরীর হিসাব | {months[new Date(bills[0].date).getMonth()]}{" "}
             {new Date(bills[0].date).getFullYear().toString().bn()}
           </h3>
         </div>
