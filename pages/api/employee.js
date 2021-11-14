@@ -179,9 +179,8 @@ export default nextConnect({
             $set: { lastDate: { $first: "$lastDate.date" } },
           },
         ])
-          .then(([data_arr]) => {
-            console.log(data_arr.lastDate);
-            const { months, emps, lastDate } = data_arr;
+          .then(([{ months, emps, lastDate }]) => {
+            console.log(lastDate);
             res.json({
               code: "ok",
               content: { allEmps: emps, months, lastDate },

@@ -45,27 +45,11 @@ const empWorkProduction = [
 
 const billProduction = [
   [
-    {
-      id: "dress",
-      type: "text",
-      label: "Dress",
-      clone: true,
-    },
-    {
-      id: "qnt",
-      type: "number",
-      label: "Pcs",
-    },
-    {
-      id: "cost",
-      type: "number",
-      label: "Cost",
-    },
-    {
-      id: "wage",
-      type: "number",
-      label: "Wage",
-    },
+    { id: "lot", type: "number", label: "Lot" },
+    { id: "dress", type: "text", label: "Dress", clone: true },
+    { id: "qnt", type: "number", label: "Pcs" },
+    { id: "cost", type: "number", label: "Cost" },
+    { id: "wage", type: "number", label: "Wage" },
   ],
 ];
 const costMaterials = [
@@ -604,7 +588,7 @@ export function BillForm({ fy, defaultRef, billToEdit, onSuccess }) {
       ? formatDate(billToEdit.date)
       : formatDate(new Date().toISOString())
   );
-  const [ref, setRef] = useState(billToEdit?.ref || +defaultRef + 1 || "");
+  const [ref, setRef] = useState(billToEdit?.ref || defaultRef || "");
   const [refExists, setRefExists] = useState(false);
   const [preFill, setPreFill] = useState(() => {
     if (billToEdit) {
@@ -614,18 +598,22 @@ export function BillForm({ fy, defaultRef, billToEdit, onSuccess }) {
           products.push([
             {
               ...billProduction[0][0],
-              value: item.dress,
+              value: item.lot,
             },
             {
               ...billProduction[0][1],
-              value: item.qnt,
+              value: item.dress,
             },
             {
               ...billProduction[0][2],
-              value: item.cost,
+              value: item.qnt,
             },
             {
               ...billProduction[0][3],
+              value: item.cost,
+            },
+            {
+              ...billProduction[0][4],
               value: item.wage,
             },
           ]);

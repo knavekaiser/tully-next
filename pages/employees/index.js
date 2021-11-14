@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext, useCallback } from "react";
 import { SiteContext } from "../../SiteContext";
 import { App } from "../index.js";
 import { AddEmp, UpdateEmp } from "../../components/Forms";
@@ -28,7 +28,7 @@ export default function EmpList() {
   const [employees, setEmployees] = useState(null);
   const [empToUpdate, setEmpToUpdate] = useState({});
   const [addBtnStyle, setAddBtnStyle] = useState(false);
-  const dltEmp = (_id) => {
+  const dltEmp = useCallback((_id) => {
     fetch("/api/employee", {
       method: "DELETE",
       headers: { "Content-type": "application/json" },
@@ -49,8 +49,8 @@ export default function EmpList() {
         console.log(err);
         alert("something went worng");
       });
-  };
-  const update = (_id) => {
+  }, []);
+  const update = useCallback((_id) => {
     fetch("/api/employee", {
       method: "PATCH",
       headers: { "Content-type": "application/json" },
@@ -71,9 +71,10 @@ export default function EmpList() {
         console.log(err);
         alert("something went worng");
       });
-  };
+  }, []);
   useEffect(() => {
     if (data?.content) {
+      console.log(data.content);
       setEmployees(data.content.allEmps);
       setMonths(data.content.months);
     }

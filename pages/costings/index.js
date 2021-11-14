@@ -162,14 +162,33 @@ export default function Costings() {
             }}
             className={costing.note ? s.withNote : ""}
           >
-            <td className={s.lot}>{costing.lot}</td>
-            <td className={s.dress}>{costing.dress}</td>
-            <td className={s.lotSize}>{costing.lotSize}</td>
+            <td className={s.lot}>
+              {costing.lot.toLocaleString("en-IN").bn()}
+            </td>
+            <td className={s.dress}>
+              {costing.dress}{" "}
+              {costing.delivered && (
+                <span style={{ color: "red" }}>
+                  <i>
+                    <small>
+                      {(costing.delivered - costing.lotSize)
+                        .toLocaleString("en-IN")
+                        .bn()}
+                    </small>
+                  </i>
+                </span>
+              )}
+            </td>
+            <td className={s.lotSize}>
+              {costing.lotSize.toLocaleString("en-IN").bn()}
+            </td>
             <td className={s.cost}>
               {Math.ceil(
                 costing.materials.reduce((p, c) => p + c.qnt * c.price, 0) /
                   costing.lotSize
-              )}
+              )
+                .toLocaleString("en-IN")
+                .bn()}
             </td>
             {costing.note ? (
               <td className={s.note}>Note: {costing.note}</td>

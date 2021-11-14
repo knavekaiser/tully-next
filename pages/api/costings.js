@@ -33,7 +33,31 @@ export default nextConnect({
         Costing.aggregate([
           {
             $facet: {
-              costings: [{ $match: filters }, { $sort: { lot: 1 } }],
+              costings: [
+                { $match: filters },
+                { $sort: { lot: 1 } },
+                {
+                  $lookup: {
+                    from: "bills",
+                    let: { lot: "$lot" },
+                    pipeline: [
+                      { $match: { "products.lot": 214 } },
+                      { $unwind: "$products" },
+                      { $replaceRoot: { newRoot: "$products" } },
+                      { $match: { $expr: { $eq: ["$$lot", "$lot"] } } },
+                      { $project: { qnt: 1 } },
+                    ],
+                    as: "delivered",
+                  },
+                },
+                {
+                  $unwind: {
+                    path: "$delivered",
+                    preserveNullAndEmptyArrays: true,
+                  },
+                },
+                { $set: { delivered: "$delivered.qnt" } },
+              ],
               months: monthAggregate(),
             },
           },

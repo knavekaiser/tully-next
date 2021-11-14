@@ -165,7 +165,7 @@ export default function Bills() {
       <Modal open={showForm} setOpen={setShowForm}>
         <BillForm
           fy={fy}
-          defaultRef={bills && bills[bills.length - 1].ref}
+          defaultRef={bills && bills[bills.length - 1].ref + 1}
           billToEdit={billToEdit}
           onSuccess={(newBill) => {
             setBills((prev) => {

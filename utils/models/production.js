@@ -46,6 +46,7 @@ const bill = new Schema({
   img: { type: String },
   products: [
     {
+      lot: { type: Number },
       dress: { type: String, required: true, trim: true },
       qnt: { type: Number, required: true },
       cost: { type: Number, required: true },
