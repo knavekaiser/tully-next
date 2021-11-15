@@ -171,9 +171,7 @@ export default function Costings() {
                 <span style={{ color: "red" }}>
                   <i>
                     <small>
-                      {(costing.delivered - costing.lotSize)
-                        .toLocaleString("en-IN")
-                        .bn()}
+                      {costing.delivered?.toLocaleString("en-IN").bn()}
                     </small>
                   </i>
                 </span>

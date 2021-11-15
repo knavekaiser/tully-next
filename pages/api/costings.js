@@ -41,7 +41,6 @@ export default nextConnect({
                     from: "bills",
                     let: { lot: "$lot" },
                     pipeline: [
-                      { $match: { "products.lot": 214 } },
                       { $unwind: "$products" },
                       { $replaceRoot: { newRoot: "$products" } },
                       { $match: { $expr: { $eq: ["$$lot", "$lot"] } } },
@@ -56,7 +55,11 @@ export default nextConnect({
                     preserveNullAndEmptyArrays: true,
                   },
                 },
-                { $set: { delivered: "$delivered.qnt" } },
+                {
+                  $set: {
+                    delivered: { $subtract: ["$delivered.qnt", "$lotSize"] },
+                  },
+                },
               ],
               months: monthAggregate(),
             },
