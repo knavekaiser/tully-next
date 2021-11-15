@@ -167,7 +167,7 @@ export default function Costings() {
             </td>
             <td className={s.dress}>
               {costing.dress}{" "}
-              {costing.delivered && (
+              {costing.delivered !== undefined && (
                 <span style={{ color: "red" }}>
                   <i>
                     <small>
