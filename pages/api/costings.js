@@ -44,6 +44,7 @@ export default nextConnect({
                       { $unwind: "$products" },
                       { $replaceRoot: { newRoot: "$products" } },
                       { $match: { $expr: { $eq: ["$$lot", "$lot"] } } },
+                      { $group: { _id: "$lot", qnt: { $sum: "$qnt" } } },
                       { $project: { qnt: 1 } },
                     ],
                     as: "delivered",
