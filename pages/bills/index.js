@@ -140,21 +140,37 @@ export default function Bills() {
           >
             <td className={s.date}>{displayDate(bill.date)}</td>
             <td className={s.ref}>{bill.ref}</td>
-            <td className={s.dress}>
-              {bill.products.length <= 1
-                ? bill.products[0]?.dress
-                : "Multiple items"}
+            <td className={s.products}>
+              {bill.products.map((bill, i) => (
+                <div key={i} className={s.product}>
+                  <span className={s.dress}>{bill.dress}</span>
+                  <span>{bill.qnt}</span>
+                  <span>
+                    {(
+                      bill.cost * bill.qnt -
+                      bill.wage * bill.qnt
+                    ).toLocaleString("en-IN")}
+                  </span>
+                </div>
+              ))}
             </td>
-            <td>
-              {bill.products
-                .reduce((p, c) => p + c.qnt, 0)
-                .toLocaleString("en-IN")}
-            </td>
-            <td>
-              {bill.products
-                .reduce((p, c) => p + (c.qnt * c.cost - c.qnt * c.wage), 0)
-                .toLocaleString("en-IN")}
-            </td>
+            {
+              //   <td className={s.dress}>
+              //   {bill.products.length <= 1
+              //     ? bill.products[0]?.dress
+              //     : "Multiple items"}
+              // </td>
+              // <td>
+              //   {bill.products
+              //     .reduce((p, c) => p + c.qnt, 0)
+              //     .toLocaleString("en-IN")}
+              // </td>
+              // <td>
+              //   {bill.products
+              //     .reduce((p, c) => p + (c.qnt * c.cost - c.qnt * c.wage), 0)
+              //     .toLocaleString("en-IN")}
+              // </td>
+            }
           </Tr>
         ))}
         {!bills && <LoadingTr number={5} />}

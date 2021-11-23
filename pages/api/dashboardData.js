@@ -52,9 +52,7 @@ export default nextConnect({
           EmpWork.aggregate([
             {
               $match: {
-                date: req.query.week
-                  ? new Date(req.query.week)
-                  : new Date(lastDate),
+                date: req.query.week ? new Date(req.query.week) : lastDate,
               },
             },
             {
@@ -68,9 +66,16 @@ export default nextConnect({
                 total: [
                   {
                     $group: {
+                      _id: "$_id",
+                      paid: { $first: "$paid" },
+                      production: { $sum: "$products.qnt" },
+                    },
+                  },
+                  {
+                    $group: {
                       _id: null,
                       paid: { $sum: "$paid" },
-                      production: { $sum: "$products.qnt" },
+                      production: { $sum: "$production" },
                     },
                   },
                 ],
@@ -131,7 +136,7 @@ export default nextConnect({
                 paid: pastWeek.total?.paid || 0,
                 production: pastWeek.total?.production || 0,
               },
-              groups: pastWeek.groups,
+              groups: pastWeek.groups.filter((item) => item.total),
             },
             lot: {
               total: {
@@ -305,7 +310,6 @@ export default nextConnect({
           },
         ]).then((data) => data[0]),
       ]).then(([bills, payments, emp, pastYear, fabric]) => {
-        console.log(fabric);
         res.json({
           code: "ok",
           summery: {

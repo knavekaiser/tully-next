@@ -94,7 +94,7 @@ export default nextConnect({
                     },
                   },
                 },
-                { $sort: { date: 1 } },
+                { $sort: { date: 1, price: 1, name: 1 } },
               ],
               months: monthAggregate(),
             },

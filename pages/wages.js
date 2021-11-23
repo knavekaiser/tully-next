@@ -382,6 +382,14 @@ export default function Productions() {
             </>
           ) : (
             <>
+              <tr className={`${s.totalRecieved} ${s.total}`}>
+                <td>Total</td>
+                <td className={s.amount}>
+                  {bills
+                    ?.reduce((p, c) => p + c.wage, 0)
+                    .toLocaleString("en-IN") || 0}
+                </td>
+              </tr>
               <tr className={s.total}>
                 <td>Current</td>
                 <td className={s.amount}>

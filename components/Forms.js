@@ -1032,7 +1032,7 @@ export function AddFabric({ fy, edit, onSuccess }) {
           usage.push([
             {
               ...fabricUsage[0][0],
-              value: item.lot,
+              value: item.lot.lot || item.lot,
             },
             {
               ...fabricUsage[0][1],

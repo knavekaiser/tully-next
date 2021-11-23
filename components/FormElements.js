@@ -447,10 +447,100 @@ const Group = ({ id, inputs, clone, setGroupCount }) => {
 };
 
 export const MultipleInput2 = ({ inputs, refInput, id }) => {
-  <div id={id} className={s.multipleInput}>
-    {inputs.map((item) => {})}
-  </div>;
+  const [groupInputs, setGroupInputs] = useState(inputs);
+  return (
+    <div id={id} className={s.multipleInput}>
+      {groupInputs?.map((item, i) => (
+        <Group
+          key={i}
+          inputs={item}
+          clone={(values) => {
+            const cleanGroup = inputs[inputs.length - 1];
+            console.log(values, cleanGroup);
+            // setGroupInputs((prev) => [...prev, cleanGroup]);
+          }}
+        />
+      ))}
+    </div>
+  );
 };
+const Group2 = ({ id, inputs, clone, setGroupCount }) => {
+  const [value, setValue] = useState("");
+  const [values, setValues] = useState({});
+  // useEffect(() => {
+  //   setGroupCount((prev) => {
+  //     const newGroup = [...prev];
+  //     newGroup.push(`${id}:${inputs[0].value || ""}`);
+  //     return newGroup;
+  //   });
+  //   return () => {
+  //     setGroupCount((prev) => {
+  //       return prev.filter((item) => item.split(":")[0] !== id);
+  //     });
+  //   };
+  // }, []);
+  useEffect(() => {
+    clone(values);
+  }, [values]);
+  return (
+    <div className={s.group}>
+      {inputs.map((input, i) => {
+        if (input.type === "combobox") {
+          return (
+            <Combobox
+              label={input.label}
+              dataId={input.id}
+              key={input.id}
+              defaultValue={input.value}
+              options={input.options}
+              // required={!input.clone}
+              disabled={
+                false
+                // input.clone ? false : input.value ? false : value === ""
+              }
+              onChange={(target) => {
+                setValues((prev) => {
+                  const newValues = { ...prev };
+                  newValues[input.label] = target.value;
+                  return newValues;
+                });
+                // clone(values);
+                // input.clone && setValue(target.value);
+              }}
+              // id={input.clone ? id : id + i}
+            />
+          );
+        }
+        return (
+          <Input
+            type={input.type}
+            dataId={input.id}
+            key={input.id}
+            defaultValue={input.value}
+            // required={!input.clone}
+            max={input.clone ? 100 : 12}
+            label={input.label}
+            // id={input.clone ? id : id + i}
+            onChange={(target) => {
+              setValues((prev) => {
+                const newValues = { ...prev };
+                newValues[input.label] = target.value;
+                return newValues;
+              });
+              // clone(values);
+              // input.clone && setValue(target.value);
+            }}
+            disabled={
+              false
+              // input.clone ? false : input.value ? false : value === ""
+            }
+          />
+        );
+      })}
+    </div>
+  );
+};
+
 export const OutsideClick = ({
   id,
   className,
