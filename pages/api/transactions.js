@@ -124,10 +124,8 @@ export default nextConnect({
     [body("_id").notEmpty().withMessage("Please provide an _id.")],
     validateInput,
     (req, res) => {
-      console.log(req.body);
       Transaction.findOneAndDelete({ _id: req.body._id })
         .then((deleted) => {
-          console.log(deleted);
           res.json({ code: "ok", message: "Transaction has been deleted." });
         })
         .catch((err) => {
