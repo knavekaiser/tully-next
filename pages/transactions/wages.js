@@ -110,7 +110,7 @@ export default function Transactions() {
   if (!transactions) {
     return (
       <App>
-        <div className={s.productions}>
+        <div className={`${s.productions} ${s.transactions}`}>
           <Table
             className={s.production}
             columns={[
@@ -131,26 +131,6 @@ export default function Transactions() {
                 ),
               },
             ]}
-          >
-            <LoadingTr number={2} />
-          </Table>
-          <Table
-            className={s.wages}
-            columns={[
-              {
-                label: "Date",
-              },
-              {
-                label: "Taka",
-              },
-            ]}
-            onScroll={(dir) => {
-              if (dir === "down") {
-                setAddBtnStyle(true);
-              } else {
-                setAddBtnStyle(false);
-              }
-            }}
           >
             <LoadingTr number={2} />
           </Table>

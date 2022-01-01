@@ -46,38 +46,40 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen }) {
                 <p>Home</p>
               </li>
             </Link>
-            <Link
-              href={{
-                pathname: `/transactions/wages`,
-                query: {
-                  ...(dateFilter && {
-                    from: dateFilter.from,
-                    to: dateFilter.to,
-                  }),
-                },
-              }}
-            >
-              <li>
-                <IoSwapVerticalOutline />
-                <p>Wages</p>
-              </li>
-            </Link>
-            <Link
-              href={{
-                pathname: `/transactions/productions`,
-                query: {
-                  ...(dateFilter && {
-                    from: dateFilter.from,
-                    to: dateFilter.to,
-                  }),
-                },
-              }}
-            >
-              <li>
-                <IoSwapVerticalOutline />
-                <p>Production</p>
-              </li>
-            </Link>
+            {
+              //   <Link
+              //   href={{
+              //     pathname: `/transactions/wages`,
+              //     query: {
+              //       ...(dateFilter && {
+              //         from: dateFilter.from,
+              //         to: dateFilter.to,
+              //       }),
+              //     },
+              //   }}
+              // >
+              //   <li>
+              //     <IoSwapVerticalOutline />
+              //     <p>Wages</p>
+              //   </li>
+              // </Link>
+              // <Link
+              //   href={{
+              //     pathname: `/transactions/productions`,
+              //     query: {
+              //       ...(dateFilter && {
+              //         from: dateFilter.from,
+              //         to: dateFilter.to,
+              //       }),
+              //     },
+              //   }}
+              // >
+              //   <li>
+              //     <IoSwapVerticalOutline />
+              //     <p>Production</p>
+              //   </li>
+              // </Link>
+            }
             <Link
               href={{
                 pathname: `/lots`,

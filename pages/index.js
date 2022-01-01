@@ -8,7 +8,7 @@ import Link from "next/link";
 import s from "../styles/Dashboard.module.scss";
 import s2 from "../components/SCSS/Table.module.scss";
 import { displayDate } from "../components/FormElements";
-import { IoLockClosedOutline } from "react-icons/io5";
+import { IoLockClosedOutline, IoSwapVerticalOutline } from "react-icons/io5";
 import useSWR from "swr";
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
@@ -167,7 +167,6 @@ export default function Home() {
   );
   useEffect(() => {
     if (data) {
-      // console.log(data.summery);
       setSummery(data.summery);
     }
   }, [data]);
@@ -213,6 +212,16 @@ export default function Home() {
           <Link href={`costings`}>Costings</Link>
           <Link href={`wages`}>Wages</Link>
           <Link href={`productions`}>Productions</Link>
+          <Link href={`/transactions/wages`}>
+            <a>
+              <IoSwapVerticalOutline /> Wages
+            </a>
+          </Link>
+          <Link href={`/transactions/productions`}>
+            <a>
+              <IoSwapVerticalOutline /> Productions
+            </a>
+          </Link>
         </div>
       </App>
     );
@@ -240,6 +249,18 @@ export default function Home() {
         </Link>
         <Link href={`productions`}>
           <a>Productions {summery.production.toLocaleString("en-IN")}</a>
+        </Link>
+        <Link href={`/transactions/wages`}>
+          <a>
+            <IoSwapVerticalOutline /> Wages{" "}
+            {summery.transactions.wages.toLocaleString("en-IN")}
+          </a>
+        </Link>
+        <Link href={`/transactions/productions`}>
+          <a>
+            <IoSwapVerticalOutline /> Productions{" "}
+            {summery.transactions.production.toLocaleString("en-IN")}
+          </a>
         </Link>
         {loadingWeekData ? (
           <div className={`${s.pastWeek} ${s.loading}`}>
