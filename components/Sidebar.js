@@ -11,6 +11,7 @@ import {
   IoLogOutOutline,
   IoLayersOutline,
   IoSettingsOutline,
+  IoSwapVerticalOutline,
 } from "react-icons/io5";
 
 export default function Sidebar({ sidebarOpen, setSidebarOpen }) {
@@ -43,6 +44,38 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen }) {
               <li onClick={() => setSidebarOpen(false)}>
                 <IoHomeOutline />
                 <p>Home</p>
+              </li>
+            </Link>
+            <Link
+              href={{
+                pathname: `/transactions/wages`,
+                query: {
+                  ...(dateFilter && {
+                    from: dateFilter.from,
+                    to: dateFilter.to,
+                  }),
+                },
+              }}
+            >
+              <li>
+                <IoSwapVerticalOutline />
+                <p>Wages</p>
+              </li>
+            </Link>
+            <Link
+              href={{
+                pathname: `/transactions/productions`,
+                query: {
+                  ...(dateFilter && {
+                    from: dateFilter.from,
+                    to: dateFilter.to,
+                  }),
+                },
+              }}
+            >
+              <li>
+                <IoSwapVerticalOutline />
+                <p>Production</p>
               </li>
             </Link>
             <Link

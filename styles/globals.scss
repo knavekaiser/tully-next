@@ -58,15 +58,15 @@ button {
   overflow: hidden;
   .innerContainer {
     height: 100%;
-    width: calc(100% + 9rem);
+    width: calc(100% + 12rem);
     position: relative;
     display: grid;
-    grid-template-columns: 10rem auto;
+    grid-template-columns: 13rem auto;
     grid-template-rows: 3.5rem auto;
     grid-template-areas:
       "s h"
       "s t";
-    left: -9rem;
+    left: -12rem;
     transition: left 0.5s cubic-bezier(0.12, 0.1, 0.11, 1.03);
   }
 }
@@ -83,8 +83,8 @@ textarea {
     width: calc(100% - 1rem);
     border-radius: 1rem;
     .innerContainer {
-      left: -10rem;
-      width: calc(100% + 10rem);
+      left: -13rem;
+      width: calc(100% + 13rem);
     }
   }
 }

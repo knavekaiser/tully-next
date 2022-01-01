@@ -36,5 +36,4 @@ const worker = new Schema({
     },
   ],
 });
-
 global.Worker = mongoose.models["Worker"] || mongoose.model("Worker", worker);

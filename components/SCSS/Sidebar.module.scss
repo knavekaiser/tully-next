@@ -1,6 +1,6 @@
 .sidebar {
   position: relative;
-  width: 10rem;
+  width: 13rem;
   height: 100%;
   background: rgb(96, 140, 255);
   color: white;
@@ -39,6 +39,10 @@
       letter-spacing: 0.15em;
       transition: transform 0.25s;
       position: relative;
+      p {
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
       .upload {
         position: absolute;
         width: 100%;

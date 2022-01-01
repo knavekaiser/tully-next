@@ -17,16 +17,20 @@ export default function Nav({ sidebarOpen, setSidebarOpen }) {
   const [showMonthFilter, setShowMonthFilter] = useState(false);
   useEffect(() => {
     if (
-      router.pathname === "/" ||
-      router.pathname === "/bills" ||
-      router.pathname === "/costings" ||
-      router.pathname === "/productions" ||
-      router.pathname === "/wages" ||
-      router.pathname === "/workers" ||
-      router.pathname === "/lots" ||
-      router.pathname === "/fabrics" ||
-      router.pathname === "/employees" ||
-      router.pathname === "/config"
+      [
+        "/",
+        "/bills",
+        "/costings",
+        "/productions",
+        "/wages",
+        "/workers",
+        "/lots",
+        "/fabrics",
+        "/employees",
+        "/config",
+        "/transactions/wages",
+        "/transactions/productions",
+      ].includes(router.pathname)
     ) {
       setBackBtn(false);
       setShowMonthFilter(true);

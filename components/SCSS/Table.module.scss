@@ -638,6 +638,26 @@
   }
 }
 
+.transactions {
+  grid-template-columns: 1fr;
+  .note {
+    font-size: 0.82rem;
+    color: #666;
+    font-style: italic;
+    display: block;
+  }
+  .income {
+    .amount {
+      color: rgb(60, 166, 39);
+    }
+  }
+  .expense {
+    .amount {
+      color: rgb(194, 27, 77);
+    }
+  }
+}
+
 .sampleImg {
   height: 100vh;
   width: calc(100vw - 2rem);

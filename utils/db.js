@@ -4,9 +4,11 @@ global.bcrypt = require("bcryptjs");
 global.jwt_decode = require("jwt-decode");
 global.jwt = require("jsonwebtoken");
 global.ObjectID = require("mongodb").ObjectID;
+const { validationResult } = require("express-validator");
 const {} = require("./models/worker.js");
 const {} = require("./models/production.js");
 const {} = require("./models/admin");
+const {} = require("./models/transaction");
 
 global.genCode = (n) => {
   let code = "";
@@ -185,3 +187,19 @@ export const monthAggregate = () => [
 ];
 
 export const json = (data) => JSON.parse(JSON.stringify(data));
+
+export const validateInput = (req, res, next) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    const error = new Error("Validation failed.");
+    error.statusCode = 422;
+    res.status(400).json({
+      code: 400,
+      message: "Invalid request",
+      errors: errors.errors,
+    });
+    return;
+  } else {
+    next();
+  }
+};
