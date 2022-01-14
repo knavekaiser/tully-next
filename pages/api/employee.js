@@ -146,17 +146,26 @@ export default nextConnect({
                     lastDay: {
                       $first: {
                         paid: "$work.paid",
-                        qnt: {
-                          $sum: {
-                            $reduce: {
-                              input: "$work.products",
-                              initialValue: 0,
-                              in: {
-                                $add: ["$$value", "$$this.qnt"],
-                              },
+                        products: {
+                          $map: {
+                            input: "$work.products",
+                            in: {
+                              qnt: "$$this.qnt",
+                              group: "$$this.group",
                             },
                           },
                         },
+                        // qnt: {
+                        //   $sum: {
+                        //     $reduce: {
+                        //       input: "$work.products",
+                        //       initialValue: 0,
+                        //       in: {
+                        //         $add: ["$$value", "$$this.qnt"],
+                        //       },
+                        //     },
+                        //   },
+                        // },
                         date: "$work.date",
                       },
                     },

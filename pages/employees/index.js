@@ -74,8 +74,25 @@ export default function EmpList() {
   }, []);
   useEffect(() => {
     if (data?.content) {
-      console.log(data.content);
-      setEmployees(data.content.allEmps);
+      setEmployees(
+        data.content.allEmps.map((emp) => ({
+          ...emp,
+          lastDay: {
+            ...emp.lastDay,
+            ...(emp.lastDay.products?.length && {
+              qnt: emp.lastDay.products
+                .sort((a, b) => (a.group < b.group ? -1 : 1))
+                .reduce(
+                  (p, c) =>
+                    `${p}${p.length > 0 ? "; " : ""}${
+                      c.group
+                    }:${c.qnt.toLocaleString("en-IN")}`,
+                  ""
+                ),
+            }),
+          },
+        }))
+      );
       setMonths(data.content.months);
     }
   }, [data]);
@@ -179,7 +196,7 @@ export default function EmpList() {
           }
         }}
       >
-        {employees?.map((emp, i) => {
+        {employees.map((emp, i) => {
           return (
             <Tr
               onClick={() => {
@@ -223,9 +240,7 @@ export default function EmpList() {
                 <span className={s.lastPaid}>
                   {emp.lastDay?.paid?.toLocaleString()}
                 </span>
-                <span className={s.lastQnt}>
-                  {emp.lastDay?.qnt?.toLocaleString()}
-                </span>
+                <span className={s.lastQnt}>{emp.lastDay?.qnt}</span>
               </td>
               <td>
                 <span className={s.production}>
