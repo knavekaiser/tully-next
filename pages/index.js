@@ -253,13 +253,13 @@ export default function Home() {
         <Link href={`/transactions/wages`}>
           <a>
             <IoSwapVerticalOutline /> Wages{" "}
-            {summery.transactions.wages.toLocaleString("en-IN")}
+            {summery.transactions.wages?.toLocaleString("en-IN")}
           </a>
         </Link>
         <Link href={`/transactions/productions`}>
           <a>
             <IoSwapVerticalOutline /> Productions{" "}
-            {summery.transactions.production.toLocaleString("en-IN")}
+            {summery.transactions.production?.toLocaleString("en-IN")}
           </a>
         </Link>
         {loadingWeekData ? (
