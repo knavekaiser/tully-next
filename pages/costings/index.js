@@ -2,6 +2,7 @@ import { useEffect, useState, useContext, useRef } from "react";
 import { SiteContext } from "../../SiteContext";
 import { App } from "../index.js";
 import Table, { Tr, LoadingTr } from "../../components/Table";
+import Img from "next/image";
 import { AddBtn, SS } from "../../components/FormElements";
 import { useRouter } from "next/router";
 import { Modal } from "../../components/Modals";
@@ -105,6 +106,7 @@ export default function Costings() {
           columns={[
             { label: "Lot", className: s.lot },
             { label: "dress", className: s.dress },
+            { label: "Image", className: s.image },
             { label: "lot size" },
             { label: "cost" },
           ]}
@@ -128,6 +130,7 @@ export default function Costings() {
         columns={[
           { label: "Lot", className: s.lot },
           { label: "dress", className: s.dress },
+          { label: "Image", className: s.image },
           { label: "lot size" },
           { label: "cost" },
         ]}
@@ -175,6 +178,14 @@ export default function Costings() {
                     </small>
                   </i>
                 </span>
+              )}
+            </td>
+            <td className={s.image}>
+              {costing.img && (
+                <img
+                  style={{ height: 50, width: 50, objectFit: "cover" }}
+                  src={costing.img}
+                />
               )}
             </td>
             <td className={s.lotSize}>

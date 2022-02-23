@@ -255,12 +255,14 @@ export default function SingleCosting() {
         {data.img ? (
           <tr className={s.img}>
             <td>
-              <Img
-                src={data.img}
-                layout="fill"
-                objectFit="contain"
-                onClick={() => setShowImg(true)}
-              />
+              {data.img && (
+                <Img
+                  src={data.img || ""}
+                  layout="fill"
+                  objectFit="contain"
+                  onClick={() => setShowImg(true)}
+                />
+              )}
             </td>
           </tr>
         ) : (
