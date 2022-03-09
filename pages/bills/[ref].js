@@ -8,6 +8,48 @@ import s from "../../components/SCSS/Table.module.scss";
 import { Modal } from "../../components/Modals";
 import { useReactToPrint } from "react-to-print";
 
+const Name = () => {
+  return (
+    <svg height={60} width={300} className={s.name}>
+      <defs>
+        <linearGradient
+          id="rainbow"
+          x1="0"
+          y1="0"
+          x2="100%"
+          y2="100%"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop stop-color="#FF5B99" offset="0%" />
+          <stop stop-color="#FF5B99" offset="5%" />
+          <stop stop-color="#FF5447" offset="20%" />
+          <stop stop-color="#FF7B21" offset="40%" />
+          <stop stop-color="#EAFC37" offset="60%" />
+          <stop stop-color="#4FCB6B" offset="80%" />
+          <stop stop-color="#51F7FE" offset="100%" />
+        </linearGradient>
+      </defs>
+      <defs>
+        <linearGradient
+          id="blueRedYellow"
+          x1="100%"
+          y1="0"
+          x2="0"
+          y2="150%"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop stop-color="#4158D0" offset="0%" />
+          <stop stop-color="#C850C0" offset="46%" />
+          <stop stop-color="#d4972a" offset="100%" />
+        </linearGradient>
+      </defs>
+      <text x="15" y="48" fill="url(#blueRedYellow)">
+        মোঃ হোসেন
+      </text>
+    </svg>
+  );
+};
+
 class Bill_Class extends Component {
   render() {
     const bill = this.props.bill;
@@ -24,6 +66,7 @@ class Bill_Class extends Component {
             বিল <span className={s.ref}>{bill.ref}</span>
           </p>
           <h1>মোঃ হোসেন</h1>
+          <Name />
           <h1 className={s.fill}>মোঃ হোসেন</h1>
           <p className={s.add}>
             ৭২ টেকের হাটি মেইন রোড, কামরাঙ্গীরচর, ঢাকা ১২১১ • ০১৭১৭-১৪১০৭৭
