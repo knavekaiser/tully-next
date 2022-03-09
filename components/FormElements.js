@@ -290,6 +290,7 @@ export const GetGroupData = (multipleInput) => {
       const section = group.children[j];
       const input = section.querySelector("input");
       if (input.value === "") {
+        data[section.id] = "";
         continue;
       } else {
         const num = +input.value;
@@ -300,7 +301,9 @@ export const GetGroupData = (multipleInput) => {
           : num;
       }
     }
-    Object.keys(data).length === group.children.length && allData.push(data);
+    Object.values(data).filter((value) => value).length > 0 &&
+      allData.push(data);
+    // Object.keys(data).length === group.children.length && allData.push(data);
   }
   return allData;
 };

@@ -92,8 +92,8 @@ const costing = new Schema({
   materials: [
     {
       material: { type: String, required: true },
-      qnt: { type: Number, required: true },
-      price: { type: Number, required: true },
+      qnt: { type: Number },
+      price: { type: Number },
     },
   ],
   note: { type: String },

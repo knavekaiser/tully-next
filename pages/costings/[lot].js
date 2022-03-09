@@ -51,8 +51,8 @@ class Costing_print extends Component {
               {costing.materials.map((material, i) => (
                 <tr key={i}>
                   <td className={s.dress}>{material.material}</td>
-                  <td>{material.qnt.toLocaleString("bn-BD")}</td>
-                  <td>{material.price.toLocaleString("bn-BD")}</td>
+                  <td>{material.qnt?.toLocaleString("bn-BD")}</td>
+                  <td>{material.price?.toLocaleString("bn-BD")}</td>
                   <td className={s.taka}>
                     {(material.price * material.qnt).toLocaleString("bn-BD")}
                   </td>
@@ -132,12 +132,94 @@ class Costing_print extends Component {
   }
 }
 
+class Costing_lot extends Component {
+  render() {
+    const costing = this.props.costing;
+    return (
+      <div className={`${s.paper} ${s.costing} ${s.lot}`}>
+        <div className={`${s.billPrint} ${s.image}`}>
+          {costing.img && (
+            <Img src={costing.img} layout="fill" objectFit="contain" />
+          )}
+        </div>
+        <div className={s.cut} />
+        <div className={`${s.billPrint}`}>
+          <header>
+            <h2 contentEditable={true}>{costing.dress}</h2>
+            <div>
+              <p>লট নংঃ {costing.lot?.toLocaleString("bn-BD")}</p>
+              <p>লট সাইজঃ {costing.lotSize?.toLocaleString("bn-BD")}</p>
+            </div>
+          </header>
+          <table className={s.content} cellSpacing={0} cellPadding={0}>
+            <thead>
+              <tr>
+                <th>আইটেম</th>
+                <th>পরিমাণ</th>
+                <th>দর</th>
+              </tr>
+            </thead>
+            <tbody className={s.products}>
+              {costing.materials.map((material, i) => (
+                <tr key={i}>
+                  <td className={s.dress}>{material.material}</td>
+                  <td>
+                    {
+                      // material.qnt?.toLocaleString("bn-BD")
+                    }
+                  </td>
+                  <td>
+                    {
+                      // material.price?.toLocaleString("bn-BD")
+                    }
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+            {
+              // <tbody className={s.summery}>
+              // <tr>
+              // <td>মোট</td>
+              // <td className={s.taka}>
+              // {costing.materials
+              //   .reduce((p, c) => p + c.qnt * c.price, 0)
+              //   .toLocaleString("bn-BD")}
+              //   </td>
+              //   </tr>
+              //   <tr>
+              //   <td>প্রতি পিছ</td>
+              //   <td className={s.taka}>
+              //     {Math.ceil(
+              //       costing.materials.reduce((p, c) => p + c.qnt * c.price, 0) /
+              //         costing.lotSize
+              //     ).toLocaleString("bn-BD")}
+              //   </td>
+              // </tr>
+              // </tbody>
+            }
+          </table>
+          <footer>
+            {
+              //   <p>ক্রেতার স্বাক্ষর</p>
+              // <p className={s.thanks} contentEditable={false}>
+              //   ধন্যবাদ আবার আসবেন
+              // </p>
+              // <p>বিক্রেতার স্বাক্ষর</p>
+            }
+          </footer>
+        </div>
+      </div>
+    );
+  }
+}
+
 export default function SingleCosting() {
   const router = useRouter();
   const { fy, user } = useContext(SiteContext);
   const [data, setData] = useState(null);
   const [showImg, setShowImg] = useState(false);
   const [showPrint, setShowPrint] = useState(false);
+  const [showLotPrint, setShowLotPrint] = useState(false);
   const componentRef = useRef();
   const handlePrint = useReactToPrint({ content: () => componentRef.current });
   const fetchData = (lotNo) => {
@@ -270,6 +352,7 @@ export default function SingleCosting() {
         )}
         <tr>
           <td onClick={() => setShowPrint(true)}>Print</td>
+          <td onClick={() => setShowLotPrint(true)}>Print Lot</td>
         </tr>
       </Table>
       <Modal className={s.sampleImg} open={showImg} setOpen={setShowImg}>
@@ -290,6 +373,17 @@ export default function SingleCosting() {
         <Costing_print costing={data} ref={componentRef} />
         <button onClick={handlePrint}>Print this out!</button>
         <button onClick={() => setShowPrint(false)}>Close</button>
+        <div className={s.pBtm} />
+      </Modal>
+      <Modal
+        className={s.container}
+        backDropClass={s.printBackdrop}
+        open={showLotPrint}
+        setOpen={setShowLotPrint}
+      >
+        <Costing_lot costing={data} ref={componentRef} />
+        <button onClick={handlePrint}>Print this out!</button>
+        <button onClick={() => setShowLotPrint(false)}>Close</button>
         <div className={s.pBtm} />
       </Modal>
     </App>
