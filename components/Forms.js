@@ -8,6 +8,7 @@ import {
   Submit,
   MultipleInput,
   GetGroupData,
+  GetGroupDataWithEmptyField,
   Combobox,
   formatDate,
   $,
@@ -761,9 +762,9 @@ export function CostingForm({ fy, defaultLot, edit, onSuccess }) {
   const submit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    const materials = GetGroupData($(".modal #materials"));
+    const materials = GetGroupDataWithEmptyField($(".modal #materials"));
     const formData = {
-      ...(preFill && { _id: edit._id }),
+      ...(preFill && edit?._id && { _id: edit._id }),
       date,
       fy,
       lot,
@@ -772,7 +773,7 @@ export function CostingForm({ fy, defaultLot, edit, onSuccess }) {
       materials,
       note,
     };
-    if (edit) {
+    if (edit?._id) {
       if (img.startsWith("data:image/")) {
         formData.img = { new: await uploadImg(img), old: edit.img };
       } else {
@@ -788,13 +789,14 @@ export function CostingForm({ fy, defaultLot, edit, onSuccess }) {
     }
     if (materials.length < 1) return;
     fetch("/api/costings", {
-      method: edit ? "PATCH" : "POST",
+      method: edit?._id ? "PATCH" : "POST",
       headers: { "Content-type": "application/json" },
       body: JSON.stringify(formData),
     })
       .then((res) => res.json())
       .then((data) => {
         setLoading(false);
+        console.log(data);
         if (data.code === "ok") {
           onSuccess?.(data.content);
         } else if (data.message === "ref exists") {

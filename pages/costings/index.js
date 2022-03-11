@@ -72,7 +72,11 @@ export default function Costings() {
       setMonths(data.months);
     }
   }, [data]);
-  useEffect(() => !showForm && setCostToEdit(null), [showForm]);
+  useEffect(() => {
+    if (!showForm) {
+      setCostToEdit(null);
+    }
+  }, [showForm]);
   useEffect(() => {
     if (!user) {
       router.push("/login");
@@ -151,6 +155,13 @@ export default function Costings() {
                 label: "Edit",
                 fun: () => {
                   setCostToEdit(costing);
+                  setShowForm(true);
+                },
+              },
+              {
+                label: "Clone",
+                fun: () => {
+                  setCostToEdit({ materials: costing.materials });
                   setShowForm(true);
                 },
               },
