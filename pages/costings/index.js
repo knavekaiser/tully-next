@@ -161,7 +161,10 @@ export default function Costings() {
               {
                 label: "Clone",
                 fun: () => {
-                  setCostToEdit({ materials: costing.materials });
+                  setCostToEdit({
+                    materials: costing.materials,
+                    img: costing.img,
+                  });
                   setShowForm(true);
                 },
               },
