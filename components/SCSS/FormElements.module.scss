@@ -87,7 +87,7 @@
       pointer-events: none !important;
     }
   }
-  svg {
+  span {
     position: absolute;
     right: 0;
     // bottom: 0.5rem;
@@ -350,6 +350,7 @@
   transform: translateY(0);
   transition: transform 0.25s ease-in-out;
   box-shadow: 0 4px 20px rgba(#00f260, 0.4);
+  z-index: 10;
   &.hidden {
     transform: translateY(4rem);
   }

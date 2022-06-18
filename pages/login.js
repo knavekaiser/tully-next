@@ -7,10 +7,10 @@ import s from "../styles/Login.module.scss";
 import s2 from "../components/SCSS/FormElements.module.scss";
 import { useRouter } from "next/router";
 import { json } from "../utils/db";
+import { verifyToken } from "./api/auth";
 
 export async function getServerSideProps(ctx) {
   const { dbConnect } = require("../utils/db");
-  const { verifyToken } = require("./api/auth");
   dbConnect();
   const { req, res } = ctx;
   const token = verifyToken(req);

@@ -1,7 +1,14 @@
-import { useEffect, useState, useContext, useRef } from "react";
+import {
+  useEffect,
+  useState,
+  useContext,
+  useRef,
+  useMemo,
+  useCallback,
+} from "react";
 import { SiteContext } from "../../SiteContext";
 import { App } from "../index.js";
-import Table, { Tr, LoadingTr } from "../../components/Table";
+import Table, { Tr, VirtualizedTable, LoadingTr } from "../../components/Table";
 import { displayDate, AddBtn, SS } from "../../components/FormElements";
 import { useRouter } from "next/router";
 import { Modal } from "../../components/Modals";
@@ -9,6 +16,11 @@ import { BillForm } from "../../components/Forms";
 import useSWR from "swr";
 import { IoLockClosedOutline } from "react-icons/io5";
 import s from "../../components/SCSS/Table.module.scss";
+import AutoSizer from "react-virtualized/dist/commonjs/AutoSizer";
+import List from "react-virtualized/dist/commonjs/List";
+import AutoTable from "react-virtualized/dist/commonjs/Table";
+import { Column } from "react-virtualized";
+// import Column from "react-virtualized/dist/commonjs/Column";
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
@@ -49,6 +61,20 @@ export default function Bills() {
     }
   };
   const firstRender = useRef(true);
+  const getRowHeight = useCallback((row) => {
+    if (!row) {
+      return 0;
+    }
+    if (row.products.length === 0) {
+      return 0;
+    } else if (row.products.length === 1) {
+      return 52;
+    } else if (row.products.length === 2) {
+      return 88;
+    } else if (row.products.length > 2) {
+      return 36 * (row.products.length - 2) + 28 * 2 + 32;
+    }
+  }, []);
   useEffect(() => {
     if (data?.bills) {
       setMonths(data.months);
@@ -58,7 +84,6 @@ export default function Bills() {
   useEffect(() => {
     if (firstRender.current) {
       firstRender.current = false;
-      return;
     }
     router.push({
       pathname: router.pathname,
@@ -71,7 +96,9 @@ export default function Bills() {
       },
     });
   }, [fy, dateFilter]);
-  useEffect(() => !showForm && setBillToEdit(null), [showForm]);
+  useEffect(() => {
+    !showForm && setBillToEdit(null);
+  }, [showForm]);
   useEffect(() => {
     if (!user) {
       router.push("/login");
@@ -100,7 +127,8 @@ export default function Bills() {
   }
   return (
     <App key="bills">
-      <Table
+      <VirtualizedTable
+        loading={!bills && 5}
         columns={[
           { label: "date", className: s.date },
           { label: "ref", className: s.ref },
@@ -116,8 +144,9 @@ export default function Bills() {
             setAddBtnStyle(false);
           }
         }}
-      >
-        {bills?.map((bill) => (
+        rows={bills || []}
+        getRowHeight={getRowHeight}
+        rowRenderer={(bill, style) => (
           <Tr
             key={bill.ref}
             options={[
@@ -137,6 +166,7 @@ export default function Bills() {
               router.push(`/bills/${bill.ref}`);
               SS.set("singleBillData", JSON.stringify(bill));
             }}
+            trStyle={style}
           >
             <td className={s.date}>{displayDate(bill.date)}</td>
             <td className={s.ref}>{bill.ref}</td>
@@ -154,27 +184,9 @@ export default function Bills() {
                 </div>
               ))}
             </td>
-            {
-              //   <td className={s.dress}>
-              //   {bill.products.length <= 1
-              //     ? bill.products[0]?.dress
-              //     : "Multiple items"}
-              // </td>
-              // <td>
-              //   {bill.products
-              //     .reduce((p, c) => p + c.qnt, 0)
-              //     .toLocaleString("en-IN")}
-              // </td>
-              // <td>
-              //   {bill.products
-              //     .reduce((p, c) => p + (c.qnt * c.cost - c.qnt * c.wage), 0)
-              //     .toLocaleString("en-IN")}
-              // </td>
-            }
           </Tr>
-        ))}
-        {!bills && <LoadingTr number={5} />}
-      </Table>
+        )}
+      />
       {fy !== "all" && (
         <AddBtn translate={addBtnStyle || showForm} onClick={setShowForm} />
       )}

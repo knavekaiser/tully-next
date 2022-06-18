@@ -1,4 +1,10 @@
-import { useEffect, useState, useRef, useLayoutEffect } from "react";
+import {
+  useEffect,
+  useState,
+  useRef,
+  useLayoutEffect,
+  forwardRef,
+} from "react";
 import Img from "next/image";
 import s from "./SCSS/FormElements.module.scss";
 import {
@@ -67,90 +73,96 @@ export const SS = {
   get: (key) => sessionStorage.getItem(key) || "",
   remove: (key) => sessionStorage.removeItem(key),
 };
-export const Input = ({
-  id,
-  dataId,
-  label,
-  type,
-  defaultValue,
-  value,
-  pattern,
-  strict,
-  warning,
-  required,
-  onChange,
-  disabled,
-  max,
-  min,
-  children,
-  placeholder,
-  className,
-  validationMessage,
-  autoFocus,
-  name,
-  autoComplete,
-}) => {
-  const [localValue, setValue] = useState(defaultValue || value);
-  const [showLabel, setShowLabel] = useState(!defaultValue);
-  const [invalidChar, setInvalidChar] = useState(false);
-  const [invalidInput, setInvalidInput] = useState(false);
-  const changeHandler = (e) => {
-    e.target.setCustomValidity("");
-    setInvalidInput(false);
-    const regex = strict || defaultValidation;
-    if (e.target.value === "" || regex.exec(e.target.value) !== null) {
-      setValue(e.target.value);
-      onChange && onChange(e.target);
-    } else {
-      if (!invalidChar) {
-        setInvalidChar(true);
-        setTimeout(() => setInvalidChar(false), 2000);
+export const Input = forwardRef(
+  (
+    {
+      id,
+      dataId,
+      label,
+      type,
+      defaultValue,
+      value,
+      pattern,
+      strict,
+      warning,
+      required,
+      onChange,
+      disabled,
+      max,
+      min,
+      children,
+      placeholder,
+      className,
+      validationMessage,
+      autoFocus,
+      name,
+      autoComplete,
+    },
+    ref
+  ) => {
+    const [localValue, setValue] = useState(defaultValue || value);
+    const [showLabel, setShowLabel] = useState(!defaultValue);
+    const [invalidChar, setInvalidChar] = useState(false);
+    const [invalidInput, setInvalidInput] = useState(false);
+    const changeHandler = (e) => {
+      e.target.setCustomValidity("");
+      setInvalidInput(false);
+      const regex = strict || defaultValidation;
+      if (e.target.value === "" || regex.exec(e.target.value) !== null) {
+        setValue(e.target.value);
+        onChange && onChange(e.target);
+      } else {
+        if (!invalidChar) {
+          setInvalidChar(true);
+          setTimeout(() => setInvalidChar(false), 2000);
+        }
       }
-    }
-  };
-  const focus = () => setShowLabel(false);
-  const blur = () => !localValue && setShowLabel(true);
-  useEffect(() => {
-    value && setValue(value);
-  }, [value]);
-  return (
-    <section
-      id={dataId}
-      className={`${s.input} ${className || ""} ${
-        invalidChar ? s.invalid : ""
-      } ${disabled ? s.disabled : ""} ${
-        type === "date" && !localValue ? s.empty : ""
-      }`}
-    >
-      <input
-        autoFocus={autoFocus}
-        onInvalid={(e) => {
-          e.target.setCustomValidity(" ");
-          setInvalidInput(true);
-        }}
-        name={name}
-        minLength={min}
-        value={localValue || ""}
-        required={required}
-        type={type || "text"}
-        onChange={changeHandler}
-        onFocus={focus}
-        onBlur={blur}
-        maxLength={max || 100}
-        id={id}
-        disabled={disabled}
-        placeholder={placeholder || label}
-        pattern={pattern}
-        autoComplete={autoComplete}
-      />
-      <label className={`${s.label} ${showLabel ? s.active : ""}`}>
-        {invalidChar ? (warning ? warning : "অকার্যকর অক্ষর!") : label}
-      </label>
-      {children}
-      {invalidInput && <p className={s.fieldWarning}>{validationMessage}</p>}
-    </section>
-  );
-};
+    };
+    const focus = () => setShowLabel(false);
+    const blur = () => !localValue && setShowLabel(true);
+    useEffect(() => {
+      value && setValue(value);
+    }, [value]);
+    return (
+      <section
+        id={dataId}
+        className={`${s.input} ${className || ""} ${
+          invalidChar ? s.invalid : ""
+        } ${disabled ? s.disabled : ""} ${
+          type === "date" && !localValue ? s.empty : ""
+        }`}
+      >
+        <input
+          ref={ref}
+          autoFocus={autoFocus}
+          onInvalid={(e) => {
+            e.target.setCustomValidity(" ");
+            setInvalidInput(true);
+          }}
+          name={name}
+          minLength={min}
+          value={localValue || ""}
+          required={required}
+          type={type || "text"}
+          onChange={changeHandler}
+          onFocus={focus}
+          onBlur={blur}
+          maxLength={max || 100}
+          id={id}
+          disabled={disabled}
+          placeholder={placeholder || label}
+          pattern={pattern}
+          autoComplete={autoComplete}
+        />
+        <label className={`${s.label} ${showLabel ? s.active : ""}`}>
+          {invalidChar ? (warning ? warning : "অকার্যকর অক্ষর!") : label}
+        </label>
+        {children}
+        {invalidInput && <p className={s.fieldWarning}>{validationMessage}</p>}
+      </section>
+    );
+  }
+);
 export const PasswordInput = ({
   className,
   label,
@@ -166,6 +178,7 @@ export const PasswordInput = ({
   name,
   autoComplete,
 }) => {
+  const inputRef = useRef();
   const [showPass, setShowPass] = useState(false);
   const [passValidation, setPassValidation] = useState("Enter password");
   function change(target) {
@@ -173,10 +186,11 @@ export const PasswordInput = ({
   }
   function handleIconClick(e) {
     setShowPass(!showPass);
-    e.target.parentElement.parentElement.querySelector("input").focus();
+    inputRef.current.focus();
   }
   return (
     <Input
+      ref={inputRef}
       className={s.passInput + " " + className}
       id={id}
       defaultValue={defaultValue}

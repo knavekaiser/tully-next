@@ -50,7 +50,9 @@ export default function EmpWorkList() {
       });
   };
   const firstRender = useRef(true);
-  useEffect(() => !showForm && setWorkToEdit(null), [showForm]);
+  useEffect(() => {
+    !showForm && setWorkToEdit(null);
+  }, [showForm]);
   useEffect(() => {
     if (firstRender.current) {
       firstRender.current = false;

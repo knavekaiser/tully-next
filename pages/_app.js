@@ -2,7 +2,7 @@ import { Provider } from "../SiteContext";
 import "../styles/globals.scss";
 
 import NProgress from "nprogress";
-import Router, { useRouter } from "next/router";
+import Router from "next/router";
 
 Router.onRouteChangeStart = (url) => NProgress.start();
 

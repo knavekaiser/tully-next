@@ -1,4 +1,4 @@
-import { useEffect, useContext, useState } from "react";
+import { useEffect, useContext, useState, useCallback } from "react";
 import { SiteContext } from "../../SiteContext";
 import { App } from "../index.js";
 import Table, { LoadingTr } from "../../components/Table";
@@ -20,7 +20,7 @@ export default function SingleCosting() {
   const [showSample, setShowSample] = useState(false);
   const [fabric, setFabric] = useState(null);
   const { user } = useContext(SiteContext);
-  const fetchData = (_id) => {
+  const fetchData = useCallback((_id) => {
     fetch(`/api/fabrics?_id=${_id}`)
       .then((res) => res.json())
       .then((data) => {
@@ -36,7 +36,7 @@ export default function SingleCosting() {
       .catch((err) => {
         console.log(err);
       });
-  };
+  }, []);
   useEffect(() => {
     if (!user) {
       router.push("/login");

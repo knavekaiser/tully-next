@@ -1,4 +1,11 @@
-import { useEffect, useContext, useState, Component, useRef } from "react";
+import {
+  useEffect,
+  useContext,
+  useState,
+  Component,
+  useRef,
+  useCallback,
+} from "react";
 import { SiteContext } from "../../SiteContext";
 import { App } from "../index.js";
 import Table, { LoadingTr } from "../../components/Table";
@@ -222,7 +229,7 @@ export default function SingleCosting() {
   const [showLotPrint, setShowLotPrint] = useState(false);
   const componentRef = useRef();
   const handlePrint = useReactToPrint({ content: () => componentRef.current });
-  const fetchData = (lotNo) => {
+  const fetchData = useCallback(() => {
     fetch(`/api/costings?lot=${lotNo}`)
       .then((res) => res.json())
       .then((data) => {
@@ -238,7 +245,7 @@ export default function SingleCosting() {
       .catch((err) => {
         console.log(err);
       });
-  };
+  }, []);
   useEffect(() => {
     if (!user) {
       router.push("/login");

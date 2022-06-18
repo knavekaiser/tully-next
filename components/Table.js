@@ -1,4 +1,4 @@
-import { useState, useRef, useContext, forwardRef } from "react";
+import { useState, useRef, useContext, forwardRef, useEffect } from "react";
 import { SiteContext } from "../SiteContext";
 import s from "./SCSS/Table.module.scss";
 
@@ -49,9 +49,148 @@ const Table = forwardRef(({ className, columns, children, onScroll }, ref) => {
   );
 });
 
+const wrapperStyles = {
+  position: "absolute",
+  height: "100%",
+  width: "100%",
+  display: "block",
+  padding: "0",
+  margin: "0",
+  border: "none",
+  background: "none",
+};
+
+export const VirtualizedTable = ({
+  loading,
+  className,
+  columns,
+  onScroll,
+  rows,
+  getRowHeight,
+  rowHeight,
+  rowRenderer,
+}) => {
+  const [scrollPos, setScrollPos] = useState(0);
+  const [totalHeight, setTotalHeight] = useState(0);
+  const tbodyRef = useRef();
+  useEffect(() => {
+    setTotalHeight(
+      getRowHeight
+        ? rows.reduce((p, c) => p + getRowHeight(c), 0)
+        : (rowHeight || 0) * rows.length
+    );
+  }, [rows]);
+  // useEffect(() => {
+  //   const bound = tbodyRef.current.getBoundingClientRect();
+  //   console.log(bound);
+  // }, [scrollPos]);
+  return (
+    <table
+      className={`${s.table} ${className || ""}`}
+      cellSpacing={0}
+      cellPadding={0}
+    >
+      <thead>
+        <tr>
+          {columns.map((item, i) => {
+            return (
+              <th
+                key={i}
+                onClick={() => {
+                  if (item.sort) {
+                    console.log("do something");
+                  }
+                }}
+                className={item.className || ""}
+                onClick={item.onClick}
+              >
+                {item.label}
+              </th>
+            );
+          })}
+        </tr>
+      </thead>
+      <tbody
+        style={{
+          position: "relative",
+        }}
+        ref={tbodyRef}
+        {...(onScroll && {
+          onScroll: (e) => {
+            if (scrollPos < e.target.scrollTop) {
+              onScroll("down");
+            } else {
+              onScroll("up");
+            }
+            setScrollPos(e.target.scrollTop);
+          },
+        })}
+      >
+        {loading ? (
+          <LoadingTr number={loading} />
+        ) : (
+          <tr style={wrapperStyles}>
+            <td style={wrapperStyles}>
+              <div style={wrapperStyles}>
+                <table style={wrapperStyles}>
+                  <tbody
+                    style={{
+                      height: totalHeight,
+                      maxHeight: totalHeight,
+                      position: "relative",
+                      overflow: "hidden",
+                    }}
+                  >
+                    {rows.map((row, i, arr) => {
+                      const buffer = 10;
+                      const containerHeight = tbodyRef.current.clientHeight;
+                      // if (i > 10) return;
+                      const x = getRowHeight
+                        ? arr
+                            .slice(0, i)
+                            .reduce((p, a) => p + getRowHeight(a), 0)
+                        : rowHeight * i;
+                      const currentRowHeight = getRowHeight(row);
+
+                      if (
+                        x + currentRowHeight > scrollPos &&
+                        x < scrollPos + containerHeight
+                      ) {
+                        return rowRenderer(row, {
+                          position: "absolute",
+                          top: x,
+                          width: "100%",
+                        });
+                      }
+                      return null;
+                      //  else if (x + currentRowHeight < scrollPos) {
+                      //   return rowRenderer(row, {
+                      //     position: "absolute",
+                      //     top: x,
+                      //     width: "100%",
+                      //   });
+                      // } else if (x > scrollPos + containerHeight) {
+                      //   return rowRenderer(row, {
+                      //     position: "absolute",
+                      //     top: x,
+                      //     width: "100%",
+                      //   });
+                      // }
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </td>
+          </tr>
+        )}
+      </tbody>
+    </table>
+  );
+};
+
 export default Table;
 
-export const Tr = ({ children, options, onClick, className }) => {
+export const Tr = ({ children, options, onClick, className, trStyle }) => {
   const { user } = useContext(SiteContext);
   const [menuOpen, setMenuOpen] = useState(false);
   const [style, setStyle] = useState({ top: 0, left: 0 });
@@ -59,7 +198,7 @@ export const Tr = ({ children, options, onClick, className }) => {
   return (
     <tr
       onClick={onClick}
-      className={s.trContext + " " + className || ""}
+      className={s.trContext + " " + (className || "")}
       onContextMenu={(e) => {
         if (!menuOpen) navigator.vibrate(10);
         setMenuOpen(!menuOpen);
@@ -111,6 +250,7 @@ export const Tr = ({ children, options, onClick, className }) => {
           return newPos;
         });
       }}
+      style={trStyle || {}}
     >
       {children}
       {menuOpen && !user.work && (
