@@ -1,5 +1,5 @@
 export const moment = ({ time, format }) => {
-  if (new Date(time).toString() === "Invalid Date") {
+  if (!time || new Date(time).toString() === "Invalid Date") {
     return time;
   }
   const options = {
@@ -24,11 +24,12 @@ export const moment = ({ time, format }) => {
     hour: format.includes("hh") ? "2-digit" : "numeric",
     minute: format.includes("mm") ? "2-digit" : "numeric",
     second: format.includes("ss") ? "2-digit" : "numeric",
+    hourCycle: format.includes("a") ? "h11" : "h23",
   };
   const values = {};
   new Intl.DateTimeFormat("en-IN", options)
     .formatToParts(new Date(time || new Date()))
-    .map(({ type, value }) => {
+    .map(({ type, value, ...rest }) => {
       values[type] = value;
     });
   return format
@@ -38,9 +39,13 @@ export const moment = ({ time, format }) => {
     .replace(/h+/g, values.hour)
     .replace(/m+/g, values.minute)
     .replace(/s+/g, values.second)
-    .replace(/a+/g, values.dayPeriod)
+    .replace(/a/g, values.dayPeriod)
     .replace(/d+/g, values.weekday);
 };
 export const Moment = ({ format, children, ...rest }) => {
-  return <time {...rest}>{moment({ time: children, format })}</time>;
+  return (
+    <time {...rest} data-testid="moment">
+      {moment({ time: children, format })}
+    </time>
+  );
 };

@@ -1321,7 +1321,7 @@ export function AddTransaction({ edit, wallet, onSuccess }) {
       method: edit ? "PATCH" : "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        date: new Date(date).toISOString(),
+        date,
         wallet,
         type,
         amount,
