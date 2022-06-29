@@ -24,8 +24,8 @@ export function DeleteImg(img_id_raw) {
       /([a-z]+([0-9]+[a-z]+)+)(?!.*[a-z]+([0-9]+[a-z]+)+)/gi
     )[0];
     if (!img_id) resolve("");
-    cloudinary.uploader
-      .destroy(img_id)
+    cloudinary?.uploader
+      ?.destroy(img_id)
       .then((data) => resolve(data))
       .catch((err) => {
         console.log(err);

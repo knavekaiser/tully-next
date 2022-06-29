@@ -71,7 +71,9 @@ export default function Bills() {
       },
     });
   }, [fy, dateFilter]);
-  useEffect(() => !showForm && setBillToEdit(null), [showForm]);
+  useEffect(() => {
+    !showForm && setBillToEdit(null);
+  }, [showForm]);
   useEffect(() => {
     if (!user) {
       router.push("/login");

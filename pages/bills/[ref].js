@@ -20,13 +20,13 @@ const Name = () => {
           y2="100%"
           gradientUnits="userSpaceOnUse"
         >
-          <stop stop-color="#FF5B99" offset="0%" />
-          <stop stop-color="#FF5B99" offset="5%" />
-          <stop stop-color="#FF5447" offset="20%" />
-          <stop stop-color="#FF7B21" offset="40%" />
-          <stop stop-color="#EAFC37" offset="60%" />
-          <stop stop-color="#4FCB6B" offset="80%" />
-          <stop stop-color="#51F7FE" offset="100%" />
+          <stop stopColor="#FF5B99" offset="0%" />
+          <stop stopColor="#FF5B99" offset="5%" />
+          <stop stopColor="#FF5447" offset="20%" />
+          <stop stopColor="#FF7B21" offset="40%" />
+          <stop stopColor="#EAFC37" offset="60%" />
+          <stop stopColor="#4FCB6B" offset="80%" />
+          <stop stopColor="#51F7FE" offset="100%" />
         </linearGradient>
       </defs>
       <defs>
@@ -38,9 +38,9 @@ const Name = () => {
           y2="150%"
           gradientUnits="userSpaceOnUse"
         >
-          <stop stop-color="#4158D0" offset="0%" />
-          <stop stop-color="#C850C0" offset="46%" />
-          <stop stop-color="#d4972a" offset="100%" />
+          <stop stopColor="#4158D0" offset="0%" />
+          <stop stopColor="#C850C0" offset="46%" />
+          <stop stopColor="#d4972a" offset="100%" />
         </linearGradient>
       </defs>
       <text x="15" y="48" fill="url(#blueRedYellow)">
