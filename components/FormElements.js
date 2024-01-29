@@ -173,7 +173,7 @@ export const PasswordInput = ({
   }
   function handleIconClick(e) {
     setShowPass(!showPass);
-    e.target.parentElement.parentElement.querySelector("input").focus();
+    // e.target.parentElement.querySelector("input").focus();
   }
   return (
     <Input
@@ -194,15 +194,9 @@ export const PasswordInput = ({
       name={name}
       autoComplete={autoComplete}
     >
-      {showPass ? (
-        <span onClick={handleIconClick}>
-          <IoEyeOutline />
-        </span>
-      ) : (
-        <span onClick={handleIconClick}>
-          <IoEyeOffOutline />
-        </span>
-      )}
+      <button type="button" className={s.eye} onClick={handleIconClick}>
+        {showPass ? <IoEyeOutline /> : <IoEyeOffOutline />}
+      </button>
       {children}
     </Input>
   );
@@ -330,7 +324,7 @@ export const GetGroupDataWithEmptyField = (multipleInput) => {
   return allData;
 };
 
-export const MultipleInput = ({ inputs, refInput, id }) => {
+export const MultipleInput = ({ inputs, className, refInput, id }) => {
   const [groupCount, setGroupCount] = useState([]);
   useEffect(() => {
     if (inputs[0].value) {
@@ -362,6 +356,7 @@ export const MultipleInput = ({ inputs, refInput, id }) => {
               inputs={refInput[0]}
               clone={clone}
               groupCount={groupCount}
+              className={className}
               setGroupCount={setGroupCount}
             />
           );
@@ -394,6 +389,7 @@ export const MultipleInput = ({ inputs, refInput, id }) => {
             inputs={input}
             clone={clone}
             groupCount={groupCount}
+            className={className}
             setGroupCount={setGroupCount}
           />
         );
@@ -407,7 +403,7 @@ export const MultipleInput = ({ inputs, refInput, id }) => {
     </div>
   );
 };
-const Group = ({ id, inputs, clone, setGroupCount }) => {
+const Group = ({ id, inputs, clone, className, setGroupCount }) => {
   const [value, setValue] = useState("");
   function handleMount() {
     setGroupCount((prev) => {
@@ -423,7 +419,7 @@ const Group = ({ id, inputs, clone, setGroupCount }) => {
   }
   useEffect(handleMount, []);
   return (
-    <div className={s.group}>
+    <div className={`${s.group} ${className || ""}`}>
       {inputs.map((input, i) => {
         if (input.type === "combobox") {
           return (
@@ -486,82 +482,6 @@ export const MultipleInput2 = ({ inputs, refInput, id }) => {
           }}
         />
       ))}
-    </div>
-  );
-};
-const Group2 = ({ id, inputs, clone, setGroupCount }) => {
-  const [value, setValue] = useState("");
-  const [values, setValues] = useState({});
-  // useEffect(() => {
-  //   setGroupCount((prev) => {
-  //     const newGroup = [...prev];
-  //     newGroup.push(`${id}:${inputs[0].value || ""}`);
-  //     return newGroup;
-  //   });
-  //   return () => {
-  //     setGroupCount((prev) => {
-  //       return prev.filter((item) => item.split(":")[0] !== id);
-  //     });
-  //   };
-  // }, []);
-  useEffect(() => {
-    clone(values);
-  }, [values]);
-  return (
-    <div className={s.group}>
-      {inputs.map((input, i) => {
-        if (input.type === "combobox") {
-          return (
-            <Combobox
-              label={input.label}
-              dataId={input.id}
-              key={input.id}
-              defaultValue={input.value}
-              options={input.options}
-              // required={!input.clone}
-              disabled={
-                false
-                // input.clone ? false : input.value ? false : value === ""
-              }
-              onChange={(target) => {
-                setValues((prev) => {
-                  const newValues = { ...prev };
-                  newValues[input.label] = target.value;
-                  return newValues;
-                });
-                // clone(values);
-                // input.clone && setValue(target.value);
-              }}
-              // id={input.clone ? id : id + i}
-            />
-          );
-        }
-        return (
-          <Input
-            type={input.type}
-            dataId={input.id}
-            key={input.id}
-            defaultValue={input.value}
-            // required={!input.clone}
-            max={input.clone ? 100 : 12}
-            label={input.label}
-            // id={input.clone ? id : id + i}
-            onChange={(target) => {
-              setValues((prev) => {
-                const newValues = { ...prev };
-                newValues[input.label] = target.value;
-                return newValues;
-              });
-              // clone(values);
-              // input.clone && setValue(target.value);
-            }}
-            disabled={
-              false
-              // input.clone ? false : input.value ? false : value === ""
-            }
-          />
-        );
-      })}
     </div>
   );
 };

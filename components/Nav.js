@@ -1,16 +1,43 @@
 import { useContext, useState, useEffect, useRef } from "react";
 import { SiteContext } from "../SiteContext";
-import { DateFilter } from "./Forms";
 import s from "./SCSS/Nav.module.scss";
 import { useRouter } from "next/router";
 import { Modal } from "./Modals";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 
-export default function Nav({ sidebarOpen, setSidebarOpen }) {
-  const { user, months, setDateFilter, dateFilter, nameTag } = useContext(
-    SiteContext
+import { Input, Submit } from "./FormElements";
+
+function DateFilter({ onSubmit }) {
+  const [from, setFrom] = useState("");
+  const [to, setTo] = useState("");
+  const submit = (e) => {
+    e.preventDefault();
+    onSubmit?.(from, to);
+  };
+  return (
+    <form className={s.form} onSubmit={submit}>
+      <h2>Date Filter</h2>
+      <Input
+        label="From"
+        type="date"
+        value={from}
+        onChange={(t) => setFrom(t.value)}
+      />
+      <Input
+        label="To"
+        type="date"
+        defaultValue={to}
+        onChange={(t) => setTo(t.value)}
+      />
+      <Submit label="Filter" />
+    </form>
   );
+}
+
+export default function Nav({ sidebarOpen, setSidebarOpen }) {
+  const { user, months, setDateFilter, dateFilter, nameTag } =
+    useContext(SiteContext);
   const [showForm, setShowForm] = useState(false);
   const router = useRouter();
   const [backBtn, setBackBtn] = useState(false);
@@ -43,29 +70,27 @@ export default function Nav({ sidebarOpen, setSidebarOpen }) {
     <header className={s.header}>
       <span className={s.gred + ` gred`} />
       <Link href={user?.role === "admin" ? "/" : "/employees"}>
-        <a>
-          <div>
-            <AnimatePresence>
-              {nameTag ? (
-                <motion.h1
-                  initial={{ opacity: 0, y: 50 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -50 }}
-                >
-                  {nameTag}
-                </motion.h1>
-              ) : (
-                <motion.h1
-                  initial={{ opacity: 0, y: 50 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -50 }}
-                >
-                  WORKPLACE
-                </motion.h1>
-              )}
-            </AnimatePresence>
-          </div>
-        </a>
+        <div>
+          <AnimatePresence>
+            {nameTag ? (
+              <motion.h1
+                initial={{ opacity: 0, y: 50 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -50 }}
+              >
+                {nameTag}
+              </motion.h1>
+            ) : (
+              <motion.h1
+                initial={{ opacity: 0, y: 50 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -50 }}
+              >
+                WORKPLACE
+              </motion.h1>
+            )}
+          </AnimatePresence>
+        </div>
       </Link>
       <div
         className={`${s.btn_sidebar} ${backBtn ? s.back : ""} ${

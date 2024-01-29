@@ -1,0 +1,109 @@
+.lots {
+  tbody {
+    tr {
+      padding: 0.5rem 1rem;
+    }
+  }
+  tr {
+    grid-template-columns: 0.25fr 0.25fr 0.25fr 0.25fr;
+    th:first-child,
+    td:first-child,
+    th:nth-child(2) {
+      text-align: left;
+    }
+    th {
+      text-align: right;
+    }
+    td {
+      grid-row: auto;
+      text-align: right;
+    }
+    .date {
+      grid-column: 1/2;
+    }
+    .date:not(.single),
+    .total:not(.single) {
+      grid-row: 1/20;
+    }
+    .dress {
+      grid-column: 2/3;
+      text-align: left;
+    }
+    .qnt {
+      grid-column: 3/4;
+    }
+    .total {
+      grid-column: 4/5;
+    }
+    .dress,
+    .qnt,
+    .total {
+      padding: 0.5rem 0;
+    }
+  }
+}
+
+.empWork {
+  tbody {
+    tr {
+      padding: 0.5rem 1rem;
+    }
+  }
+  tr {
+    grid-template-columns: 0.2fr 0.2fr 0.2fr 0.2fr 0.2fr;
+    th:first-child,
+    td:first-child,
+    th:nth-child(2) {
+      text-align: left;
+    }
+    th {
+      text-align: right;
+    }
+    td {
+      grid-row: auto;
+      text-align: right;
+    }
+    .date:not(.single),
+    .paid:not(.single) {
+      grid-row: 1 / span 10;
+    }
+    .dress,
+    .qnt,
+    .total {
+      padding: 0.45rem 0;
+    }
+    .derss:first-child {
+      background: red !important;
+    }
+    .dress {
+      grid-column: 2/3;
+      text-align: left;
+    }
+    .qnt {
+      grid-column: 3/4;
+    }
+    .total {
+      grid-column: 4/5;
+    }
+    .paid {
+      grid-column: 5/6;
+    }
+  }
+}
+
+.form {
+  z-index: 1;
+  border-radius: 0.5rem;
+  display: grid;
+  grid-gap: 1.5rem;
+  background: #fbfbfb;
+  padding: 1rem;
+  padding-bottom: 2rem;
+  overflow-y: auto;
+  width: 22rem;
+  max-width: 100%;
+  max-height: calc((var(--vh) * 100) - 2rem);
+  &.empWork {
+    padding-bottom: 0;
+  }
+}

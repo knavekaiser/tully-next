@@ -1,0 +1,228 @@
+import { useState, useEffect, useContext, Fragment, useRef } from "react";
+import { SiteContext } from "SiteContext";
+import { App } from "../index.page.js";
+import { Modal } from "@/components/Modals";
+import Table, { Tr } from "@/components/Table";
+import { AddEmpWork } from "./comp/forms";
+import { displayDate, AddBtn } from "@/components/FormElements";
+import { SS } from "@/helpers";
+import allStyle from "@/components/SCSS/Table.module.scss";
+import s from "./comp/style.module.scss";
+import { useRouter } from "next/router";
+import { IoLockClosedOutline, IoFileTrayOutline } from "react-icons/io5";
+
+// export function getServerSideProps({ req }) {
+//   return { props: {} };
+// }
+
+export default function EmpWorkList() {
+  const router = useRouter();
+  const [emp, setEmp] = useState(null);
+  const { user, dateFilter, setNameTag, season } = useContext(SiteContext);
+  const [showForm, setShowForm] = useState(false);
+  const [workToEdit, setWorkToEdit] = useState(null);
+  const [addBtnStyle, setAddBtnStyle] = useState(false);
+  const dltWork = (_id) => {
+    fetch(`/api/empWork/${_id}`, { method: "DELETE" })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.code === "ok") {
+          setEmp((prev) => {
+            const newEmp = {
+              ...prev,
+              work: prev.work.filter((item) => item._id !== _id),
+            };
+            return newEmp;
+          });
+        } else {
+          alert("something went wrong");
+        }
+      })
+      .catch((err) => {
+        alert("something went wrong");
+        console.log(err);
+      });
+  };
+  const firstRender = useRef(true);
+  useEffect(() => {
+    !showForm && setWorkToEdit(null);
+  }, [showForm]);
+  useEffect(() => {
+    if (firstRender.current) {
+      firstRender.current = false;
+      return;
+    }
+    router.push({
+      pathname: router.asPath.split("?")[0],
+      query: {
+        ...(dateFilter && {
+          from: dateFilter.from,
+          to: dateFilter.to,
+        }),
+      },
+    });
+  }, [dateFilter]);
+  const fetchData = () => {
+    fetch(`/api/empWork?emp=${router.query.name}&season=${season}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.code === "ok") {
+          setEmp(data.content);
+          SS.set("empWork", JSON.stringify(data.content));
+        } else if (data.code === 400) {
+          router.push({
+            pathname: `/employees`,
+            query: { season },
+          });
+        } else {
+          alert("something went");
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+  useEffect(() => {
+    if (SS.get("empWork")) {
+      const localData = JSON.parse(SS.get("empWork"));
+      if (localData.name === router.query.name) {
+        setEmp(localData);
+      } else {
+        fetchData();
+      }
+    } else {
+      fetchData();
+    }
+  }, []);
+  useEffect(() => {
+    if (!user) {
+      router.push("/login");
+    } else {
+      setNameTag(router.query.name);
+      SS.get("empWork") && setEmp(JSON.parse(SS.get("empWork")));
+    }
+  }, []);
+  if (!user) {
+    return (
+      <App>
+        <div className={allStyle.unauthorized}>
+          <div>
+            <IoLockClosedOutline />
+            <p>Please log in</p>
+          </div>
+        </div>
+      </App>
+    );
+  }
+  return (
+    <App>
+      <Table
+        className={s.empWork}
+        columns={[
+          { label: "Date" },
+          { label: "Dress" },
+          {
+            label: (
+              <>
+                Pcs<sup>G</sup>
+              </>
+            ),
+          },
+          { label: "Total" },
+          { label: "Paid" },
+        ]}
+        onScroll={(dir) => {
+          if (dir === "down") {
+            setAddBtnStyle(true);
+          } else {
+            setAddBtnStyle(false);
+          }
+        }}
+      >
+        {emp?.work
+          .sort((a, b) => (a.date > b.date ? 1 : -1))
+          .map((work, i) => (
+            <Tr
+              key={i}
+              options={[
+                {
+                  label: "Edit",
+                  fun: () => {
+                    setWorkToEdit(work);
+                    setShowForm(true);
+                  },
+                },
+                {
+                  label: "Delete",
+                  fun: () => {
+                    if (
+                      confirm(
+                        `Do you want to delete the date ${work.date.replace(
+                          /T.*$/,
+                          ""
+                        )}?`
+                      )
+                    ) {
+                      dltWork(work._id);
+                    }
+                  },
+                },
+              ]}
+            >
+              <td
+                className={`${s.date} ${
+                  work.products?.length <= 1 && s.single
+                }`}
+              >
+                {displayDate(work.date)}
+              </td>
+              {work.products.map((product, j) => (
+                <Fragment key={j}>
+                  <td className={s.dress}>{product.dress}</td>
+                  <td className={s.qnt}>
+                    {product.qnt.toLocaleString("en-IN")}{" "}
+                    <sup>{product.group}</sup>
+                  </td>
+                  <td className={s.total}>
+                    {(product.qnt * product.group).toLocaleString("en-IN")}
+                  </td>
+                </Fragment>
+              ))}
+              <td
+                className={`${s.paid} ${work.products.length <= 1 && s.single}`}
+              >
+                {work.paid.toLocaleString("en-IN")}
+              </td>
+            </Tr>
+          ))}
+        {emp?.work.length === 0 && (
+          <tr className={s.empty}>
+            <td>
+              <IoFileTrayOutline /> Nothing yet!
+            </td>
+          </tr>
+        )}
+      </Table>
+      <Modal open={showForm} setOpen={setShowForm}>
+        <AddEmpWork
+          employee={emp?._id}
+          onSuccess={(newWork) => {
+            setEmp((prev) => {
+              const newEmp = { ...prev };
+              newEmp.work = newEmp.work.filter(
+                (item) => item._id !== newWork._id
+              );
+              newEmp.work.push(newWork);
+              return newEmp;
+            });
+            setShowForm(false);
+          }}
+          workToEdit={workToEdit}
+        />
+      </Modal>
+      {user.role === "admin" && (
+        <AddBtn translate={addBtnStyle || showForm} onClick={setShowForm} />
+      )}
+    </App>
+  );
+}

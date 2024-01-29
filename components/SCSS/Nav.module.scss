@@ -137,6 +137,37 @@
   }
 }
 
+.form {
+  z-index: 1;
+  border-radius: 0.5rem;
+  display: grid;
+  grid-gap: 1.5rem;
+  background: #fbfbfb;
+  padding: 1rem;
+  padding-bottom: 2rem;
+  overflow-y: auto;
+  width: 22rem;
+  max-width: 100%;
+  max-height: calc((var(--vh) * 100) - 2rem);
+  h2,
+  h3 {
+    font-weight: 300;
+    transform: translateY(0.5rem);
+  }
+  h3 {
+    margin-top: 1rem;
+  }
+  button {
+    margin-top: 1rem;
+  }
+  .pBtm {
+    height: 1rem;
+  }
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
 @media only screen and (max-width: 480px) {
   .header {
     a {
