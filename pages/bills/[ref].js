@@ -10,7 +10,7 @@ import { useReactToPrint } from "react-to-print";
 
 const Name = () => {
   return (
-    <svg height={60} width={300} className={s.name}>
+    <svg height={56} width={300} className={s.name}>
       <defs>
         <linearGradient
           id="rainbow"
@@ -43,7 +43,7 @@ const Name = () => {
           <stop stopColor="#d4972a" offset="100%" />
         </linearGradient>
       </defs>
-      <text x="15" y="48" fill="url(#blueRedYellow)">
+      <text x="15" y="46" fill="url(#blueRedYellow)">
         মোঃ হোসেন
       </text>
     </svg>
@@ -65,9 +65,7 @@ class Bill_Class extends Component {
           <p className={s.memo}>
             বিল <span className={s.ref}>{bill.ref}</span>
           </p>
-          <h1>মোঃ হোসেন</h1>
           <Name />
-          <h1 className={s.fill}>মোঃ হোসেন</h1>
           <p className={s.add}>
             ৭২ টেকের হাটি মেইন রোড, কামরাঙ্গীরচর, ঢাকা ১২১১ • ০১৭১৭-১৪১০৭৭
           </p>
