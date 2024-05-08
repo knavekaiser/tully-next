@@ -91,7 +91,15 @@ class Production_Print extends Component {
                 ]}
                 key={i}
               >
-                <td className={s.date}>{displayDate(payment.date).bn()}</td>
+                <td className={s.date}>
+                  {displayDate(payment.date).bn()}{" "}
+                  <small>
+                    {payment.payments
+                      .map((p) => p.remark)
+                      .filter((item) => item.toLowerCase() !== "cash")
+                      .join(", ")}
+                  </small>
+                </td>
                 <td>
                   {payment.payments
                     .reduce((a, c) => a + c.amount, 0)
@@ -145,9 +153,8 @@ class Production_Print extends Component {
 
 export default function Productions() {
   const router = useRouter();
-  const { fy, user, dateFilter, setMonths, setNameTag } = useContext(
-    SiteContext
-  );
+  const { fy, user, dateFilter, setMonths, setNameTag } =
+    useContext(SiteContext);
   const [showForm, setShowForm] = useState(false);
   const [paymentToEdit, setPaymentToEdit] = useState(false);
   const [payments, setPayments] = useState(null);

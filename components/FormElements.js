@@ -173,7 +173,7 @@ export const PasswordInput = ({
   }
   function handleIconClick(e) {
     setShowPass(!showPass);
-    e.target.parentElement.parentElement.querySelector("input").focus();
+    e.target.parentElement.parentElement.querySelector("input")?.focus();
   }
   return (
     <Input

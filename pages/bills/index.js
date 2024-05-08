@@ -14,16 +14,22 @@ const fetcher = (url) => fetch(url).then((res) => res.json());
 
 export default function Bills() {
   const router = useRouter();
-  const { fy, user, dateFilter, setMonths, setNameTag } = useContext(
-    SiteContext
-  );
+  const { fy, user, dateFilter, setMonths, setNameTag } =
+    useContext(SiteContext);
   let { error, data } = useSWR(
-    `/api/bills?fy=${fy}${
-      dateFilter ? `&from=${dateFilter.from}&to=${dateFilter.to}` : ""
+    `/api/bills?${
+      dateFilter
+        ? `${new URLSearchParams({
+            fy,
+            from: dateFilter.from,
+            to: dateFilter.to,
+          })}`
+        : ""
     }`,
     fetcher
   );
   const [bills, setBills] = useState(null);
+  const [metadata, setMetadata] = useState({ page: 1, pageSize: 20 });
   const [showForm, setShowForm] = useState(false);
   const [billToEdit, setBillToEdit] = useState(null);
   const [addBtnStyle, setAddBtnStyle] = useState(false);
@@ -156,23 +162,6 @@ export default function Bills() {
                 </div>
               ))}
             </td>
-            {
-              //   <td className={s.dress}>
-              //   {bill.products.length <= 1
-              //     ? bill.products[0]?.dress
-              //     : "Multiple items"}
-              // </td>
-              // <td>
-              //   {bill.products
-              //     .reduce((p, c) => p + c.qnt, 0)
-              //     .toLocaleString("en-IN")}
-              // </td>
-              // <td>
-              //   {bill.products
-              //     .reduce((p, c) => p + (c.qnt * c.cost - c.qnt * c.wage), 0)
-              //     .toLocaleString("en-IN")}
-              // </td>
-            }
           </Tr>
         ))}
         {!bills && <LoadingTr number={5} />}

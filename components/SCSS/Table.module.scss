@@ -1068,8 +1068,11 @@
     }
     tr {
       padding: 0.5rem 3rem;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
+      padding: 0.5rem 1rem;
+      display: flex;
+      justify-content: space-between;
+      // display: unset;
+      // grid-template-columns: 1fr 1fr;
       td:nth-child(2) {
         text-align: right;
       }
