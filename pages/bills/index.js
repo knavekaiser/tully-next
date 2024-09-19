@@ -14,7 +14,7 @@ const fetcher = (url) => fetch(url).then((res) => res.json());
 
 export default function Bills() {
   const router = useRouter();
-  const { fy, user, dateFilter, setMonths, setNameTag } =
+  const { fy, user, viewMode, dateFilter, setMonths, setNameTag } =
     useContext(SiteContext);
   let { error, data } = useSWR(
     `/api/bills?${
@@ -154,9 +154,9 @@ export default function Bills() {
                   <span className={s.dress}>{bill.dress}</span>
                   <span>{bill.qnt}</span>
                   <span>
-                    {(
-                      bill.cost * bill.qnt -
-                      bill.wage * bill.qnt
+                    {(viewMode === "advanced"
+                      ? bill.cost * bill.qnt - bill.wage * bill.qnt
+                      : bill.wage * bill.qnt
                     ).toLocaleString("en-IN")}
                   </span>
                 </div>

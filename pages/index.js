@@ -137,13 +137,15 @@ export const App = ({ children }) => {
 export default function Home() {
   const router = useRouter();
   const [loadingWeekData, setLoadingWeekData] = useState(true);
-  const { user, fy, dateFilter, setNameTag, season } = useContext(SiteContext);
+  const { user, viewMode, dateFilter, setNameTag, season } =
+    useContext(SiteContext);
   const [summery, setSummery] = useState(null);
   const [pastWeek, setPastWeek] = useState(null);
   const [weeks, setWeeks] = useState([]);
   const [selectedWeek, setSelectedWeek] = useState(null);
   const { error, data } = useSWR(
     `/api/dashboardData?${new URLSearchParams({
+      viewMode,
       ...(dateFilter && {
         from: dateFilter.from,
         to: dateFilter.to,
@@ -238,18 +240,27 @@ export default function Home() {
           </a>
         </Link>
         <Link href={`bills`}>
-          <a>Bills {summery.bill.toLocaleString("en-IN")}</a>
+          <a>
+            Bills{" "}
+            {
+              // summery.bill.toLocaleString("en-IN")
+            }
+          </a>
         </Link>
         <Link href={`fabrics`}>
           <a>Fabrics {summery.fabric.toLocaleString("en-IN")}</a>
         </Link>
         <Link href={`costings`}>Costings</Link>
-        <Link href={`wages`}>
-          <a>Wages {summery.wage.toLocaleString("en-IN")}</a>
-        </Link>
-        <Link href={`productions`}>
-          <a>Productions {summery.production.toLocaleString("en-IN")}</a>
-        </Link>
+        {viewMode === "advanced" && (
+          <>
+            <Link href={`wages`}>
+              <a>Wages {summery.wage.toLocaleString("en-IN")}</a>
+            </Link>
+            <Link href={`productions`}>
+              <a>Productions {summery.production.toLocaleString("en-IN")}</a>
+            </Link>
+          </>
+        )}
         <Link href={`/transactions/wages`}>
           <a>
             <IoSwapVerticalOutline /> Wages{" "}

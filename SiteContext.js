@@ -7,6 +7,7 @@ export const Provider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [fy, setFy] = useState("2021-22");
+  const [viewMode, setViewMode] = useState("basic");
   const [empRate, setEmpRate] = useState({
     1: 20,
     S: 24,
@@ -61,6 +62,15 @@ export const Provider = ({ children }) => {
       },
     });
   }, [fy]);
+  useEffect(() => {
+    const localMode = localStorage.getItem("view_mode");
+    if (["basic", "advanced"].includes(localMode)) {
+      setViewMode(localMode);
+    } else {
+      setViewMode("basic");
+      localStorage.setItem("view_mode", "basic");
+    }
+  }, []);
   return (
     <SiteContext.Provider
       value={{
@@ -83,6 +93,8 @@ export const Provider = ({ children }) => {
         setSeason,
         groups,
         setGroups,
+        viewMode,
+        setViewMode,
       }}
     >
       {children}

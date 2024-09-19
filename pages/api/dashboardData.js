@@ -181,7 +181,10 @@ export default nextConnect({
         },
         {
           $set: {
-            production: { $subtract: ["$production", "$wage"] },
+            production:
+              req.query.viewMode === "advanced"
+                ? { $subtract: ["$production", "$wage"] }
+                : "$wage",
           },
         },
       ]).then((data) => data[0]),
@@ -353,7 +356,7 @@ export default nextConnect({
         code: "ok",
         summery: {
           emp,
-          bill: bills.production,
+          // bill: bills.production,
           wage: bills.wage + +process.env.PREVIOUS_WAGE - payments.wage,
           fabric: fabric.total,
           production:

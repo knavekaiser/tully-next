@@ -12,18 +12,19 @@ import {
   IoCloseOutline,
   IoPencilOutline,
 } from "react-icons/io5";
+import { Combobox } from "components/FormElements";
 
 export default function Productions() {
   const router = useRouter();
   const {
     user,
-    dateFilter,
-    setMonths,
     setNameTag,
     seasons,
     setSeasons,
     groups,
     setGroups,
+    viewMode,
+    setViewMode,
   } = useContext(SiteContext);
   const [showForm, setShowForm] = useState(false);
   const [groupForm, setGroupForm] = useState(false);
@@ -187,6 +188,22 @@ export default function Productions() {
             ))}
           </ul>
           <button onClick={() => setGroupForm(true)}>Add Group</button>
+        </div>
+
+        <div>
+          <Combobox
+            label="View Mode"
+            defaultValue={viewMode}
+            options={[
+              { label: "Basic", value: "basic" },
+              { label: "Advanced", value: "advanced" },
+            ]}
+            required={true}
+            onChange={(option) => {
+              setViewMode(option.value);
+              localStorage.setItem("view_mode", option.value);
+            }}
+          />
         </div>
       </div>
       <Modal open={showForm} setOpen={setShowForm}>

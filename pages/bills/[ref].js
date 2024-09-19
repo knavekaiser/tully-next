@@ -52,6 +52,7 @@ const Name = () => {
 
 class Bill_Class extends Component {
   render() {
+    const viewMode = this.props.viewMode;
     const bill = this.props.bill;
     const wages = {};
     bill.products?.forEach((item, i) => {
@@ -96,52 +97,79 @@ class Bill_Class extends Component {
               <tr key={i}>
                 <td className={s.dress}>{product.dress}</td>
                 <td>{product.qnt.toLocaleString("bn-BD")}</td>
-                <td>{product.cost.toLocaleString("bn-BD")}</td>
+                <td>
+                  {(viewMode === "advanced"
+                    ? product.cost
+                    : product.wage
+                  ).toLocaleString("bn-BD")}
+                </td>
                 <td className={s.taka}>
-                  {(product.cost * product.qnt).toLocaleString("bn-BD")}
+                  {(
+                    (viewMode === "advanced" ? product.cost : product.wage) *
+                    product.qnt
+                  ).toLocaleString("bn-BD")}
                 </td>
               </tr>
             ))}
           </tbody>
           <tbody className={s.summery}>
-            {bill.products.length > 1 && (
+            {viewMode === "advanced" ? (
+              <>
+                {bill.products.length > 1 && (
+                  <tr>
+                    <td>মোট</td>
+                    <td className={s.taka}>
+                      {bill.products
+                        .reduce((p, c) => p + c.qnt * c.cost, 0)
+                        .toLocaleString("bn-BD")}
+                    </td>
+                  </tr>
+                )}
+                <tr>
+                  <td>
+                    মজুরী বাদ{" "}
+                    {Object.entries(wages).length === 1 && (
+                      <>
+                        (
+                        {wages[bill.products[0].wage]
+                          .toLocaleString("en-IN")
+                          .bn()}{" "}
+                        x {bill.products[0].wage.toLocaleString("en-IN").bn()})
+                      </>
+                    )}
+                  </td>
+                  <td className={s.taka}>
+                    -{" "}
+                    {bill.products
+                      .reduce((p, c) => p + c.qnt * c.wage, 0)
+                      .toLocaleString("bn-BD")}
+                  </td>
+                </tr>
+                <tr className={s.hr} />
+                <tr>
+                  <td>সর্বমোট</td>
+                  <td className={s.taka}>
+                    {bill.products
+                      .reduce(
+                        (p, c) => p + (c.qnt * c.cost - c.qnt * c.wage),
+                        0
+                      )
+                      .toLocaleString("bn-BD")}
+                  </td>
+                </tr>
+              </>
+            ) : (
               <tr>
-                <td>মোট</td>
+                <td>সর্বমোট</td>
                 <td className={s.taka}>
                   {bill.products
-                    .reduce((p, c) => p + c.qnt * c.cost, 0)
+                    .reduce((p, c) => p + c.qnt * c.wage, 0)
                     .toLocaleString("bn-BD")}
                 </td>
               </tr>
             )}
-            <tr>
-              <td>
-                মজুরী বাদ{" "}
-                {Object.entries(wages).length === 1 && (
-                  <>
-                    ({wages[bill.products[0].wage].toLocaleString("en-IN").bn()}{" "}
-                    x {bill.products[0].wage.toLocaleString("en-IN").bn()})
-                  </>
-                )}
-              </td>
-              <td className={s.taka}>
-                -{" "}
-                {bill.products
-                  .reduce((p, c) => p + c.qnt * c.wage, 0)
-                  .toLocaleString("bn-BD")}
-              </td>
-            </tr>
-            <tr className={s.hr} />
-            <tr>
-              <td>সর্বমোট</td>
-              <td className={s.taka}>
-                {bill.products
-                  .reduce((p, c) => p + (c.qnt * c.cost - c.qnt * c.wage), 0)
-                  .toLocaleString("bn-BD")}
-              </td>
-            </tr>
           </tbody>
-          {Object.entries(wages).length > 1 && (
+          {false && Object.entries(wages).length > 1 && (
             <tbody className={s.wagesBreakdown}>
               <tr>
                 <td>মজুরী</td>
@@ -230,7 +258,7 @@ export function getServerSideProps() {
 }
 
 export default function SingleBill() {
-  const { fy, user, setNameTag } = useContext(SiteContext);
+  const { viewMode, fy, user, setNameTag } = useContext(SiteContext);
   const router = useRouter();
   const [data, setData] = useState(null);
   const [showPrint, setShowPrint] = useState(false);
@@ -320,9 +348,13 @@ export default function SingleBill() {
           <tr key={i}>
             <td className={s.dress}>{item.dress}</td>
             <td className={s.qnt}>{item.qnt}</td>
-            <td className={s.cost}>{item.cost}</td>
+            <td className={s.cost}>
+              {viewMode === "advanced" ? item.cost : item.wage}
+            </td>
             <td className={s.taka}>
-              {(item.cost * item.qnt).toLocaleString("en-IN")}
+              {(
+                (viewMode === "advanced" ? item.cost : item.wage) * item.qnt
+              ).toLocaleString("en-IN")}
             </td>
           </tr>
         ))}
@@ -330,29 +362,38 @@ export default function SingleBill() {
         <tr className={s.total}>
           <td>
             {data.products
-              .reduce((p, c) => p + c.qnt * c.cost, 0)
+              .reduce(
+                (p, c) =>
+                  p + c.qnt * (viewMode === "advanced" ? c.cost : c.wage),
+                0
+              )
               .toLocaleString("en-IN")}
           </td>
         </tr>
-        <tr className={s.hr} />
-        {data.products.map((item, i) => (
-          <tr key={i}>
-            <td className={s.deduction}>Deduction</td>
-            <td className={s.qnt}>{item.qnt}</td>
-            <td className={s.cost}>{item.wage}</td>
-            <td className={s.taka}>
-              - {(item.qnt * item.wage).toLocaleString("en-IN")}
-            </td>
-          </tr>
-        ))}
-        <tr className={s.hr} />
-        <tr>
-          <td className={s.final}>
-            {data.products
-              .reduce((p, c) => p + (c.qnt * c.cost - c.qnt * c.wage), 0)
-              .toLocaleString("en-IN")}
-          </td>
-        </tr>
+        {viewMode === "advanced" && (
+          <>
+            <tr className={s.hr} />
+            {data.products.map((item, i) => (
+              <tr key={i}>
+                <td className={s.deduction}>Deduction</td>
+                <td className={s.qnt}>{item.qnt}</td>
+                <td className={s.cost}>{item.wage}</td>
+                <td className={s.taka}>
+                  - {(item.qnt * item.wage).toLocaleString("en-IN")}
+                </td>
+              </tr>
+            ))}
+            <tr className={s.hr} />
+            <tr>
+              <td className={s.final}>
+                {data.products
+                  .reduce((p, c) => p + (c.qnt * c.cost - c.qnt * c.wage), 0)
+                  .toLocaleString("en-IN")}
+              </td>
+            </tr>
+          </>
+        )}
+
         <tr>
           <td onClick={() => setShowPrint(true)}>Print</td>
         </tr>
@@ -363,7 +404,7 @@ export default function SingleBill() {
         open={showPrint}
         setOpen={setShowPrint}
       >
-        <Bill_Class bill={data} ref={componentRef} />
+        <Bill_Class bill={data} ref={componentRef} viewMode={viewMode} />
         <button onClick={handlePrint}>Print this out!</button>
         <button onClick={() => setShowPrint(false)}>Close</button>
         <div className={s.pBtm} />
