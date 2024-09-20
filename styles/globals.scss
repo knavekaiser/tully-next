@@ -57,6 +57,7 @@ button {
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
   overflow: hidden;
   .innerContainer {
+    overflow: auto;
     height: 100%;
     width: calc(100% + 12rem);
     position: relative;
