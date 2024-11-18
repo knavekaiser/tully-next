@@ -13,6 +13,7 @@ import {
   IoSettingsOutline,
   IoSwapVerticalOutline,
 } from "react-icons/io5";
+import { AiOutlineCalculator } from "react-icons/ai";
 
 export default function Sidebar({ sidebarOpen, setSidebarOpen }) {
   const {
@@ -110,6 +111,12 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen }) {
                   ))}
               </ul>
             )}
+            <Link href="/fabric-calculator">
+              <li onClick={() => setSidebarOpen(false)}>
+                <AiOutlineCalculator />
+                <p>Calculator</p>
+              </li>
+            </Link>
             <Link href="/config">
               <li onClick={() => setSidebarOpen(false)}>
                 <IoSettingsOutline />

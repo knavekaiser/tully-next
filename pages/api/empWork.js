@@ -60,7 +60,7 @@ export default nextConnect({
     auth(req, true)
       .then((user) => {
         const { employee, date, products, paid } = req.body;
-        new EmpWork({ employee, date, paid, products })
+        new EmpWork({ employee, date, paid: paid || 0, products })
           .save()
           .then((newWork) => {
             res.json({ code: "ok", content: newWork });
@@ -85,7 +85,7 @@ export default nextConnect({
     auth(req, true)
       .then((user) => {
         const { _id, date, products, paid } = req.body;
-        EmpWork.findByIdAndUpdate(_id, { date, products, paid })
+        EmpWork.findByIdAndUpdate(_id, { date, products, paid: paid || 0 })
           .then(() => EmpWork.findById(_id))
           .then((update) => {
             res.json({ code: "ok", content: update });
