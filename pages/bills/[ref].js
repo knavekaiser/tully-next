@@ -125,26 +125,17 @@ class Bill_Class extends Component {
                     </td>
                   </tr>
                 )}
-                <tr>
-                  <td>
-                    মজুরী বাদ{" "}
-                    {Object.entries(wages).length === 1 && (
-                      <>
-                        (
-                        {wages[bill.products[0].wage]
-                          .toLocaleString("en-IN")
-                          .bn()}{" "}
-                        x {bill.products[0].wage.toLocaleString("en-IN").bn()})
-                      </>
-                    )}
-                  </td>
-                  <td className={s.taka}>
-                    -{" "}
-                    {bill.products
-                      .reduce((p, c) => p + c.qnt * c.wage, 0)
-                      .toLocaleString("bn-BD")}
-                  </td>
-                </tr>
+                {Object.entries(wages).map(([wage, qty]) => (
+                  <tr key={wage}>
+                    <td>
+                      মজুরী বাদ ({qty.toLocaleString("en-IN").bn()} x{" "}
+                      {(+wage || 0).toLocaleString("en-IN").bn()})
+                    </td>
+                    <td className={s.taka}>
+                      - {(wage * qty).toLocaleString("bn-BD")}
+                    </td>
+                  </tr>
+                ))}
                 <tr className={s.hr} />
                 <tr>
                   <td>সর্বমোট</td>
