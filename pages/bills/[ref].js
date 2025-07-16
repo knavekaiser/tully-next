@@ -276,8 +276,12 @@ export default function SingleBill() {
   const [data, setData] = useState(null);
   const [costingToPrint, setCostingToPrint] = useState(null);
   const [showPrint, setShowPrint] = useState(false);
-  const componentRef = useRef();
-  const handlePrint = useReactToPrint({ content: () => componentRef.current });
+  const billOnly = useRef();
+  const billWithCosting = useRef();
+  const printBillOnly = useReactToPrint({ content: () => billOnly.current });
+  const printBillWithCosting = useReactToPrint({
+    content: () => billWithCosting.current,
+  });
   const fetchData = (lotNo) => {
     fetch(`/api/bills?ref=${router.query.ref}&includeCostings=true`)
       .then((res) => res.json())
@@ -411,10 +415,10 @@ export default function SingleBill() {
         )}
 
         <tr>
-          <td onClick={handlePrint}>Print Bill Only</td>
+          <td onClick={printBillOnly}>Print Bill Only</td>
         </tr>
         <tr>
-          <td onClick={handlePrint}>Print Bill With Costing</td>
+          <td onClick={printBillWithCosting}>Print Bill With Costing</td>
           {data?.costings?.length > 0 && (
             <td>
               <select
@@ -442,10 +446,11 @@ export default function SingleBill() {
       >
         <Bill_Class
           bill={data}
-          ref={componentRef}
+          ref={billWithCosting}
           viewMode={viewMode}
           costingToPrint={costingToPrint}
         />
+        <Bill_Class bill={data} ref={billOnly} viewMode={viewMode} />
       </div>
       <Modal
         className={s.container}
@@ -453,8 +458,8 @@ export default function SingleBill() {
         open={showPrint}
         setOpen={setShowPrint}
       >
-        <Bill_Class bill={data} ref={componentRef} viewMode={viewMode} />
-        <button onClick={handlePrint}>Print this out!</button>
+        <Bill_Class bill={data} ref={billWithCosting} viewMode={viewMode} />
+        <button onClick={printBillWithCosting}>Print this out!</button>
         <button onClick={() => setShowPrint(false)}>Close</button>
         <div className={s.pBtm} />
       </Modal>
