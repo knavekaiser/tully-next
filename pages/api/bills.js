@@ -14,15 +14,31 @@ export default nextConnect({
   .get((req, res) => {
     auth(req, true)
       .then(async (user) => {
-        const { from, to, ref } = req.query;
-        if (ref) {
-          Bill.findOne({ ref }).then((bill) => {
-            if (bill) {
-              res.json({ code: "ok", bill });
-            } else {
-              res.json({ code: 400 });
-            }
-          });
+        const { from, to, ref, includeCostings } = req.query;
+        if (+ref) {
+          Bill.aggregate([
+            { $match: { ref: +ref } },
+            ...(includeCostings === "true"
+              ? [
+                  {
+                    $lookup: {
+                      from: "costings",
+                      localField: "products.lot",
+                      foreignField: "lot",
+                      as: "costings",
+                    },
+                  },
+                ]
+              : []),
+          ])
+            .then(([bill]) => {
+              if (bill) {
+                res.json({ code: "ok", bill });
+              } else {
+                res.json({ code: 400 });
+              }
+            })
+            .catch((err) => console.log("pipie =========== line", err));
           return;
         }
         const filters = {
@@ -42,7 +58,7 @@ export default nextConnect({
         });
       })
       .catch((err) => {
-        console.log(err);
+        console.log("error ===>", err);
         res.status(403).json({ message: "forbidden" });
       });
   })

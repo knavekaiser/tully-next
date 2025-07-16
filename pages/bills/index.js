@@ -143,7 +143,7 @@ export default function Bills() {
             ]}
             onClick={() => {
               router.push(`/bills/${bill.ref}`);
-              SS.set("singleBillData", JSON.stringify(bill));
+              // SS.set("singleBillData", JSON.stringify(bill));
             }}
           >
             <td className={s.date}>{displayDate(bill.date)}</td>
