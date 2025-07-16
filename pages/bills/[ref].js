@@ -51,7 +51,7 @@ const Name = () => {
   );
 };
 
-const Bill = ({ className, bill, viewMode }) => {
+const Bill = ({ className, bill, wages, viewMode }) => {
   return (
     <div className={`${s.billPrint} ${className || ""}`}>
       <header>
@@ -240,9 +240,19 @@ class Bill_Class extends Component {
             breakAfter: "always",
           }}
         >
-          <Bill className={s.bill_one} bill={bill} viewMode={viewMode} />
+          <Bill
+            className={s.bill_one}
+            wages={wages}
+            bill={bill}
+            viewMode={viewMode}
+          />
           <div className={s.cut} />
-          <Bill className={s.bill_two} bill={bill} viewMode={viewMode} />
+          <Bill
+            className={s.bill_two}
+            wages={wages}
+            bill={bill}
+            viewMode={viewMode}
+          />
         </div>
         {costing && (
           <div className={s.paper}>
