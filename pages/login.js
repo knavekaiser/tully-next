@@ -8,12 +8,9 @@ import s2 from "../components/SCSS/FormElements.module.scss";
 import { useRouter } from "next/router";
 import { json } from "../utils/db";
 
-import cookie from "cookie";
-
 const verifyToken = (req) => {
   const secret = process.env.JWT_SECRET;
-  const raw_token = cookie.parse(req.headers.cookie || "");
-  return jwt.verify(raw_token.access_token || "", secret, (err, payload) => {
+  return jwt.verify(req.cookies?.access_token || "", secret, (err, payload) => {
     if (err) {
       return false;
     } else {

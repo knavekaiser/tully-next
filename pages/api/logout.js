@@ -1,5 +1,5 @@
 import nextConnect from "next-connect";
-import cookie from "cookie";
+import { serialize } from "cookie";
 
 export default nextConnect({
   onError(err, req, res) {
@@ -11,7 +11,7 @@ export default nextConnect({
 }).get((req, res) => {
   res.setHeader(
     "Set-Cookie",
-    cookie.serialize("access_token", "", {
+    serialize("access_token", "", {
       httpOnly: true,
       sameSite: "strict",
       maxAge: -1,

@@ -108,7 +108,7 @@ const fabric = new Schema({
     amount: { type: Number, required: true },
   },
   price: { type: Number, required: true },
-  img: "",
+  img: { type: String },
   usage: [
     {
       lot: { type: Number, required: true },

@@ -1,6 +1,6 @@
 import nextConnect from "next-connect";
-const { dbConnect, json } = require("../../utils/db");
-import cookie from "cookie";
+const { dbConnect } = require("../../utils/db");
+import { serialize } from "cookie";
 import jwt from "jsonwebtoken";
 const signToken = (_id, role) => {
   return jwt.sign(
@@ -36,7 +36,7 @@ export default nextConnect({
         const token = signToken(user._id, "viwer");
         res.setHeader(
           "Set-Cookie",
-          cookie.serialize("access_token", token, {
+          serialize("access_token", token, {
             httpOnly: true,
             sameSite: "strict",
             path: "/",

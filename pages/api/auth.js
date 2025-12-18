@@ -1,13 +1,8 @@
-import nextConnect from "next-connect";
 const { dbConnect } = require("../../utils/db");
-import cookie from "cookie";
-export function parseCookies(req) {
-  return cookie.parse(req ? req.headers.cookie || "" : document.cookie);
-}
+
 export const verifyToken = (req) => {
   const secret = process.env.JWT_SECRET;
-  const raw_token = cookie.parse(req.headers.cookie || "");
-  return jwt.verify(raw_token.access_token || "", secret, (err, payload) => {
+  return jwt.verify(req.cookies?.access_token || "", secret, (err, payload) => {
     if (err) {
       return false;
     } else {
@@ -19,12 +14,14 @@ export const verifyToken = (req) => {
 export async function auth(req, strict) {
   dbConnect();
   return new Promise(async (resolve, reject) => {
-    const cookies = parseCookies(req);
-    if (!cookies.access_token) {
+    if (!req.cookies?.access_token) {
       return reject(401);
     }
     try {
-      const token = jwt.verify(cookies.access_token, process.env.JWT_SECRET);
+      const token = jwt.verify(
+        req.cookies.access_token,
+        process.env.JWT_SECRET
+      );
       if (strict && token.role === "viwer") {
         return reject(401);
       }

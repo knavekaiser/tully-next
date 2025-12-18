@@ -63,14 +63,8 @@ global.moment = ({ time, format }) => {
 
 export async function dbConnect() {
   if (mongoose.connection.readyState >= 1) return;
-  console.log("initiating mongodb connection");
   return mongoose
-    .connect(process.env.MONGO_URI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-      // useCreateIndex: true,
-      // useFindAndModify: false,
-    })
+    .connect(process.env.MONGO_URI)
     .then(() => console.log("connected to db"))
     .catch((err) => console.log("could not connect to db.", err));
 }
