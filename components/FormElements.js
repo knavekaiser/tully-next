@@ -264,7 +264,8 @@ export const ImgUpload = ({
       <label htmlFor="img">{label}</label>
       {file && (
         <div className={s.preview}>
-          <span
+          <button
+            type="button"
             className={s.close}
             onClick={(e) => {
               e.stopPropagation();
@@ -273,7 +274,7 @@ export const ImgUpload = ({
             }}
           >
             <IoCloseOutline />
-          </span>
+          </button>
           <Img src={file} alt="chosen" layout="fill" />
         </div>
       )}

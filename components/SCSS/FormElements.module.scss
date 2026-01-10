@@ -264,6 +264,8 @@
     width: 100%;
     box-shadow: inset 0 -0.5rem 2rem rgba(#000, 0.2);
     .close {
+      z-index: 10;
+      position: relative;
       width: min-content;
       margin: 0.25rem;
       padding: 0.2rem;
